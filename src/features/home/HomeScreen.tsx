@@ -1,6 +1,6 @@
 import { warm, font } from '../../theme/tokens';
 import { DisclaimerBanner } from '../../components/Disclaimer';
-import { curriculumDay, CURRICULUM_LENGTH } from '../../lib/today';
+import { resumeDay, CURRICULUM_LENGTH } from '../../lib/today';
 import { getProgress } from '../../lib/storage';
 import { getGamifyState } from '../../lib/gamify';
 import { lessonForDay } from '../../data/lessons';
@@ -18,8 +18,8 @@ export function HomeScreen({
   onOpenLesson: (day: number) => void;
   onOpenProgress: () => void;
 }) {
-  const today = curriculumDay(); // real clock — fixes C-1
   const progress = getProgress();
+  const today = resumeDay(progress); // resumes from the learner's own progress, not the calendar
   const doneCount = Object.keys(progress).length;
   const pct = Math.round((doneCount / CURRICULUM_LENGTH) * 100);
   const lesson = lessonForDay(today);
@@ -36,8 +36,6 @@ export function HomeScreen({
         <div style={{ fontSize: 12.5, color: warm.muted, marginBottom: 12 }}>
           KCMH · Thai CPG
         </div>
-
-        <DisclaimerBanner />
 
         <div style={{ marginBottom: 16 }}>
           <LevelCard level={gamify.level} streak={gamify.streak} compact onClick={onOpenProgress} />
@@ -143,6 +141,8 @@ export function HomeScreen({
             ))}
           </div>
         </div>
+
+        <DisclaimerBanner muted />
 
         <div style={{ textAlign: 'center', padding: '0 0 24px', color: warm.muted, fontSize: 11, fontFamily: font.mono }}>
           Newborn In-Hand · v2.0 · 2026
