@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import { warm, font } from '../../theme/tokens';
-import { AVERY_LESSONS } from '../../data/lessons';
+import { LESSONS } from '../../data/lessons';
 import { getProgress, markLesson } from '../../lib/storage';
 import { curriculumDay } from '../../lib/today';
 
-export function LearnScreen() {
+export function LearnScreen({ onOpenLesson }: { onOpenLesson: (day: number) => void }) {
   const [progress, setProgress] = useState(getProgress);
   const today = curriculumDay();
 
-  function toggle(day: number) {
+  function toggleDone(day: number, e: React.MouseEvent) {
+    e.stopPropagation();
     const done = !progress[String(day)];
     setProgress({ ...markLesson(day, done) });
   }
@@ -19,19 +20,20 @@ export function LearnScreen() {
         <div style={{ fontFamily: font.head, fontSize: 22, fontWeight: 800, letterSpacing: -0.4, color: warm.ink }}>
           Daily <span style={{ color: warm.terra }}>Lessons</span>
         </div>
-        <div style={{ fontSize: 12.5, color: warm.muted, marginTop: 4 }}>Avery 11th ed. · tap to mark done</div>
+        <div style={{ fontSize: 12.5, color: warm.muted, marginTop: 4 }}>
+          Avery 11th ed. + Fanaroff 12th ed. · tap to read, checkmark to mark done
+        </div>
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px 20px' }}>
-        {AVERY_LESSONS.map((l) => {
-          const done = Boolean(progress[String(l.d)]);
-          const isToday = l.d === today;
+        {LESSONS.map((l) => {
+          const done = Boolean(progress[String(l.day)]);
+          const isToday = l.day === today;
           return (
             <button
-              key={l.d}
+              key={l.day}
               type="button"
-              aria-pressed={done}
-              onClick={() => toggle(l.d)}
+              onClick={() => onOpenLesson(l.day)}
               style={{
                 display: 'block',
                 width: '100%',
@@ -47,16 +49,22 @@ export function LearnScreen() {
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span style={{ fontFamily: font.mono, fontSize: 10.5, color: warm.muted }}>
-                  Day {l.d} · Ch {l.ch}
+                  Day {l.day} · {l.book} Ch {l.chapter}
                 </span>
-                <span style={{ fontSize: 13 }} aria-hidden>
+                <span
+                  role="checkbox"
+                  aria-checked={done}
+                  aria-label={done ? 'Mark not done' : 'Mark done'}
+                  onClick={(e) => toggleDone(l.day, e)}
+                  style={{ fontSize: 15, cursor: 'pointer', padding: 2 }}
+                >
                   {done ? '✓' : '○'}
                 </span>
               </div>
               <div style={{ fontSize: 13.5, fontWeight: 700, color: warm.ink, marginTop: 3, lineHeight: 1.25 }}>
-                {l.t}
+                {l.title}
               </div>
-              <div style={{ fontSize: 11.5, color: warm.muted, marginTop: 2, fontStyle: 'italic' }}>{l.hook}</div>
+              <div style={{ fontSize: 11.5, color: warm.muted, marginTop: 2, fontStyle: 'italic' }}>{l.authors}</div>
             </button>
           );
         })}
