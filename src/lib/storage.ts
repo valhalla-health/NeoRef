@@ -82,3 +82,20 @@ export function toggleBookmark(id: string, now: Date = new Date()): boolean {
 export function isBookmarked(id: string): boolean {
   return Boolean(getBookmarks()[id]);
 }
+
+// ─── Tool usage: { [calcId: string]: ISO timestamp of first open } ────────
+export type ToolUsageMap = Record<string, string>;
+
+export function getToolUsage(): ToolUsageMap {
+  return read<ToolUsageMap>('tool-usage', {}, isProgressMap);
+}
+
+/** Records the first time a tool is opened; later opens are no-ops. */
+export function recordToolOpen(id: string, now: Date = new Date()): ToolUsageMap {
+  const u = getToolUsage();
+  if (!u[id]) {
+    u[id] = now.toISOString();
+    write('tool-usage', u);
+  }
+  return u;
+}

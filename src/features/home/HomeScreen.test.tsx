@@ -19,7 +19,13 @@ vi.mock('../../data/calcs', () => ({
 
 function renderHome(overrides: Partial<Parameters<typeof HomeScreen>[0]> = {}) {
   return render(
-    <HomeScreen onOpenCalc={vi.fn()} onOpenLearn={vi.fn()} onOpenLesson={vi.fn()} {...overrides} />,
+    <HomeScreen
+      onOpenCalc={vi.fn()}
+      onOpenLearn={vi.fn()}
+      onOpenLesson={vi.fn()}
+      onOpenProgress={vi.fn()}
+      {...overrides}
+    />,
   );
 }
 
@@ -74,5 +80,20 @@ describe('HomeScreen', () => {
     expect(stubButton).toBeDisabled();
     await user.click(stubButton);
     expect(onOpenCalc).not.toHaveBeenCalled();
+  });
+
+  it('shows the starting level and opens the Progress tab when the level card is tapped', async () => {
+    const user = userEvent.setup();
+    const onOpenProgress = vi.fn();
+    renderHome({ onOpenProgress });
+    expect(screen.getByText('Med Student')).toBeInTheDocument();
+    await user.click(screen.getByText('Med Student'));
+    expect(onOpenProgress).toHaveBeenCalledTimes(1);
+  });
+
+  it('gains XP and levels up as lessons are completed', () => {
+    markLesson(lessonForDay(curriculumDay()).day, true);
+    renderHome();
+    expect(screen.getByText(/10\/50 XP/)).toBeInTheDocument();
   });
 });

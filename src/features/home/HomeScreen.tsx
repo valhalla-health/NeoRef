@@ -2,17 +2,21 @@ import { warm, font } from '../../theme/tokens';
 import { DisclaimerBanner } from '../../components/Disclaimer';
 import { curriculumDay, CURRICULUM_LENGTH } from '../../lib/today';
 import { getProgress } from '../../lib/storage';
+import { getGamifyState } from '../../lib/gamify';
 import { lessonForDay } from '../../data/lessons';
 import { CALCS } from '../../data/calcs';
+import { LevelCard } from '../gamify/LevelCard';
 
 export function HomeScreen({
   onOpenCalc,
   onOpenLearn,
   onOpenLesson,
+  onOpenProgress,
 }: {
   onOpenCalc: (id: string) => void;
   onOpenLearn: () => void;
   onOpenLesson: (day: number) => void;
+  onOpenProgress: () => void;
 }) {
   const today = curriculumDay(); // real clock — fixes C-1
   const progress = getProgress();
@@ -21,6 +25,7 @@ export function HomeScreen({
   const lesson = lessonForDay(today);
   const lessonDone = Boolean(progress[String(lesson.day)]);
   const quickCalcs = CALCS.slice(0, 6);
+  const gamify = getGamifyState();
 
   return (
     <div style={{ width: '100%', height: '100%', background: warm.paper, overflowY: 'auto', overflowX: 'hidden' }}>
@@ -33,6 +38,10 @@ export function HomeScreen({
         </div>
 
         <DisclaimerBanner />
+
+        <div style={{ marginBottom: 16 }}>
+          <LevelCard level={gamify.level} streak={gamify.streak} compact onClick={onOpenProgress} />
+        </div>
 
         {/* Today's lesson */}
         <div style={{ marginBottom: 16 }}>

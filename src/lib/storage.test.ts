@@ -1,5 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { getProgress, markLesson, isLessonDone, toggleBookmark, isBookmarked } from './storage';
+import {
+  getProgress,
+  markLesson,
+  isLessonDone,
+  toggleBookmark,
+  isBookmarked,
+  getToolUsage,
+  recordToolOpen,
+} from './storage';
 
 beforeEach(() => localStorage.clear());
 
@@ -25,6 +33,18 @@ describe('bookmarks', () => {
     expect(isBookmarked('proto-caffeine')).toBe(true);
     expect(toggleBookmark('proto-caffeine')).toBe(false);
     expect(isBookmarked('proto-caffeine')).toBe(false);
+  });
+});
+
+describe('tool usage', () => {
+  it('records only the first open of a tool', () => {
+    recordToolOpen('eos', new Date(2026, 0, 5));
+    recordToolOpen('eos', new Date(2026, 0, 9)); // second open should not overwrite the first timestamp
+    expect(getToolUsage()).toEqual({ eos: new Date(2026, 0, 5).toISOString() });
+  });
+
+  it('starts empty', () => {
+    expect(getToolUsage()).toEqual({});
   });
 });
 
