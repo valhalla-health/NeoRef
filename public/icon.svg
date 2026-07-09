@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="NeoRef">
+  <rect width="512" height="512" rx="112" fill="#F6EFE3"/>
+  <path d="M256 96c-70 0-120 44-120 132 0 96 74 168 120 188 46-20 120-92 120-188 0-88-50-132-120-132z" fill="#C0593A"/>
+  <circle cx="256" cy="212" r="40" fill="#F6EFE3"/>
+  <text x="256" y="398" font-family="'Source Sans 3',Arial,sans-serif" font-size="120" font-weight="800" fill="#1F1812" text-anchor="middle">NR</text>
+</svg>

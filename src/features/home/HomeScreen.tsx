@@ -1,0 +1,123 @@
+import { warm, font } from '../../theme/tokens';
+import { DisclaimerBanner } from '../../components/Disclaimer';
+import { curriculumDay, CURRICULUM_LENGTH } from '../../lib/today';
+import { getProgress } from '../../lib/storage';
+import { lessonForDay } from '../../data/lessons';
+import { CALCS } from '../../data/calcs';
+
+export function HomeScreen({
+  onOpenCalc,
+  onOpenLearn,
+}: {
+  onOpenCalc: (id: string) => void;
+  onOpenLearn: () => void;
+}) {
+  const today = curriculumDay(); // real clock — fixes C-1
+  const progress = getProgress();
+  const doneCount = Object.keys(progress).length;
+  const pct = Math.round((doneCount / CURRICULUM_LENGTH) * 100);
+  const lesson = lessonForDay(today);
+  const lessonDone = Boolean(progress[String(lesson.d)]);
+  const quickCalcs = CALCS.slice(0, 6);
+
+  return (
+    <div style={{ width: '100%', height: '100%', background: warm.paper, overflowY: 'auto', overflowX: 'hidden' }}>
+      <div style={{ padding: '16px 20px 8px' }}>
+        <div style={{ fontFamily: font.head, fontSize: 22, fontWeight: 800, letterSpacing: -0.4, color: warm.ink }}>
+          Newborn <span style={{ color: warm.terra }}>In-Hand</span>
+        </div>
+        <div style={{ fontSize: 12.5, color: warm.muted, marginBottom: 12 }}>
+          KCMH · Siriraj · Thai CPG · No patient data
+        </div>
+
+        <DisclaimerBanner />
+
+        {/* Today's lesson */}
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: warm.muted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
+            Today · Day {today}
+          </div>
+          <button
+            type="button"
+            onClick={onOpenLearn}
+            style={{
+              display: 'block',
+              width: '100%',
+              textAlign: 'left',
+              background: lessonDone ? '#EBF5E6' : warm.card,
+              border: `1.5px solid ${lessonDone ? warm.sage : warm.line}`,
+              borderRadius: 16,
+              padding: '14px 16px',
+              cursor: 'pointer',
+              fontFamily: font.ui,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+              <span style={{ fontFamily: font.mono, fontSize: 11, color: warm.muted }}>
+                Ch {lesson.ch} · Avery 2024
+              </span>
+              {lessonDone && (
+                <span style={{ background: warm.sage, color: '#fff', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 999 }}>
+                  ✓ Done
+                </span>
+              )}
+            </div>
+            <div style={{ fontSize: 14.5, fontWeight: 700, color: warm.ink, lineHeight: 1.3, marginBottom: 6 }}>
+              {lesson.t}
+            </div>
+            <div style={{ fontSize: 12, color: warm.muted, fontStyle: 'italic' }}>{lesson.hook}</div>
+          </button>
+        </div>
+
+        {/* Progress */}
+        <div style={{ marginBottom: 18, background: warm.card, border: `1px solid ${warm.line}`, borderRadius: 12, padding: '10px 14px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
+            <span style={{ fontSize: 12.5, fontWeight: 700, color: warm.ink }}>Curriculum progress</span>
+            <span style={{ fontFamily: font.mono, fontSize: 11, color: warm.muted }}>
+              {doneCount}/{CURRICULUM_LENGTH} · {pct}%
+            </span>
+          </div>
+          <div style={{ height: 5, background: warm.line, borderRadius: 99 }}>
+            <div style={{ height: '100%', borderRadius: 99, background: warm.sage, width: `${pct}%` }} />
+          </div>
+        </div>
+
+        {/* Quick tools */}
+        <div style={{ marginBottom: 24 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: warm.muted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
+            Quick Tools
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
+            {quickCalcs.map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                disabled={!c.ported}
+                onClick={() => c.ported && onOpenCalc(c.id)}
+                style={{
+                  background: warm.card,
+                  border: `1.5px solid ${warm.line}`,
+                  borderRadius: 12,
+                  padding: '10px 8px',
+                  textAlign: 'center',
+                  cursor: c.ported ? 'pointer' : 'default',
+                  opacity: c.ported ? 1 : 0.55,
+                  fontFamily: font.ui,
+                }}
+              >
+                <div style={{ fontSize: 20, marginBottom: 4 }} aria-hidden>
+                  {c.emoji}
+                </div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: warm.ink, lineHeight: 1.2 }}>{c.label}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ textAlign: 'center', padding: '0 0 24px', color: warm.muted, fontSize: 11, fontFamily: font.mono }}>
+          Newborn In-Hand · v2.0 · 2026
+        </div>
+      </div>
+    </div>
+  );
+}
