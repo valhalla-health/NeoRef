@@ -24,6 +24,10 @@ export function HomeScreen({
   const pct = Math.round((doneCount / CURRICULUM_LENGTH) * 100);
   const lesson = lessonForDay(today);
   const lessonDone = Boolean(progress[String(lesson.day)]);
+  // lessonForDay falls back to the nearest earlier lesson once the curriculum
+  // day outruns the authored lesson dataset — label it honestly so the header
+  // never claims to show content for a day it isn't.
+  const isExactMatch = lesson.day === today;
   const quickCalcs = CALCS.slice(0, 6);
   const gamify = getGamifyState();
 
@@ -44,7 +48,7 @@ export function HomeScreen({
         {/* Today's lesson */}
         <div style={{ marginBottom: 16 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: warm.muted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
-            Today · Day {today}
+            {isExactMatch ? `Today · Day ${today}` : `Latest lesson · Day ${lesson.day}`}
           </div>
           <button
             type="button"
@@ -63,7 +67,7 @@ export function HomeScreen({
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
               <span style={{ fontFamily: font.mono, fontSize: 11, color: warm.muted }}>
-                Ch {lesson.chapter} · {lesson.book}
+                Day {lesson.day} · Ch {lesson.chapter} · {lesson.book}
               </span>
               {lessonDone && (
                 <span style={{ background: warm.sage, color: '#fff', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 999 }}>

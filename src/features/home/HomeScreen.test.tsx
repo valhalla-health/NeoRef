@@ -96,4 +96,20 @@ describe('HomeScreen', () => {
     renderHome();
     expect(screen.getByText(/10\/50 XP/)).toBeInTheDocument();
   });
+
+  it('labels the lesson card honestly when the dataset lags behind the real curriculum day', () => {
+    // lessonForDay falls back to the nearest earlier lesson once the real-clock
+    // curriculum day outruns the authored dataset. The header must never claim
+    // "Today · Day N" for content that is actually from an earlier day.
+    const today = curriculumDay();
+    const lesson = lessonForDay(today);
+    renderHome();
+    if (lesson.day === today) {
+      expect(screen.getByText(`Today · Day ${today}`)).toBeInTheDocument();
+    } else {
+      expect(screen.getByText(`Latest lesson · Day ${lesson.day}`)).toBeInTheDocument();
+      expect(screen.queryByText(`Today · Day ${today}`)).not.toBeInTheDocument();
+    }
+    expect(screen.getByText(new RegExp(`Day ${lesson.day} · Ch ${lesson.chapter}`))).toBeInTheDocument();
+  });
 });

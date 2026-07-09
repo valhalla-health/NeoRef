@@ -10,8 +10,10 @@ describe('<App /> — end-to-end shell', () => {
     render(<App />);
     expect(screen.getAllByText(/Newborn/).length).toBeGreaterThan(0);
     expect(screen.getByRole('note')).toHaveTextContent(/Educational reference only/i);
-    // "Today · Day N" is computed from the real clock, never the frozen 139.
-    expect(screen.getByText(/Today · Day \d+/)).toBeInTheDocument();
+    // The curriculum day is computed from the real clock, never the frozen 139.
+    // Once the lesson dataset falls behind today's real day, the header honestly
+    // switches to "Latest lesson" instead of misreporting "Today".
+    expect(screen.getByText(/(Today|Latest lesson) · Day \d+/)).toBeInTheDocument();
   });
 
   it('navigates Home → Tools → EOS and shows the educational screen (no invented risk)', async () => {
