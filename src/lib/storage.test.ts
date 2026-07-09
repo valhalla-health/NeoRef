@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { getProgress, markLesson, isLessonDone, toggleBookmark, isBookmarked } from './storage';
 
 beforeEach(() => localStorage.clear());
@@ -43,5 +43,18 @@ describe('schema/version safety (regression for C-6)', () => {
   it('ignores corrupt JSON gracefully', () => {
     localStorage.setItem('neoref:bookmarks', '{not json');
     expect(isBookmarked('x')).toBe(false);
+  });
+
+  it('degrades silently (no throw) when localStorage.setItem throws (quota exceeded / private mode)', () => {
+    const setItem = vi
+      .spyOn(Storage.prototype, 'setItem')
+      .mockImplementation(() => {
+        throw new DOMException('QuotaExceededError');
+      });
+
+    expect(() => markLesson(1, true)).not.toThrow();
+    expect(() => toggleBookmark('x')).not.toThrow();
+
+    setItem.mockRestore();
   });
 });
