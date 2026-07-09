@@ -2,13 +2,13 @@ import { useMemo, useState } from 'react';
 import { warm, font } from '../../theme/tokens';
 import { LESSONS, type Lesson } from '../../data/lessons';
 import { getProgress, markLesson } from '../../lib/storage';
-import { curriculumDay } from '../../lib/today';
+import { resumeDay } from '../../lib/today';
 import { searchLessons } from '../../lib/lessonSearch';
 
 export function LearnScreen({ onOpenLesson }: { onOpenLesson: (day: number) => void }) {
   const [progress, setProgress] = useState(getProgress);
   const [query, setQuery] = useState('');
-  const today = curriculumDay();
+  const today = resumeDay(progress);
 
   const results: Lesson[] = useMemo(() => searchLessons(LESSONS, query), [query]);
 

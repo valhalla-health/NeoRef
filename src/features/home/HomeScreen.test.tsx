@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { HomeScreen } from './HomeScreen';
-import { markLesson } from '../../lib/storage';
-import { curriculumDay } from '../../lib/today';
+import { getProgress, markLesson } from '../../lib/storage';
+import { resumeDay } from '../../lib/today';
 import { lessonForDay } from '../../data/lessons';
 
 // CALCS currently has every entry `ported: true`, so the disabled/"not yet
@@ -40,8 +40,8 @@ describe('HomeScreen', () => {
 
   it("shows the done badge and updated progress once today's lesson is marked complete", () => {
     // HomeScreen keys progress by the *resolved* lesson day (lessonForDay
-    // falls back to the nearest earlier lesson), not the raw curriculum day.
-    markLesson(lessonForDay(curriculumDay()).day, true);
+    // falls back to the nearest earlier lesson), not the raw resume day.
+    markLesson(lessonForDay(resumeDay(getProgress())).day, true);
     renderHome();
     expect(screen.getByText('✓ Done')).toBeInTheDocument();
     expect(screen.getByText(/1\/365/)).toBeInTheDocument();
@@ -51,7 +51,7 @@ describe('HomeScreen', () => {
     const user = userEvent.setup();
     const onOpenLesson = vi.fn();
     renderHome({ onOpenLesson });
-    const lesson = lessonForDay(curriculumDay());
+    const lesson = lessonForDay(resumeDay(getProgress()));
     await user.click(screen.getByText(lesson.title));
     expect(onOpenLesson).toHaveBeenCalledWith(lesson.day);
   });
@@ -92,7 +92,7 @@ describe('HomeScreen', () => {
   });
 
   it('gains XP and levels up as lessons are completed', () => {
-    markLesson(lessonForDay(curriculumDay()).day, true);
+    markLesson(lessonForDay(resumeDay(getProgress())).day, true);
     renderHome();
     expect(screen.getByText(/10\/50 XP/)).toBeInTheDocument();
   });
