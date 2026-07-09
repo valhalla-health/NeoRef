@@ -33,3 +33,12 @@ export function lessonForDay(day: number): Lesson {
 export function lessonPath(day: number): string {
   return `${import.meta.env.BASE_URL}lessons/day-${String(day).padStart(3, '0')}.json`;
 }
+
+/**
+ * Shared OneDrive folder containing the original .docx for every lesson
+ * (formatted source, richer than the in-app parsed view). This links to the
+ * FOLDER, not the individual file — there's no per-file link available, so
+ * readers browse to the matching "Day N ..." file themselves once inside.
+ */
+export const LESSON_SOURCE_FOLDER_URL =
+  'https://1drv.ms/f/c/d6f3cdd93d71e377/IgDDaaB5TkxNTrydpwecYNL4AVmR-XUSXGEwa5CX3V6xWGY';

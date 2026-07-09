@@ -5,7 +5,7 @@
 import { useEffect, useState } from 'react';
 import { warm, font } from '../../theme/tokens';
 import { DisclaimerBanner } from '../../components/Disclaimer';
-import { lessonForDay, lessonPath } from '../../data/lessons';
+import { lessonForDay, lessonPath, LESSON_SOURCE_FOLDER_URL } from '../../data/lessons';
 import { isLessonDone, markLesson } from '../../lib/storage';
 
 type Block =
@@ -121,7 +121,34 @@ export function LessonDetail({ day, onBack }: { day: number; onBack?: () => void
           </div>
         )}
 
-        {state.status === 'ready' && <LessonBody blocks={state.content.blocks} />}
+        {state.status === 'ready' && (
+          <>
+            <LessonBody blocks={state.content.blocks} />
+            <a
+              href={LESSON_SOURCE_FOLDER_URL}
+              target="_blank"
+              rel="noreferrer noopener"
+              style={{
+                display: 'block',
+                textAlign: 'center',
+                marginTop: 16,
+                padding: '11px 14px',
+                borderRadius: 10,
+                background: warm.terra,
+                color: '#fff',
+                fontWeight: 700,
+                fontSize: 13,
+                textDecoration: 'none',
+              }}
+            >
+              Open original lesson document →
+            </a>
+            <div style={{ fontSize: 10.5, color: warm.muted, marginTop: 8, lineHeight: 1.4, textAlign: 'center' }}>
+              Opens the shared OneDrive folder — look for &quot;Day {meta.day} · {meta.book} Ch{' '}
+              {meta.chapter}&quot;.
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
