@@ -8,16 +8,18 @@ import { CALCS } from '../../data/calcs';
 export function HomeScreen({
   onOpenCalc,
   onOpenLearn,
+  onOpenLesson,
 }: {
   onOpenCalc: (id: string) => void;
   onOpenLearn: () => void;
+  onOpenLesson: (day: number) => void;
 }) {
   const today = curriculumDay(); // real clock — fixes C-1
   const progress = getProgress();
   const doneCount = Object.keys(progress).length;
   const pct = Math.round((doneCount / CURRICULUM_LENGTH) * 100);
   const lesson = lessonForDay(today);
-  const lessonDone = Boolean(progress[String(lesson.d)]);
+  const lessonDone = Boolean(progress[String(lesson.day)]);
   const quickCalcs = CALCS.slice(0, 6);
 
   return (
@@ -27,7 +29,7 @@ export function HomeScreen({
           Newborn <span style={{ color: warm.terra }}>In-Hand</span>
         </div>
         <div style={{ fontSize: 12.5, color: warm.muted, marginBottom: 12 }}>
-          KCMH · Siriraj · Thai CPG · No patient data
+          KCMH · Thai CPG
         </div>
 
         <DisclaimerBanner />
@@ -39,7 +41,7 @@ export function HomeScreen({
           </div>
           <button
             type="button"
-            onClick={onOpenLearn}
+            onClick={() => onOpenLesson(lesson.day)}
             style={{
               display: 'block',
               width: '100%',
@@ -54,7 +56,7 @@ export function HomeScreen({
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
               <span style={{ fontFamily: font.mono, fontSize: 11, color: warm.muted }}>
-                Ch {lesson.ch} · Avery 2024
+                Ch {lesson.chapter} · {lesson.book}
               </span>
               {lessonDone && (
                 <span style={{ background: warm.sage, color: '#fff', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 999 }}>
@@ -63,9 +65,28 @@ export function HomeScreen({
               )}
             </div>
             <div style={{ fontSize: 14.5, fontWeight: 700, color: warm.ink, lineHeight: 1.3, marginBottom: 6 }}>
-              {lesson.t}
+              {lesson.title}
             </div>
-            <div style={{ fontSize: 12, color: warm.muted, fontStyle: 'italic' }}>{lesson.hook}</div>
+            <div style={{ fontSize: 12, color: warm.muted, fontStyle: 'italic' }}>{lesson.authors}</div>
+          </button>
+          <button
+            type="button"
+            onClick={onOpenLearn}
+            style={{
+              display: 'block',
+              width: '100%',
+              textAlign: 'right',
+              border: 'none',
+              background: 'none',
+              color: warm.terra,
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: 'pointer',
+              padding: '6px 2px 0',
+              fontFamily: font.ui,
+            }}
+          >
+            See all lessons →
           </button>
         </div>
 

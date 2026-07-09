@@ -1,0 +1,1115 @@
+[
+ {
+  "day": 1,
+  "book": "Avery",
+  "chapter": 1,
+  "title": "Neonatal and Perinatal Epidemiology",
+  "authors": "Paneth, Patel & O'Shea Jr."
+ },
+ {
+  "day": 2,
+  "book": "Avery",
+  "chapter": 2,
+  "title": "Ethics, Data, and Policy in Newborn Intensive Care",
+  "authors": "Joanne M. Lagatta & John D. Lantos"
+ },
+ {
+  "day": 3,
+  "book": "Avery",
+  "chapter": 3,
+  "title": "Development Function and Pathology of the Placenta",
+  "authors": "Emin Maltepe & Anna A. Penn"
+ },
+ {
+  "day": 4,
+  "book": "Avery",
+  "chapter": 4,
+  "title": "Abnormalities of Fetal Growth",
+  "authors": "Rebecca A. Simmons"
+ },
+ {
+  "day": 5,
+  "book": "Avery",
+  "chapter": 5,
+  "title": "Multiple Gestations and Assisted Reproductive Technology",
+  "authors": "Allison S. Komorowski & Emily S. Jungheim"
+ },
+ {
+  "day": 6,
+  "book": "Avery",
+  "chapter": 6,
+  "title": "Prematurity and Stillbirth",
+  "authors": "Julia Johnson & Maneesh Batra"
+ },
+ {
+  "day": 7,
+  "book": "Avery",
+  "chapter": 7,
+  "title": "Nonimmune Hydrops Fetalis",
+  "authors": "Taha & Lorch"
+ },
+ {
+  "day": 8,
+  "book": "Avery",
+  "chapter": 8,
+  "title": "Maternal Diabetes",
+  "authors": "Fay, Simmons & Brown"
+ },
+ {
+  "day": 9,
+  "book": "Avery",
+  "chapter": 9,
+  "title": "Maternal Medical Disorders",
+  "authors": "Ballas & Kelly"
+ },
+ {
+  "day": 10,
+  "book": "Avery",
+  "chapter": 10,
+  "title": "Hypertensive Complications of Pregnancy",
+  "authors": "Moore (Ed: Boardman & Bhatt)"
+ },
+ {
+  "day": 11,
+  "book": "Avery",
+  "chapter": 11,
+  "title": "Intrauterine Drug Exposure Fetal and Postnatal Effects",
+  "authors": "Baer, Singh & Davis"
+ },
+ {
+  "day": 12,
+  "book": "Avery",
+  "chapter": 12,
+  "title": "Assessment of Fetal Well Being",
+  "authors": "Christian M. Pettker & Katherine H. Campbell"
+ },
+ {
+  "day": 13,
+  "book": "Avery",
+  "chapter": 13,
+  "title": "Complicated Deliveries",
+  "authors": "Kara K. Hoppe & Brad Bosse"
+ },
+ {
+  "day": 14,
+  "book": "Avery",
+  "chapter": 14,
+  "title": "Obstetric Analgesia and Anesthesia",
+  "authors": "Sharpe, Rosen & Rollins"
+ },
+ {
+  "day": 15,
+  "book": "Avery",
+  "chapter": 15,
+  "title": "Perinatal Transition and Newborn Resuscitation",
+  "authors": "Ali N, Sawyer T"
+ },
+ {
+  "day": 16,
+  "book": "Avery",
+  "chapter": 16,
+  "title": "Care of the Newborn",
+  "authors": "Gontasz MM, Keiser AM, Aucott SW"
+ },
+ {
+  "day": 17,
+  "book": "Avery",
+  "chapter": 17,
+  "title": "Temperature Regulation",
+  "authors": "Law JB, Hodson WA"
+ },
+ {
+  "day": 18,
+  "book": "Avery",
+  "chapter": 18,
+  "title": "Newborn Screening",
+  "authors": "Inderneel Sahai  •  Avery 2024"
+ },
+ {
+  "day": 19,
+  "book": "Avery",
+  "chapter": 19,
+  "title": "Neonatal Transport",
+  "authors": "Zeenia C. Billimoria, George A. Woodward  •  Avery 2024"
+ },
+ {
+  "day": 20,
+  "book": "Avery",
+  "chapter": 20,
+  "title": "Fluid, Electrolyte, and Acid Base Balance",
+  "authors": "Christopher J. Wright, Marc A. Posencheg, Istvan Seri  •  Avery 2024"
+ },
+ {
+  "day": 21,
+  "book": "Avery",
+  "chapter": 21,
+  "title": "Neonatal Pharmacology",
+  "authors": "Karel Allegaert, Robert M. Ward, John N. van den Anker  •  Avery 2024"
+ },
+ {
+  "day": 22,
+  "book": "Avery",
+  "chapter": 22,
+  "title": "Neonatal Pain and Stress",
+  "authors": "Vilmaris Quiñones Cardona • Dennis E. Mayock • Rachel Fleishman"
+ },
+ {
+  "day": 23,
+  "book": "Avery",
+  "chapter": 23,
+  "title": "Palliative Care",
+  "authors": "Donnamaria E. Cortezzo, MD  •  Brian S. Carter, MD  •  2024"
+ },
+ {
+  "day": 24,
+  "book": "Avery",
+  "chapter": 24,
+  "title": "Risk Assessment and Neurodevelopmental Outcomes",
+  "authors": "Avery's Diseases of the Newborn Ed. 11 • Brodsky & Martin, 2024"
+ },
+ {
+  "day": 25,
+  "book": "Avery",
+  "chapter": 25,
+  "title": "The Human Genome and Neonatal Care",
+  "authors": "C.M. Cotten"
+ },
+ {
+  "day": 26,
+  "book": "Avery",
+  "chapter": 26,
+  "title": "Prenatal Diagnosis and Counseling",
+  "authors": "Edith Y. Cheng & J. Craig Jackson"
+ },
+ {
+  "day": 27,
+  "book": "Avery",
+  "chapter": 27,
+  "title": "The Dysmorphic Infant",
+  "authors": "K. Taylor Wild, Sarah E. Sheppard, Elaine H. Zackai  •  2024"
+ },
+ {
+  "day": 28,
+  "book": "Avery",
+  "chapter": 28,
+  "title": "Chromosome Disorders",
+  "authors": "T. Niroshi Senaratne, Elaine H. Zackai, Sulagna C. Saitta  •  2024"
+ },
+ {
+  "day": 29,
+  "book": "Avery",
+  "chapter": 29,
+  "title": "Inborn Errors of Carbohydrate Ammonia Amino Acid and Organic Acid Metabolism",
+  "authors": "Amino Acid, and Organic Acid Metabolism"
+ },
+ {
+  "day": 30,
+  "book": "Avery",
+  "chapter": 30,
+  "title": "Lysosomal Storage Disorders Presenting in the Neonate",
+  "authors": "Chang IJ, Sun A, Berry GT"
+ },
+ {
+  "day": 31,
+  "book": "Avery",
+  "chapter": 31,
+  "title": "Congenital Disorders of Glycosylation, Peroxisomal Disorders, and Smith-Lemli-Opitz Syndrome",
+  "authors": "Janet A. Thomas & Christina Lam  •  Avery 11th ed. 2024"
+ },
+ {
+  "day": 32,
+  "book": "Avery",
+  "chapter": 32,
+  "title": "Immunology of the Fetus and Newborn",
+  "authors": "Weitkamp, Lewis, Levy"
+ },
+ {
+  "day": 33,
+  "book": "Avery",
+  "chapter": 33,
+  "title": "Bacterial Sepsis and Meningitis",
+  "authors": "Valentine & Wallen"
+ },
+ {
+  "day": 34,
+  "book": "Avery",
+  "chapter": 34,
+  "title": "Viral Infections of the Fetus and Newborn",
+  "authors": "Caleb Stokes & Ann J. Melvin"
+ },
+ {
+  "day": 35,
+  "book": "Avery",
+  "chapter": 35,
+  "title": "Congenital Toxoplasmosis, Syphilis, Malaria, and Tuberculosis",
+  "authors": "Avery's Diseases of the Newborn, 11th ed."
+ },
+ {
+  "day": 36,
+  "book": "Avery",
+  "chapter": 36,
+  "title": "Fungal Infections in the Neonatal Intensive Care Unit",
+  "authors": "Upadhyay & Puia-Dumitrescu"
+ },
+ {
+  "day": 37,
+  "book": "Avery",
+  "chapter": 37,
+  "title": "Healthcare-Associated Infections",
+  "authors": "Lakshmi Srinivasan"
+ },
+ {
+  "day": 38,
+  "book": "Avery",
+  "chapter": 38,
+  "title": "Lung Development",
+  "authors": "Erin Plosa & Jennifer Sucre"
+ },
+ {
+  "day": 39,
+  "book": "Avery",
+  "chapter": 39,
+  "title": "Neonatal Pulmonary Physiology",
+  "authors": "William E. Truog & Winston M. Manimtim"
+ },
+ {
+  "day": 40,
+  "book": "Avery",
+  "chapter": 40,
+  "title": "Neonatal Respiratory Therapy",
+  "authors": "David J. Durand & Sherry E. Courtney"
+ },
+ {
+  "day": 41,
+  "book": "Avery",
+  "chapter": 41,
+  "title": "Control of Breathing",
+  "authors": "Estelle B. Gauda & Richard J. Martin"
+ },
+ {
+  "day": 42,
+  "book": "Avery",
+  "chapter": 42,
+  "title": "Acute Neonatal Respiratory Disorders",
+  "authors": "Nicolle Fernández Dyess, John P. Kinsella & Thomas A. Parker"
+ },
+ {
+  "day": 43,
+  "book": "Avery",
+  "chapter": 43,
+  "title": "Chronic Neonatal Respiratory Disorders",
+  "authors": "Roberta L. Keller & Robin H. Steinhorn"
+ },
+ {
+  "day": 44,
+  "book": "Avery",
+  "chapter": 44,
+  "title": "Anatomic Disorders of the Chest and Airways",
+  "authors": "Lee, Jackson, Lakshminrusimha, Brown & Farmer"
+ },
+ {
+  "day": 45,
+  "book": "Avery",
+  "chapter": 45,
+  "title": "Developmental Biology of the Heart",
+  "authors": "Ellen Dees & H. Scott Baldwin"
+ },
+ {
+  "day": 46,
+  "book": "Avery",
+  "chapter": 46,
+  "title": "Cardiovascular Compromise in the Newborn Infant",
+  "authors": "Shahab Noori and Istvan Seri"
+ },
+ {
+  "day": 47,
+  "book": "Avery",
+  "chapter": 47,
+  "title": "Persistent Pulmonary Hypertension",
+  "authors": "Mandell / Steinhorn / Abman"
+ },
+ {
+  "day": 48,
+  "book": "Avery",
+  "chapter": 48,
+  "title": "Patent Ductus Arteriosus in the Preterm Infant",
+  "authors": "Ronald I. Clyman"
+ },
+ {
+  "day": 49,
+  "book": "Avery",
+  "chapter": 49,
+  "title": "Perinatal Arrhythmias",
+  "authors": "Terrence Chun & Bhawna Arya"
+ },
+ {
+  "day": 50,
+  "book": "Avery",
+  "chapter": 50,
+  "title": "Congenital Heart Disease",
+  "authors": "Natasha González Estévez & Deidra A. Ansah"
+ },
+ {
+  "day": 51,
+  "book": "Avery",
+  "chapter": 51,
+  "title": "Long-Term Neurologic Outcomes in Children With Congenital Heart Disease",
+  "authors": "Shabnam Peyvandi & Patrick McQuillen"
+ },
+ {
+  "day": 52,
+  "book": "Avery",
+  "chapter": 52,
+  "title": "Central Nervous System Development",
+  "authors": "Fleiss, Stolp, Mezger & Gressens"
+ },
+ {
+  "day": 53,
+  "book": "Avery",
+  "chapter": 53,
+  "title": "Congenital Malformations of the Central Nervous System",
+  "authors": "Benjamin Dean & Dan Doherty"
+ },
+ {
+  "day": 54,
+  "book": "Avery",
+  "chapter": 54,
+  "title": "Brain Injury in the Preterm",
+  "authors": "Art Riddle, Steven P. Miller, Stephen A. Back"
+ },
+ {
+  "day": 55,
+  "book": "Avery",
+  "chapter": 55,
+  "title": "Neonatal Encephalopathy",
+  "authors": "Ulrike Mietzsch & Sandra E. Juul"
+ },
+ {
+  "day": 56,
+  "book": "Avery",
+  "chapter": 56,
+  "title": "Neonatal Neurovascular Disorders",
+  "authors": "Mihai Puia-Dumitrescu & Sandra E. Juul"
+ },
+ {
+  "day": 57,
+  "book": "Avery",
+  "chapter": 57,
+  "title": "Neonatal Neuromuscular Disorders",
+  "authors": "Niranjana Natarajan & Cristian Ionita"
+ },
+ {
+  "day": 58,
+  "book": "Avery",
+  "chapter": 58,
+  "title": "Neonatal Seizures",
+  "authors": "Jennifer C. Keene, Niranjana Natarajan & Sidney M. Gospe Jr."
+ },
+ {
+  "day": 59,
+  "book": "Avery",
+  "chapter": 59,
+  "title": "Enteral Nutrition",
+  "authors": "Heidi Karpen & Brenda Poindexter"
+ },
+ {
+  "day": 60,
+  "book": "Avery",
+  "chapter": 60,
+  "title": "Parenteral Nutrition for the High-Risk Neonate",
+  "authors": "Katie A. Huff & Scott C. Denne"
+ },
+ {
+  "day": 61,
+  "book": "Avery",
+  "chapter": 61,
+  "title": "Structural Anomalies of the Gastrointestinal Tract",
+  "authors": "Katherine T. Flynn-O'Brien & Samuel E. Rice-Townsend"
+ },
+ {
+  "day": 62,
+  "book": "Avery",
+  "chapter": 62,
+  "title": "Abdominal Wall Defects",
+  "authors": "Shilpi Chabra, Jamie E. Anderson & Patrick J. Javid"
+ },
+ {
+  "day": 63,
+  "book": "Avery",
+  "chapter": 63,
+  "title": "Neonatal Gastroesophageal Reflux",
+  "authors": "Eric C. Eichenwald"
+ },
+ {
+  "day": 64,
+  "book": "Avery",
+  "chapter": 64,
+  "title": "Necrotizing Enterocolitis and Short Bowel Syndrome",
+  "authors": "Gregory Keefe, Tom Jaksic & Josef Neu"
+ },
+ {
+  "day": 65,
+  "book": "Avery",
+  "chapter": 65,
+  "title": "Disorders of the Liver",
+  "authors": "Mohammad Nasser Kabbany & Karen F. Murray"
+ },
+ {
+  "day": 66,
+  "book": "Avery",
+  "chapter": 66,
+  "title": "Developmental Hematology",
+  "authors": "Sandra E. Juul & Robert D. Christensen"
+ },
+ {
+  "day": 67,
+  "book": "Avery",
+  "chapter": 67,
+  "title": "Neonatal Bleeding and Thrombotic Disorders",
+  "authors": "Matthew A. Saxonhouse & Ashley P. Hinson"
+ },
+ {
+  "day": 68,
+  "book": "Avery",
+  "chapter": 68,
+  "title": "Neonatal Platelet Disorders",
+  "authors": "Emöke Deschmann & Martha Sola-Visner"
+ },
+ {
+  "day": 69,
+  "book": "Avery",
+  "chapter": 69,
+  "title": "Neonatal Erythrocyte Disorders",
+  "authors": "Katie Carlberg"
+ },
+ {
+  "day": 70,
+  "book": "Avery",
+  "chapter": 70,
+  "title": "Neonatal Transfusion",
+  "authors": "Ravi Mangal Patel & Cassandra D. Josephson"
+ },
+ {
+  "day": 71,
+  "book": "Avery",
+  "chapter": 71,
+  "title": "Neonatal Leukocyte Physiology and Disorders",
+  "authors": "John T. Benjamin, Benjamin A. Torres & Akhil Maheshwari"
+ },
+ {
+  "day": 72,
+  "book": "Avery",
+  "chapter": 72,
+  "title": "Neonatal Hyperbilirubinemia and Kernicterus",
+  "authors": "W. Christopher Golden & Jon F. Watchko"
+ },
+ {
+  "day": 73,
+  "book": "Avery",
+  "chapter": 73,
+  "title": "Congenital Malignant Disorders",
+  "authors": "Tiffany L. Lucas, Benjamin Huang & Elizabeth Robbins"
+ },
+ {
+  "day": 74,
+  "book": "Avery",
+  "chapter": 74,
+  "title": "Renal Development",
+  "authors": "Irene McAleer & Kai-Wen Chiang"
+ },
+ {
+  "day": 75,
+  "book": "Avery",
+  "chapter": 75,
+  "title": "Developmental Abnormalities of the Kidneys",
+  "authors": "Rachel M. Engen & Sangeeta Hingorani"
+ },
+ {
+  "day": 76,
+  "book": "Avery",
+  "chapter": 76,
+  "title": "Developmental Abnormalities of the Genitourinary System",
+  "authors": "Courtney K. Rowe & Paul A. Merguerian"
+ },
+ {
+  "day": 77,
+  "book": "Avery",
+  "chapter": 77,
+  "title": "Acute Kidney Injury",
+  "authors": "Heidi J. Steflik, David Askenazi & David T. Selewski"
+ },
+ {
+  "day": 78,
+  "book": "Avery",
+  "chapter": 78,
+  "title": "Chronic Kidney Disease",
+  "authors": "Laurel Willig & Bradley A. Warady"
+ },
+ {
+  "day": 79,
+  "book": "Avery",
+  "chapter": 79,
+  "title": "Glomerulonephropathies and Disorders of Tubular Function",
+  "authors": "Elizabeth Yu & Karyn Yonekawa"
+ },
+ {
+  "day": 80,
+  "book": "Avery",
+  "chapter": 80,
+  "title": "Urinary Tract Infections and Vesicoureteral Reflux",
+  "authors": "Kathy Huen, Peter (Zhan Tao) Wang, Elias Wehbi"
+ },
+ {
+  "day": 81,
+  "book": "Avery",
+  "chapter": 81,
+  "title": "Systemic Hypertension",
+  "authors": "Joseph T. Flynn Jr."
+ },
+ {
+  "day": 82,
+  "book": "Avery",
+  "chapter": 82,
+  "title": "Developmental Endocrinology",
+  "authors": "Avery's Diseases of the Newborn"
+ },
+ {
+  "day": 83,
+  "book": "Avery",
+  "chapter": 83,
+  "title": "Disorders of Calcium and Phosphorus Metabolism",
+  "authors": "Kelsey B. Eitel, Ildiko H. Koves, Kathryn D. Ness & Parisa Salehi"
+ },
+ {
+  "day": 84,
+  "book": "Avery",
+  "chapter": 84,
+  "title": "Disorders of the Adrenal Gland",
+  "authors": "Patricia Y. Fechner"
+ },
+ {
+  "day": 85,
+  "book": "Avery",
+  "chapter": 85,
+  "title": "Differences in Sex Development",
+  "authors": "Margarett Shnorhavorian & Patricia Y. Fechner"
+ },
+ {
+  "day": 86,
+  "book": "Avery",
+  "chapter": 86,
+  "title": "Disorders of the Thyroid Gland",
+  "authors": "Grace Kim, Debika Nandi-Munshi & Carolina Cecilia Di Blasi"
+ },
+ {
+  "day": 87,
+  "book": "Avery",
+  "chapter": 87,
+  "title": "Neonatal Hypoglycemia and Hyperglycemia",
+  "authors": "Werny D, Huang A, Tenney J, Pihoker C"
+ },
+ {
+  "day": 88,
+  "book": "Avery",
+  "chapter": 88,
+  "title": "Craniofacial Conditions",
+  "authors": "G. Kyle Fulton, Matthew S. Blessing & Kelly N. Evans"
+ },
+ {
+  "day": 89,
+  "book": "Avery",
+  "chapter": 89,
+  "title": "Common Neonatal Orthopedic Conditions",
+  "authors": "Katherine M. Schroeder, Maryse L. Bouchard & Klane K. White"
+ },
+ {
+  "day": 90,
+  "book": "Avery",
+  "chapter": 90,
+  "title": "Skeletal Dysplasias and Heritable Connective Tissue Disorders",
+  "authors": "George E. Tiller & Gary A. Bellus"
+ },
+ {
+  "day": 91,
+  "book": "Avery",
+  "chapter": 91,
+  "title": "Newborn Skin Development Structure and Function",
+  "authors": "Robert Sidbury"
+ },
+ {
+  "day": 92,
+  "book": "Avery",
+  "chapter": 92,
+  "title": "Congenital and Hereditary Disorders of the Skin",
+  "authors": "Cheryl Bayart & Heather A. Brandling-Bennett"
+ },
+ {
+  "day": 93,
+  "book": "Avery",
+  "chapter": 93,
+  "title": "Infections of the Skin",
+  "authors": "Boos MD, Sidbury R"
+ },
+ {
+  "day": 94,
+  "book": "Avery",
+  "chapter": 94,
+  "title": "Common Newborn Dermatoses",
+  "authors": "Kate Khorsand & Robert Sidbury"
+ },
+ {
+  "day": 95,
+  "book": "Avery",
+  "chapter": 95,
+  "title": "Vascular Anomalies and Other Cutaneous Congenital Defects",
+  "authors": "Deepti Gupta & Robert Sidbury"
+ },
+ {
+  "day": 96,
+  "book": "Avery",
+  "chapter": 96,
+  "title": "Eye and Vision Disorders",
+  "authors": "Julius T. Oatts, Alejandra G. de Alba Campomanes & Gil Binenbaum"
+ },
+ {
+  "day": 97,
+  "book": "Avery",
+  "chapter": 97,
+  "title": "Ear and Hearing Disorders",
+  "authors": "Betty Vohr & Susan Wiley"
+ },
+ {
+  "day": 98,
+  "book": "Fanaroff",
+  "chapter": 1,
+  "title": "Growth of Neonatal-Perinatal Medicine—A Historical Perspective",
+  "authors": "Tonse Narayana Krishna Raju"
+ },
+ {
+  "day": 99,
+  "book": "Fanaroff",
+  "chapter": 2,
+  "title": "Epidemiology for Neonatologists",
+  "authors": "Susan Seidel Friedman"
+ },
+ {
+  "day": 100,
+  "book": "Fanaroff",
+  "chapter": 3,
+  "title": "What We Can Learn From Neonatal Database Research",
+  "authors": "Veeral Nalin Tolia, Reese H. Clark, and Karna Murthy"
+ },
+ {
+  "day": 101,
+  "book": "Fanaroff",
+  "chapter": 4,
+  "title": "Medical Ethics in Neonatal Care",
+  "authors": "Haward MF, Fanaroff JM, Laventhal NT"
+ },
+ {
+  "day": 102,
+  "book": "Fanaroff",
+  "chapter": 5,
+  "title": "Improving the Quality Safety and Equity of Neonatal Intensive Care",
+  "authors": "Fanaroff & Martin 2025"
+ },
+ {
+  "day": 103,
+  "book": "Fanaroff",
+  "chapter": 6,
+  "title": "Importance of Simulation in Neonatology",
+  "authors": "Monika Bhola"
+ },
+ {
+  "day": 104,
+  "book": "Fanaroff",
+  "chapter": 7,
+  "title": "Perinatal and Neonatal Care in Developing Countries",
+  "authors": "Fanaroff & Martin"
+ },
+ {
+  "day": 105,
+  "book": "Fanaroff",
+  "chapter": 8,
+  "title": "Social and Economic Contributors to Neonatal Outcome in the United States",
+  "authors": "Renate D. Savich & Mobolaji Famuyide"
+ },
+ {
+  "day": 106,
+  "book": "Fanaroff",
+  "chapter": 9,
+  "title": "Genetic Aspects of Perinatal Disease and Prenatal Diagnosis",
+  "authors": "Susan J. Gross & Ciprian P. Gheorghe"
+ },
+ {
+  "day": 107,
+  "book": "Fanaroff",
+  "chapter": 10,
+  "title": "Perinatal Ultrasound",
+  "authors": "Fanaroff & Martin 2025"
+ },
+ {
+  "day": 108,
+  "book": "Fanaroff",
+  "chapter": 11,
+  "title": "Estimation of Fetal Well-Being",
+  "authors": "Fanaroff & Martin"
+ },
+ {
+  "day": 109,
+  "book": "Fanaroff",
+  "chapter": 12,
+  "title": "Surgical Treatment of the Fetus",
+  "authors": "Fanaroff & Martin 2025"
+ },
+ {
+  "day": 110,
+  "book": "Fanaroff",
+  "chapter": 13,
+  "title": "Adverse Exposures to the Fetus",
+  "authors": "Kuper-Sassé, El-Metwally, Bearer"
+ },
+ {
+  "day": 111,
+  "book": "Fanaroff",
+  "chapter": 14,
+  "title": "Fetal Growth Restriction",
+  "authors": "Devaskar SU, Janzen C, Calkins KL / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 112,
+  "book": "Fanaroff",
+  "chapter": 15,
+  "title": "Developmental Origins of Health and Disease",
+  "authors": "Enciso JM, Devaskar SU / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 113,
+  "book": "Fanaroff",
+  "chapter": 16,
+  "title": "Hypertensive Disorders of Pregnancy",
+  "authors": "Arun Jeyabalan / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 114,
+  "book": "Fanaroff",
+  "chapter": 17,
+  "title": "Pregnancy Complicated by Diabetes Mellitus",
+  "authors": "Maya Ram Weiner, Polina Gurevich, Eric S. Shinwell, Yariv Yogev"
+ },
+ {
+  "day": 115,
+  "book": "Fanaroff",
+  "chapter": 18,
+  "title": "Obstetric Management of Prematurity",
+  "authors": "Costantine MM, Saad A, Saade G / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 116,
+  "book": "Fanaroff",
+  "chapter": 19,
+  "title": "Fetal Effects of Autoimmune Disease",
+  "authors": "Biron-Shental T, Hershkovich-Shporen C / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 117,
+  "book": "Fanaroff",
+  "chapter": 20,
+  "title": "Multiple Gestation Fetal and Maternal Considerations",
+  "authors": "Ofek Shlomai N, Eventov Friedman S, Gielchinsky Y / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 118,
+  "book": "Fanaroff",
+  "chapter": 21,
+  "title": "Post-Term Pregnancy",
+  "authors": "David Peleg & Yael Simpson-Lavy / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 119,
+  "book": "Fanaroff",
+  "chapter": 22,
+  "title": "Immune and Nonimmune Hydrops Fetalis",
+  "authors": "Hebert Taylor K, Simmons PM, Magann EF / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 120,
+  "book": "Fanaroff",
+  "chapter": 23,
+  "title": "Amniotic Fluid Volume",
+  "authors": "Taylor KH, Simmons PM, Magann EF / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 121,
+  "book": "Fanaroff",
+  "chapter": 24,
+  "title": "Perinatal Infections and Chorioamnionitis",
+  "authors": "Polin RA, Hooven TA, Randis TM / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 122,
+  "book": "Fanaroff",
+  "chapter": 25,
+  "title": "Placental Pathology",
+  "authors": "Raymond W. Redline / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 123,
+  "book": "Fanaroff",
+  "chapter": 26,
+  "title": "Anesthesia for Labor and Delivery",
+  "authors": "Hanson R, Hoyt MCR / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 124,
+  "book": "Fanaroff",
+  "chapter": 27,
+  "title": "Physical Examination of the Healthy Newborn",
+  "authors": "Griswold K, Srinivas GL / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 125,
+  "book": "Fanaroff",
+  "chapter": 28,
+  "title": "Birth Injuries",
+  "authors": "Prazad PA, Noble Rajpal M, Mangurten HH / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 126,
+  "book": "Fanaroff",
+  "chapter": 29,
+  "title": "Congenital Anomalies",
+  "authors": "Mitchell AL / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 127,
+  "book": "Fanaroff",
+  "chapter": 30,
+  "title": "Delivery Room Resuscitation",
+  "authors": "Jay P. Goldsmith / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 128,
+  "book": "Fanaroff",
+  "chapter": 31,
+  "title": "Role of Positive Pressure Ventilation in Neonatal Resuscitation",
+  "authors": "Louise S. Owen, Peter G. Davis  •  Fanaroff 2025"
+ },
+ {
+  "day": 129,
+  "book": "Fanaroff",
+  "chapter": 32,
+  "title": "Oxygen Therapy in Neonatal Resuscitation",
+  "authors": "Maximo Vento / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 130,
+  "book": "Fanaroff",
+  "chapter": 33,
+  "title": "Chest Compression Medications and Special Problems in Neonatal Resuscitation",
+  "authors": "Kapadia V, Wyckoff MH / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 131,
+  "book": "Fanaroff",
+  "chapter": 34,
+  "title": "Role of Umbilical Cord Management in Neonatal Resuscitation",
+  "authors": "Anup C. Katheria / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 132,
+  "book": "Fanaroff",
+  "chapter": 35,
+  "title": "Thermal Environment of the Intensive Care Nursery",
+  "authors": "Johan Ågren / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 133,
+  "book": "Fanaroff",
+  "chapter": 36,
+  "title": "Optimization of the Neonatal Intensive Care Unit Environment",
+  "authors": "Lehtonen L, White R / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 134,
+  "book": "Fanaroff",
+  "chapter": 37,
+  "title": "Neonatal Cardiorespiratory Monitoring",
+  "authors": "Di Fiore JM, Raffay TM / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 135,
+  "book": "Fanaroff",
+  "chapter": 38,
+  "title": "Diagnostic Imaging of the Neonate",
+  "authors": "Berlin SC, Carr CB / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 136,
+  "book": "Fanaroff",
+  "chapter": 39,
+  "title": "Anesthesia in the Neonate",
+  "authors": "Shelley Ohliger / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 137,
+  "book": "Fanaroff",
+  "chapter": 40,
+  "title": "Care of Periviable Micropreemies The Japanese Perspective",
+  "authors": "Kusuda S, Masumoto K, Nakanishi H"
+ },
+ {
+  "day": 138,
+  "book": "Fanaroff",
+  "chapter": 41,
+  "title": "The Late Preterm Infant",
+  "authors": "Arnold HE, Parsons KV, Jain L / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 139,
+  "book": "Fanaroff",
+  "chapter": 42,
+  "title": "Nutritional Support for the Preterm Infant",
+  "authors": "Brenda B. Poindexter & Camilia R. Martin / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 140,
+  "book": "Fanaroff",
+  "chapter": 43,
+  "title": "Support for the Family",
+  "authors": "Friedman SH, Thomson-Salo F, Ballard AR / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 141,
+  "book": "Fanaroff",
+  "chapter": 44,
+  "title": "Perinatal Palliative Care",
+  "authors": "Ellis KL, Carter BS / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 142,
+  "book": "Fanaroff",
+  "chapter": 45,
+  "title": "Principles of Drug Use in the Fetus and Neonate",
+  "authors": "McClary JD / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 143,
+  "book": "Fanaroff",
+  "chapter": 46,
+  "title": "Principles of Drug Use During Lactation",
+  "authors": "McClary JD / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 144,
+  "book": "Fanaroff",
+  "chapter": 47,
+  "title": "Pharmacokinetics in Neonatal Medicine",
+  "authors": "Hornik CD, Wade KC / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 145,
+  "book": "Fanaroff",
+  "chapter": 48,
+  "title": "Infants of Substance-Using Mothers",
+  "authors": "Mark L. Hudak / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 146,
+  "book": "Fanaroff",
+  "chapter": 49,
+  "title": "Developmental Immunology",
+  "authors": "Benjamin JT, Molloy EJ, Maheshwari A / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 147,
+  "book": "Fanaroff",
+  "chapter": 50,
+  "title": "Postnatal Bacterial Infections",
+  "authors": "Mukherjee D, Ryan RM / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 148,
+  "book": "Fanaroff",
+  "chapter": 51,
+  "title": "Fungal and Protozoal Infections of the Neonate",
+  "authors": "Kaufman DA, Nadipuram SM, Manzoni P / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 149,
+  "book": "Fanaroff",
+  "chapter": 52,
+  "title": "Viral Infections in the Neonate",
+  "authors": "Desai AP, Lim PPC, Ogundare MO, Gonzalez BE"
+ },
+ {
+  "day": 150,
+  "book": "Fanaroff",
+  "chapter": 53,
+  "title": "Normal and Abnormal Brain Development",
+  "authors": "Gressens P, Hüppi PS / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 151,
+  "book": "Fanaroff",
+  "chapter": 54,
+  "title": "Cerebral White Matter Damage and Encephalopathy of Prematurity",
+  "authors": "Hüppi PS, Gressens P / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 153,
+  "book": "Fanaroff",
+  "chapter": 56,
+  "title": "Hypoxic-Ischemic Encephalopathy",
+  "authors": "Groenendaal F, de Vries LS / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 154,
+  "book": "Fanaroff",
+  "chapter": 57,
+  "title": "Seizures in Neonates",
+  "authors": "Kayyal S, Inder TE / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 156,
+  "book": "Fanaroff",
+  "chapter": 59,
+  "title": "Disorders in Head Shape and Size",
+  "authors": "Zhou X, Tomei K / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 157,
+  "book": "Fanaroff",
+  "chapter": 60,
+  "title": "Spinal Dysraphisms",
+  "authors": "Nguyen Q, Tomei K / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 158,
+  "book": "Fanaroff",
+  "chapter": 61,
+  "title": "Hearing Loss in the Newborn Infant",
+  "authors": "Betty R. Vohr / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 160,
+  "book": "Fanaroff",
+  "chapter": 63,
+  "title": "Lung Development and Maturation",
+  "authors": "Kallapur SG, Jobe AH / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 168,
+  "book": "Fanaroff",
+  "chapter": 71,
+  "title": "Postneonatal Respiratory Morbidity",
+  "authors": "Raffay TM, Yildiz-Atar H, Kumar VHS, Lakshminrusimha S, Ryan RM / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 169,
+  "book": "Fanaroff",
+  "chapter": 72,
+  "title": "Cardiac Embryology",
+  "authors": "Stephanie M. Ford & Michiko Watanabe"
+ }
+]

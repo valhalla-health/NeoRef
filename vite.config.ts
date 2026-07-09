@@ -30,10 +30,23 @@ export default defineConfig({
       },
       workbox: {
         // Precache the app shell + all bundled assets (JS/CSS/fonts/icons) so the
-        // app genuinely works offline — no CDN, no runtime font fetches.
+        // app genuinely works offline — no CDN, no runtime font fetches. Lesson
+        // content (public/lessons/*.json, ~6.5MB across 159 files) is deliberately
+        // NOT in this glob — eagerly precaching it would bloat the install. It's
+        // cached lazily instead, once a lesson is actually opened (see below).
         globPatterns: ['**/*.{js,css,html,svg,woff,woff2}'],
         cleanupOutdatedCaches: true,
         navigateFallback: 'index.html',
+        runtimeCaching: [
+          {
+            urlPattern: /\/lessons\/day-\d+\.json$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'lesson-content',
+              expiration: { maxEntries: 200 },
+            },
+          },
+        ],
       },
     }),
   ],
