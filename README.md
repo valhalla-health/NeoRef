@@ -7,9 +7,9 @@ protocol cards, packaged as an installable offline PWA.
 > against your institution's protocols and the official published tools before any
 > patient care. No patient-identifiable data is collected or stored.
 
-This is the productionized rewrite of the original CDN + in-browser-Babel prototype
-(kept at `../` for reference). See [`../AUDIT.md`](../AUDIT.md) for the full scrutiny
-report that drove this rebuild.
+This is the productionized rewrite of an earlier CDN + in-browser-Babel prototype
+(kept in a private repo, not published here). See [`AUDIT.md`](AUDIT.md) for the full
+scrutiny report that drove this rebuild.
 
 ## Stack
 
@@ -61,19 +61,25 @@ removed, replaced with a factor-direction explainer + link to the real Kaiser to
 - A registry (`src/features/calc/registry.tsx`) maps calc id → screen component;
   `src/features/calc/registry.test.tsx` renders every ported calc through the real
   app navigation as a regression check.
-- Two AUDIT-flagged clinical-accuracy items remain **unresolved in the code, by
+- Three AUDIT-flagged clinical-accuracy items remain **unresolved in the code, by
   design** — ported verbatim with a comment, pending Praew's clinical confirmation:
-  `bpd.jsx:66`'s "Grade 3A = death" wording, and the "bowel wall > 2.6mm = NEC
-  concern" line (appears in both `NecScreen.tsx` and `PocusScreen.tsx`). The
-  `hie.jsx:140` "BE ≥-16" ambiguous notation is likewise ported verbatim with a
-  flagging comment. See `../AUDIT.md` for the full list — do not reword these
-  without clinician sign-off.
+  `BpdScreen.tsx`'s "Grade 3A = death" wording, the "bowel wall > 2.6mm = NEC
+  concern" line (appears in both `NecScreen.tsx` and `PocusScreen.tsx`), and
+  `HieScreen.tsx`'s "BE ≥-16" ambiguous notation. See [`AUDIT.md`](AUDIT.md) for the
+  full list — do not reword these without clinician sign-off.
 
 Next (incremental): apply the clinical-accuracy fixes above once confirmed; add the
 global disclaimer to `CalcHub`'s hub screen itself (currently only on the individual
-calc screens); reconcile the 365-entry lesson dataset; decide the `uploads/` folder's
-git-history fate (still tracked in the prototype directory, ~24MB of copyrighted
-material — see AUDIT S-1); commit this work (nothing has been committed yet).
+calc screens); reconcile the 365-entry lesson dataset against the source curriculum.
+
+## License
+
+Code is [MIT-licensed](LICENSE). The clinical reference content (drug doses, staging
+criteria, protocol summaries) is original educational material written by the author,
+referencing standard published neonatology literature — it is not a verbatim copy of
+any single copyrighted textbook or institutional guideline. It is provided for
+educational purposes only and is not a substitute for your institution's own protocols
+or the official published clinical tools it links to.
 
 ## Layout
 
