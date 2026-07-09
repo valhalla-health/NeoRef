@@ -1,7 +1,9 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { App } from './App';
+
+beforeEach(() => localStorage.clear());
 
 describe('<App /> — end-to-end shell', () => {
   it('renders home with the educational disclaimer and a live curriculum day', () => {
@@ -35,5 +37,26 @@ describe('<App /> — end-to-end shell', () => {
     await user.click(within(nav).getByText('Learn'));
     expect(screen.getByText(/Daily/)).toBeInTheDocument();
     expect(screen.getByText(/Neonatal and Perinatal Epidemiology/i)).toBeInTheDocument();
+  });
+
+  it('navigates to the Progress tab and shows gamification state', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    const nav = screen.getByRole('navigation', { name: /primary/i });
+    await user.click(within(nav).getByText('Progress'));
+    expect(screen.getByText(/Earn XP by finishing lessons/)).toBeInTheDocument();
+    expect(screen.getByText(/Achievements ·/)).toBeInTheDocument();
+  });
+
+  it('awards tool-usage XP the first time a calculator is opened', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    const nav = screen.getByRole('navigation', { name: /primary/i });
+
+    await user.click(within(nav).getByText('Tools'));
+    await user.click(screen.getByRole('button', { name: /EOS factors/i }));
+
+    await user.click(within(nav).getByText('Progress'));
+    expect(screen.getByText(/5\/50 XP/)).toBeInTheDocument();
   });
 });

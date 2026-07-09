@@ -7,6 +7,8 @@ import { CalcHub } from './features/calc/CalcHub';
 import { CALC_SCREENS } from './features/calc/registry';
 import { LearnScreen } from './features/learn/LearnScreen';
 import { LessonDetail } from './features/learn/LessonDetail';
+import { GamifyScreen } from './features/gamify/GamifyScreen';
+import { recordToolOpen } from './lib/storage';
 
 // Simple state-based navigation (no router needed for a 3-tab PWA).
 // Sub-navigation within the Tools tab is a single `calcId` (null = hub);
@@ -23,7 +25,13 @@ export function App() {
   }
 
   function openCalc(id: string) {
+    recordToolOpen(id); // first open per tool counts toward gamification XP/badges
     setTab('calc');
+    setCalcId(id);
+  }
+
+  function selectCalc(id: string) {
+    recordToolOpen(id);
     setCalcId(id);
   }
 
@@ -39,7 +47,12 @@ export function App() {
       <div style={{ position: 'absolute', inset: 0, height: CONTENT_H, overflow: 'hidden' }}>
         <ErrorBoundary>
           {tab === 'home' && (
-            <HomeScreen onOpenCalc={openCalc} onOpenLearn={() => switchTab('learn')} onOpenLesson={openLesson} />
+            <HomeScreen
+              onOpenCalc={openCalc}
+              onOpenLearn={() => switchTab('learn')}
+              onOpenLesson={openLesson}
+              onOpenProgress={() => switchTab('progress')}
+            />
           )}
 
           {tab === 'calc' &&
@@ -48,7 +61,7 @@ export function App() {
               return Screen ? (
                 <Screen onBack={() => setCalcId(null)} />
               ) : (
-                <CalcHub onSelect={setCalcId} />
+                <CalcHub onSelect={selectCalc} />
               );
             })()}
 
@@ -58,6 +71,8 @@ export function App() {
             ) : (
               <LearnScreen onOpenLesson={setLessonDay} />
             ))}
+
+          {tab === 'progress' && <GamifyScreen />}
         </ErrorBoundary>
       </div>
 
