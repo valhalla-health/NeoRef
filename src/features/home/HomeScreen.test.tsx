@@ -101,7 +101,7 @@ describe('HomeScreen', () => {
     // lessonForDay falls back to the nearest earlier lesson once the real-clock
     // curriculum day outruns the authored dataset. The header must never claim
     // "Today · Day N" for content that is actually from an earlier day.
-    const today = curriculumDay();
+    const today = resumeDay(getProgress());
     const lesson = lessonForDay(today);
     renderHome();
     if (lesson.day === today) {
