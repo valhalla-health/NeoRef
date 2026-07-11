@@ -1,5 +1,13 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { getProgress, markLesson, isLessonDone, toggleBookmark, isBookmarked } from './storage';
+import {
+  getProgress,
+  markLesson,
+  isLessonDone,
+  toggleBookmark,
+  isBookmarked,
+  setProgress,
+  subscribeProgress,
+} from './storage';
 
 beforeEach(() => localStorage.clear());
 
@@ -25,6 +33,47 @@ describe('bookmarks', () => {
     expect(isBookmarked('proto-caffeine')).toBe(true);
     expect(toggleBookmark('proto-caffeine')).toBe(false);
     expect(isBookmarked('proto-caffeine')).toBe(false);
+  });
+});
+
+describe('reference stability (regression for useSyncExternalStore infinite loop)', () => {
+  it('returns the same object reference across calls when nothing changed', () => {
+    markLesson(3, true, new Date(2026, 0, 3));
+    expect(getProgress()).toBe(getProgress());
+  });
+
+  it('returns a new reference after markLesson changes the data', () => {
+    markLesson(3, true, new Date(2026, 0, 3));
+    const before = getProgress();
+    markLesson(4, true, new Date(2026, 0, 4));
+    expect(getProgress()).not.toBe(before);
+  });
+
+  it('returns a new reference after setProgress overwrites the map', () => {
+    markLesson(3, true, new Date(2026, 0, 3));
+    const before = getProgress();
+    setProgress({ '3': before['3'], '9': new Date(2026, 0, 9).toISOString() });
+    const after = getProgress();
+    expect(after).not.toBe(before);
+    expect(after['9']).toBeDefined();
+  });
+});
+
+describe('setProgress + subscribeProgress', () => {
+  it('bulk-overwrites the progress map', () => {
+    setProgress({ '10': '2026-01-10T00:00:00.000Z', '11': '2026-01-11T00:00:00.000Z' });
+    expect(getProgress()).toEqual({ '10': '2026-01-10T00:00:00.000Z', '11': '2026-01-11T00:00:00.000Z' });
+  });
+
+  it('notifies subscribers on markLesson and setProgress', () => {
+    let calls = 0;
+    const unsubscribe = subscribeProgress(() => calls++);
+    markLesson(1, true);
+    setProgress({ '1': new Date().toISOString() });
+    expect(calls).toBe(2);
+    unsubscribe();
+    markLesson(2, true);
+    expect(calls).toBe(2); // no longer subscribed
   });
 });
 
