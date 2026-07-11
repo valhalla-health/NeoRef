@@ -18,7 +18,7 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run typecheck
-      - run: npm test
+      - run: npm run coverage
       - run: npm run build
         env:
           # Fork PRs can't see repo secrets — fall back to non-secret

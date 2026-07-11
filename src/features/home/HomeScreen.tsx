@@ -1,31 +1,40 @@
 import { useState } from 'react';
 import { warm, font } from '../../theme/tokens';
 import { DisclaimerBanner } from '../../components/Disclaimer';
-import { myCurriculumDay, CURRICULUM_LENGTH } from '../../lib/today';
+import { resumeDay, CURRICULUM_LENGTH } from '../../lib/today';
 import { useProgress } from '../../lib/useProgress';
+import { getGamifyState } from '../../lib/gamify';
 import { lessonForDay } from '../../data/lessons';
 import { CALCS } from '../../data/calcs';
 import { useMyStats } from '../gamify/useMyStats';
 import { useAuth } from '../auth/AuthContext';
+import { LevelCard } from '../gamify/LevelCard';
 
 export function HomeScreen({
   onOpenCalc,
   onOpenLearn,
   onOpenLesson,
+  onOpenProgress,
 }: {
   onOpenCalc: (id: string) => void;
   onOpenLearn: () => void;
   onOpenLesson: (day: number) => void;
+  onOpenProgress: () => void;
 }) {
-  const today = myCurriculumDay(); // real clock, anchored to this device's own start date — fixes C-1
   const progress = useProgress();
+  const today = resumeDay(progress); // resumes from the learner's own progress, not the calendar
   const doneCount = Object.keys(progress).length;
   const pct = Math.round((doneCount / CURRICULUM_LENGTH) * 100);
   const lesson = lessonForDay(today);
   const lessonDone = Boolean(progress[String(lesson.day)]);
+  // lessonForDay falls back to the nearest earlier lesson once the curriculum
+  // day outruns the authored lesson dataset — label it honestly so the header
+  // never claims to show content for a day it isn't.
+  const isExactMatch = lesson.day === today;
   const quickCalcs = CALCS.slice(0, 6);
   const stats = useMyStats();
   const { user } = useAuth();
+  const gamify = getGamifyState();
 
   return (
     <div style={{ width: '100%', height: '100%', background: warm.paper, overflowY: 'auto', overflowX: 'hidden' }}>
@@ -42,10 +51,14 @@ export function HomeScreen({
           {user && <NameBadge name={user.name || user.email} />}
         </div>
 
+        <div style={{ marginBottom: 16 }}>
+          <LevelCard level={gamify.level} streak={gamify.streak} compact onClick={onOpenProgress} />
+        </div>
+
         {/* Today's lesson */}
         <div style={{ marginBottom: 16 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: warm.muted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
-            Today · Day {today}
+            {isExactMatch ? `Today · Day ${today}` : `Latest lesson · Day ${lesson.day}`}
           </div>
           <button
             type="button"
@@ -64,7 +77,7 @@ export function HomeScreen({
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
               <span style={{ fontFamily: font.mono, fontSize: 11, color: warm.muted }}>
-                Ch {lesson.chapter} · {lesson.book}
+                Day {lesson.day} · Ch {lesson.chapter} · {lesson.book}
               </span>
               {lessonDone && (
                 <span style={{ background: warm.sage, color: '#fff', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 999 }}>
@@ -111,42 +124,14 @@ export function HomeScreen({
           </div>
         </div>
 
-        {/* Streak / points */}
+        {/* Leaderboard points — streak is already shown in the level card above */}
         {stats && (
-          <div style={{ display: 'flex', gap: 8, marginBottom: 18 }}>
-            <div
-              style={{
-                flex: 1,
-                background: warm.card,
-                border: `1px solid ${warm.line}`,
-                borderRadius: 12,
-                padding: '8px 12px',
-                textAlign: 'center',
-              }}
-            >
-              <div style={{ fontSize: 16, fontWeight: 800, color: warm.terra, fontFamily: font.mono }}>
-                🔥 {stats.streak}
-              </div>
-              <div style={{ fontSize: 10, color: warm.muted, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                day streak
-              </div>
+          <div style={{ marginBottom: 18, background: warm.card, border: `1px solid ${warm.line}`, borderRadius: 12, padding: '8px 12px', textAlign: 'center' }}>
+            <div style={{ fontSize: 16, fontWeight: 800, color: warm.sage, fontFamily: font.mono }}>
+              {stats.points} pts
             </div>
-            <div
-              style={{
-                flex: 1,
-                background: warm.card,
-                border: `1px solid ${warm.line}`,
-                borderRadius: 12,
-                padding: '8px 12px',
-                textAlign: 'center',
-              }}
-            >
-              <div style={{ fontSize: 16, fontWeight: 800, color: warm.sage, fontFamily: font.mono }}>
-                {stats.points} pts
-              </div>
-              <div style={{ fontSize: 10, color: warm.muted, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                points
-              </div>
+            <div style={{ fontSize: 10, color: warm.muted, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+              leaderboard points
             </div>
           </div>
         )}
@@ -183,7 +168,7 @@ export function HomeScreen({
           </div>
         </div>
 
-        <DisclaimerBanner subtle />
+        <DisclaimerBanner muted />
 
         <div style={{ textAlign: 'center', padding: '0 0 24px', color: warm.muted, fontSize: 11, fontFamily: font.mono }}>
           Newborn In-Hand · v2.0 · 2026

@@ -1,10 +1,12 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   getProgress,
   markLesson,
   isLessonDone,
   toggleBookmark,
   isBookmarked,
+  getToolUsage,
+  recordToolOpen,
   setProgress,
   subscribeProgress,
 } from './storage';
@@ -33,6 +35,18 @@ describe('bookmarks', () => {
     expect(isBookmarked('proto-caffeine')).toBe(true);
     expect(toggleBookmark('proto-caffeine')).toBe(false);
     expect(isBookmarked('proto-caffeine')).toBe(false);
+  });
+});
+
+describe('tool usage', () => {
+  it('records only the first open of a tool', () => {
+    recordToolOpen('eos', new Date(2026, 0, 5));
+    recordToolOpen('eos', new Date(2026, 0, 9)); // second open should not overwrite the first timestamp
+    expect(getToolUsage()).toEqual({ eos: new Date(2026, 0, 5).toISOString() });
+  });
+
+  it('starts empty', () => {
+    expect(getToolUsage()).toEqual({});
   });
 });
 
@@ -92,5 +106,18 @@ describe('schema/version safety (regression for C-6)', () => {
   it('ignores corrupt JSON gracefully', () => {
     localStorage.setItem('neoref:bookmarks', '{not json');
     expect(isBookmarked('x')).toBe(false);
+  });
+
+  it('degrades silently (no throw) when localStorage.setItem throws (quota exceeded / private mode)', () => {
+    const setItem = vi
+      .spyOn(Storage.prototype, 'setItem')
+      .mockImplementation(() => {
+        throw new DOMException('QuotaExceededError');
+      });
+
+    expect(() => markLesson(1, true)).not.toThrow();
+    expect(() => toggleBookmark('x')).not.toThrow();
+
+    setItem.mockRestore();
   });
 });
