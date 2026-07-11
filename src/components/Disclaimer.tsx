@@ -34,6 +34,9 @@ export function DisclaimerBanner({
       </span>
       <span
         style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 3,
           fontSize: compact ? 10.5 : 11.5,
           lineHeight: 1.4,
           color: muted ? warm.muted : warm.warn,
@@ -41,8 +44,11 @@ export function DisclaimerBanner({
           fontWeight: muted ? 500 : 600,
         }}
       >
-        Educational reference only — not a clinical decision aid. Verify every value against your
-        institution&apos;s protocols and the official published tools before any patient care.
+        <span>Educational reference only — not a clinical decision aid.</span>
+        <span>
+          Verify every value against your institution&apos;s protocols and the official published
+          tools before any patient care.
+        </span>
       </span>
     </div>
   );

@@ -42,7 +42,7 @@ export function HomeScreen({
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
           <div>
             <div style={{ fontFamily: font.head, fontSize: 22, fontWeight: 800, letterSpacing: -0.4, color: warm.ink }}>
-              Newborn <span style={{ color: warm.terra }}>In-Hand</span>
+              Newborn In-Hand
             </div>
             <div style={{ fontSize: 12.5, color: warm.muted, marginBottom: 12 }}>
               KCMH · Thai CPG
