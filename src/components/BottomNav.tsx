@@ -1,11 +1,12 @@
 import { warm, font } from '../theme/tokens';
 
-export type Tab = 'home' | 'calc' | 'learn';
+export type Tab = 'home' | 'calc' | 'learn' | 'leaderboard';
 
 const TABS: { id: Tab; label: string; emoji: string }[] = [
   { id: 'home', label: 'Home', emoji: '🏠' },
   { id: 'calc', label: 'Tools', emoji: '🧮' },
   { id: 'learn', label: 'Learn', emoji: '📚' },
+  { id: 'leaderboard', label: 'Ranks', emoji: '🏆' },
 ];
 
 export function BottomNav({ active, onChange }: { active: Tab; onChange: (t: Tab) => void }) {

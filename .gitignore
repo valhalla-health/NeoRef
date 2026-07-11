@@ -13,6 +13,10 @@ coverage/
 .vscode/*
 !.vscode/extensions.json
 
+# Local secrets (Google OAuth client ID, GAS web app URL) — see .env.example
+.env
+.env.local
+
 # Logs
 npm-debug.log*
 *.log

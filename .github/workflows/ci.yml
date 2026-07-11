@@ -20,3 +20,9 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
+        env:
+          # Fork PRs can't see repo secrets — fall back to non-secret
+          # placeholders so the build still succeeds (these values aren't
+          # secret in a security sense; they end up in the public JS bundle).
+          VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID || 'ci-placeholder.apps.googleusercontent.com' }}
+          VITE_GAS_URL: ${{ secrets.VITE_GAS_URL || 'https://script.google.com/macros/s/ci-placeholder/exec' }}

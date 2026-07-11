@@ -7,11 +7,15 @@ import { CalcHub } from './features/calc/CalcHub';
 import { CALC_SCREENS } from './features/calc/registry';
 import { LearnScreen } from './features/learn/LearnScreen';
 import { LessonDetail } from './features/learn/LessonDetail';
+import { LeaderboardScreen } from './features/gamify/LeaderboardScreen';
+import { useAuth } from './features/auth/AuthContext';
+import { LoginScreen } from './features/auth/LoginScreen';
 
-// Simple state-based navigation (no router needed for a 3-tab PWA).
+// Simple state-based navigation (no router needed for a 4-tab PWA).
 // Sub-navigation within the Tools tab is a single `calcId` (null = hub);
 // within the Learn tab it's a single `lessonDay` (null = list).
 export function App() {
+  const { status } = useAuth();
   const [tab, setTab] = useState<Tab>('home');
   const [calcId, setCalcId] = useState<string | null>(null);
   const [lessonDay, setLessonDay] = useState<number | null>(null);
@@ -30,6 +34,16 @@ export function App() {
   function openLesson(day: number) {
     setTab('learn');
     setLessonDay(day);
+  }
+
+  if (status === 'signed-out') {
+    return (
+      <div style={{ position: 'relative', width: '100%', height: '100%', background: warm.paper }}>
+        <ErrorBoundary>
+          <LoginScreen />
+        </ErrorBoundary>
+      </div>
+    );
   }
 
   const CONTENT_H = 'calc(100% - 60px)';
@@ -58,6 +72,8 @@ export function App() {
             ) : (
               <LearnScreen onOpenLesson={setLessonDay} />
             ))}
+
+          {tab === 'leaderboard' && <LeaderboardScreen />}
         </ErrorBoundary>
       </div>
 

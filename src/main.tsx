@@ -11,12 +11,15 @@ import '@fontsource/sarabun/700.css';
 
 import './theme/global.css';
 import { App } from './App';
+import { AuthProvider } from './features/auth/AuthContext';
 
 const rootEl = document.getElementById('root');
 if (!rootEl) throw new Error('Root element #root not found');
 
 createRoot(rootEl).render(
   <StrictMode>
-    <App />
+    <AuthProvider>
+      <App />
+    </AuthProvider>
   </StrictMode>,
 );

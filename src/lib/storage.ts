@@ -82,3 +82,21 @@ export function toggleBookmark(id: string, now: Date = new Date()): boolean {
 export function isBookmarked(id: string): boolean {
   return Boolean(getBookmarks()[id]);
 }
+
+// ─── Personal curriculum start date ───────────────────────────────────────
+// Anchors "Today · Day N" to when this device first opened the app, instead
+// of a fixed calendar date, so the curriculum tracks each user's own pace.
+function isIsoDateString(x: unknown): x is string {
+  return typeof x === 'string' && !Number.isNaN(Date.parse(x));
+}
+
+function isStoredStartDate(x: unknown): x is string | null {
+  return x === null || isIsoDateString(x);
+}
+
+export function getCurriculumStartDate(now: Date = new Date()): Date {
+  const stored = read<string | null>('curriculum-start', null, isStoredStartDate);
+  if (stored) return new Date(stored);
+  write('curriculum-start', now.toISOString());
+  return now;
+}

@@ -5,18 +5,32 @@
 // per-file typechecking alone would not (each screen was ported by a
 // separate pass and only typechecked in isolation).
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { App } from '../../App';
+import { AuthProvider } from '../auth/AuthContext';
+import { setSession } from '../../lib/session';
 import { CALCS } from '../../data/calcs';
 
 const ported = CALCS.filter((c) => c.ported);
 
+// See App.test.tsx — the shell now requires a signed-in session.
+beforeEach(() => {
+  localStorage.clear();
+  setSession({ email: 'test@example.com', name: 'Test User', role: 'user', token: 'test-token' });
+  vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('no network in tests')));
+});
+afterEach(() => vi.unstubAllGlobals());
+
 describe('calc registry — every ported calculator renders via the real hub', () => {
   it.each(ported)('$id ($label) renders with a disclaimer and returns to the hub', async (calc) => {
     const user = userEvent.setup();
-    render(<App />);
+    render(
+      <AuthProvider>
+        <App />
+      </AuthProvider>,
+    );
 
     const nav = screen.getByRole('navigation', { name: /primary/i });
     await user.click(within(nav).getByText('Tools'));

@@ -1,9 +1,11 @@
 import { warm, font } from '../../theme/tokens';
 import { DisclaimerBanner } from '../../components/Disclaimer';
-import { curriculumDay, CURRICULUM_LENGTH } from '../../lib/today';
+import { myCurriculumDay, CURRICULUM_LENGTH } from '../../lib/today';
 import { getProgress } from '../../lib/storage';
 import { lessonForDay } from '../../data/lessons';
 import { CALCS } from '../../data/calcs';
+import { useMyStats } from '../gamify/useMyStats';
+import { useAuth } from '../auth/AuthContext';
 
 export function HomeScreen({
   onOpenCalc,
@@ -14,25 +16,43 @@ export function HomeScreen({
   onOpenLearn: () => void;
   onOpenLesson: (day: number) => void;
 }) {
-  const today = curriculumDay(); // real clock — fixes C-1
+  const today = myCurriculumDay(); // real clock, anchored to this device's own start date — fixes C-1
   const progress = getProgress();
   const doneCount = Object.keys(progress).length;
   const pct = Math.round((doneCount / CURRICULUM_LENGTH) * 100);
   const lesson = lessonForDay(today);
   const lessonDone = Boolean(progress[String(lesson.day)]);
   const quickCalcs = CALCS.slice(0, 6);
+  const stats = useMyStats();
+  const { user } = useAuth();
 
   return (
     <div style={{ width: '100%', height: '100%', background: warm.paper, overflowY: 'auto', overflowX: 'hidden' }}>
       <div style={{ padding: '16px 20px 8px' }}>
-        <div style={{ fontFamily: font.head, fontSize: 22, fontWeight: 800, letterSpacing: -0.4, color: warm.ink }}>
-          Newborn <span style={{ color: warm.terra }}>In-Hand</span>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+          <div>
+            <div style={{ fontFamily: font.head, fontSize: 22, fontWeight: 800, letterSpacing: -0.4, color: warm.ink }}>
+              Newborn <span style={{ color: warm.terra }}>In-Hand</span>
+            </div>
+            <div style={{ fontSize: 12.5, color: warm.muted, marginBottom: 12 }}>
+              KCMH · Thai CPG
+            </div>
+          </div>
+          {user && (
+            <div
+              style={{
+                fontFamily: font.head,
+                fontSize: 20,
+                fontWeight: 800,
+                letterSpacing: -0.4,
+                color: warm.terra,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {user.name || user.email}
+            </div>
+          )}
         </div>
-        <div style={{ fontSize: 12.5, color: warm.muted, marginBottom: 12 }}>
-          KCMH · Thai CPG
-        </div>
-
-        <DisclaimerBanner />
 
         {/* Today's lesson */}
         <div style={{ marginBottom: 16 }}>
@@ -103,6 +123,46 @@ export function HomeScreen({
           </div>
         </div>
 
+        {/* Streak / points */}
+        {stats && (
+          <div style={{ display: 'flex', gap: 8, marginBottom: 18 }}>
+            <div
+              style={{
+                flex: 1,
+                background: warm.card,
+                border: `1px solid ${warm.line}`,
+                borderRadius: 12,
+                padding: '8px 12px',
+                textAlign: 'center',
+              }}
+            >
+              <div style={{ fontSize: 16, fontWeight: 800, color: warm.terra, fontFamily: font.mono }}>
+                🔥 {stats.streak}
+              </div>
+              <div style={{ fontSize: 10, color: warm.muted, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                day streak
+              </div>
+            </div>
+            <div
+              style={{
+                flex: 1,
+                background: warm.card,
+                border: `1px solid ${warm.line}`,
+                borderRadius: 12,
+                padding: '8px 12px',
+                textAlign: 'center',
+              }}
+            >
+              <div style={{ fontSize: 16, fontWeight: 800, color: warm.sage, fontFamily: font.mono }}>
+                {stats.points} pts
+              </div>
+              <div style={{ fontSize: 10, color: warm.muted, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                points
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Quick tools */}
         <div style={{ marginBottom: 24 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: warm.muted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
@@ -134,6 +194,8 @@ export function HomeScreen({
             ))}
           </div>
         </div>
+
+        <DisclaimerBanner subtle />
 
         <div style={{ textAlign: 'center', padding: '0 0 24px', color: warm.muted, fontSize: 11, fontFamily: font.mono }}>
           Newborn In-Hand · v2.0 · 2026

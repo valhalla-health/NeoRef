@@ -3,10 +3,11 @@
 // initial app JS small even with 200+ lessons' worth of text.
 
 import { useEffect, useState } from 'react';
-import { warm, font } from '../../theme/tokens';
+import { warm, font, chipTone } from '../../theme/tokens';
 import { DisclaimerBanner } from '../../components/Disclaimer';
 import { lessonForDay, lessonPath, LESSON_SOURCE_FOLDER_URL, bookLabel, lessonSourceHint } from '../../data/lessons';
-import { isLessonDone, markLesson } from '../../lib/storage';
+import { isLessonDone } from '../../lib/storage';
+import { setLessonDone } from '../../lib/progress';
 
 type Block =
   | { type: 'h1' | 'h2' | 'li' | 'p' | 'callout'; text: string }
@@ -25,6 +26,16 @@ type LoadState =
   | { status: 'loading' }
   | { status: 'error' }
   | { status: 'ready'; content: LessonContent };
+
+// Every lesson's opening callout is authored with a rhetorical lead-in line
+// ("ทำไม neonatologist ต้องเข้าใจ <topic>?") before the actual key-points
+// summary — redundant once it's inside the app, so it's stripped for display
+// only (the source .docx on OneDrive is left untouched).
+const WHY_INTRO_RE = /^ทำไม\s*neonatologist\s*ต้องเข้าใจ[^\n]*\?\s*\n+/;
+
+function stripWhyIntro(text: string): string {
+  return text.replace(WHY_INTRO_RE, '');
+}
 
 export function LessonDetail({ day, onBack }: { day: number; onBack?: () => void }) {
   const [state, setState] = useState<LoadState>({ status: 'loading' });
@@ -80,7 +91,7 @@ export function LessonDetail({ day, onBack }: { day: number; onBack?: () => void
         <button
           type="button"
           onClick={() => {
-            markLesson(day, !done);
+            setLessonDone(day, !done);
             setDone(!done);
           }}
           style={{
@@ -174,7 +185,7 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
                   whiteSpace: 'pre-wrap',
                 }}
               >
-                {b.text}
+                {stripWhyIntro(b.text)}
               </div>
             );
           case 'h1':
@@ -208,15 +219,53 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
                 {b.text}
               </div>
             );
-          case 'li':
+          case 'li': {
+            // Self-check questions are authored as a "Q:" bullet followed by a
+            // "ตอบ:" paragraph — style the question as a distinct card so the
+            // Q/A pair reads as a unit instead of blending into the list above it.
+            const qMatch = /^Q\s*[:：]\s*/.exec(b.text);
+            if (qMatch) {
+              return (
+                <div
+                  key={i}
+                  style={{
+                    display: 'flex',
+                    gap: 8,
+                    background: chipTone.terra.bg,
+                    borderRadius: 10,
+                    padding: '8px 10px',
+                    marginTop: 16,
+                    marginBottom: 2,
+                  }}
+                >
+                  <span style={{ fontWeight: 800, color: chipTone.terra.fg, fontSize: 11.5 }}>Q</span>
+                  <span style={{ flex: 1, fontSize: 12.5, fontWeight: 700, color: chipTone.terra.fg, lineHeight: 1.5 }}>
+                    {b.text.slice(qMatch[0].length)}
+                  </span>
+                </div>
+              );
+            }
+            // Plain bullet lists (references, evidence citations) get a light
+            // zebra tint per item so a long run of lines doesn't read as one block.
             return (
-              <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
+              <div
+                key={i}
+                style={{
+                  display: 'flex',
+                  gap: 8,
+                  background: i % 2 === 1 ? warm.paperDeep : 'transparent',
+                  borderRadius: 8,
+                  padding: '5px 8px',
+                  marginBottom: 3,
+                }}
+              >
                 <span aria-hidden style={{ color: warm.terra, fontSize: 12, lineHeight: 1.6 }}>
                   ·
                 </span>
                 <span style={{ flex: 1, fontSize: 12.5, color: warm.ink2, lineHeight: 1.55 }}>{b.text}</span>
               </div>
             );
+          }
           case 'table':
             return (
               <div key={i} style={{ overflowX: 'auto', marginBottom: 12 }}>
@@ -245,13 +294,33 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
                 </table>
               </div>
             );
-          case 'p':
-          default:
+          case 'p': {
+            const aMatch = /^ตอบ\s*[:：]\s*/.exec(b.text);
+            if (aMatch) {
+              return (
+                <div
+                  key={i}
+                  style={{
+                    background: '#EEEADC', // barely-there sage tint — near-invisible against warm.paper
+                    borderRadius: 10,
+                    padding: '8px 10px',
+                    marginBottom: 12,
+                    whiteSpace: 'pre-wrap',
+                  }}
+                >
+                  <span style={{ fontWeight: 800, color: chipTone.sage.fg, fontSize: 11.5 }}>ตอบ </span>
+                  <span style={{ fontSize: 12.5, color: chipTone.sage.fg, lineHeight: 1.6 }}>
+                    {b.text.slice(aMatch[0].length)}
+                  </span>
+                </div>
+              );
+            }
             return (
               <div key={i} style={{ fontSize: 12.5, color: warm.ink2, lineHeight: 1.6, marginBottom: 8, whiteSpace: 'pre-wrap' }}>
                 {b.text}
               </div>
             );
+          }
         }
       })}
     </div>
