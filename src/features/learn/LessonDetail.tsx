@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { warm, font, chipTone } from '../../theme/tokens';
 import { DisclaimerBanner } from '../../components/Disclaimer';
 import { lessonForDay, lessonPath, LESSON_SOURCE_FOLDER_URL, bookLabel, lessonSourceHint } from '../../data/lessons';
-import { isLessonDone } from '../../lib/storage';
+import { useProgress } from '../../lib/useProgress';
 import { setLessonDone } from '../../lib/progress';
 
 type Block =
@@ -39,7 +39,8 @@ function stripWhyIntro(text: string): string {
 
 export function LessonDetail({ day, onBack }: { day: number; onBack?: () => void }) {
   const [state, setState] = useState<LoadState>({ status: 'loading' });
-  const [done, setDone] = useState(() => isLessonDone(day));
+  const progress = useProgress();
+  const done = Boolean(progress[String(day)]);
   const meta = lessonForDay(day);
 
   useEffect(() => {
@@ -90,10 +91,7 @@ export function LessonDetail({ day, onBack }: { day: number; onBack?: () => void
         </button>
         <button
           type="button"
-          onClick={() => {
-            setLessonDone(day, !done);
-            setDone(!done);
-          }}
+          onClick={() => setLessonDone(day, !done)}
           style={{
             border: `1px solid ${done ? warm.sage : warm.line}`,
             background: done ? warm.sage : 'transparent',
