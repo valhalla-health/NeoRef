@@ -1,7 +1,8 @@
+import { useState } from 'react';
 import { warm, font } from '../../theme/tokens';
 import { DisclaimerBanner } from '../../components/Disclaimer';
 import { myCurriculumDay, CURRICULUM_LENGTH } from '../../lib/today';
-import { getProgress } from '../../lib/storage';
+import { useProgress } from '../../lib/useProgress';
 import { lessonForDay } from '../../data/lessons';
 import { CALCS } from '../../data/calcs';
 import { useMyStats } from '../gamify/useMyStats';
@@ -17,7 +18,7 @@ export function HomeScreen({
   onOpenLesson: (day: number) => void;
 }) {
   const today = myCurriculumDay(); // real clock, anchored to this device's own start date — fixes C-1
-  const progress = getProgress();
+  const progress = useProgress();
   const doneCount = Object.keys(progress).length;
   const pct = Math.round((doneCount / CURRICULUM_LENGTH) * 100);
   const lesson = lessonForDay(today);
@@ -38,20 +39,7 @@ export function HomeScreen({
               KCMH · Thai CPG
             </div>
           </div>
-          {user && (
-            <div
-              style={{
-                fontFamily: font.head,
-                fontSize: 20,
-                fontWeight: 800,
-                letterSpacing: -0.4,
-                color: warm.terra,
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {user.name || user.email}
-            </div>
-          )}
+          {user && <NameBadge name={user.name || user.email} />}
         </div>
 
         {/* Today's lesson */}
@@ -201,6 +189,137 @@ export function HomeScreen({
           Newborn In-Hand · v2.0 · 2026
         </div>
       </div>
+    </div>
+  );
+}
+
+// Tap-to-rename badge — the name shown here also drives the row label on
+// the leaderboard (LeaderboardScreen.tsx), so saving round-trips through
+// the GAS backend (AuthContext.updateName) instead of just editing locally.
+function NameBadge({ name }: { name: string }) {
+  const { updateName } = useAuth();
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(name);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  function startEditing() {
+    setDraft(name);
+    setError(null);
+    setEditing(true);
+  }
+
+  function cancel() {
+    setEditing(false);
+    setError(null);
+  }
+
+  async function save() {
+    if (draft.trim() === name.trim()) {
+      setEditing(false);
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    const err = await updateName(draft);
+    setBusy(false);
+    if (err) {
+      setError(err);
+      return;
+    }
+    setEditing(false);
+  }
+
+  if (!editing) {
+    return (
+      <button
+        type="button"
+        onClick={startEditing}
+        aria-label="Edit your name"
+        style={{
+          border: 'none',
+          background: 'none',
+          padding: 0,
+          cursor: 'pointer',
+          fontFamily: font.head,
+          fontSize: 20,
+          fontWeight: 800,
+          letterSpacing: -0.4,
+          color: warm.terra,
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {name} <span style={{ fontSize: 13 }} aria-hidden>✎</span>
+      </button>
+    );
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <input
+          type="text"
+          value={draft}
+          autoFocus
+          disabled={busy}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') void save();
+            if (e.key === 'Escape') cancel();
+          }}
+          aria-label="Your name"
+          style={{
+            width: 130,
+            fontFamily: font.head,
+            fontSize: 14,
+            fontWeight: 700,
+            color: warm.ink,
+            background: warm.card,
+            border: `1.5px solid ${warm.terra}`,
+            borderRadius: 8,
+            padding: '4px 8px',
+            outline: 'none',
+          }}
+        />
+        <button
+          type="button"
+          onClick={() => void save()}
+          disabled={busy}
+          aria-label="Save name"
+          style={{
+            border: 'none',
+            background: warm.sage,
+            color: '#fff',
+            fontSize: 12,
+            fontWeight: 700,
+            borderRadius: 999,
+            width: 24,
+            height: 24,
+            cursor: busy ? 'default' : 'pointer',
+          }}
+        >
+          ✓
+        </button>
+        <button
+          type="button"
+          onClick={cancel}
+          disabled={busy}
+          aria-label="Cancel"
+          style={{
+            border: 'none',
+            background: 'none',
+            color: warm.muted,
+            fontSize: 12,
+            fontWeight: 700,
+            cursor: busy ? 'default' : 'pointer',
+          }}
+        >
+          ✕
+        </button>
+      </div>
+      {error && (
+        <div style={{ fontSize: 10.5, color: warm.warn, maxWidth: 180, textAlign: 'right' }}>{error}</div>
+      )}
     </div>
   );
 }

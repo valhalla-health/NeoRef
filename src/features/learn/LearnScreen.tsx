@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { warm, font } from '../../theme/tokens';
 import { LESSONS, bookLabel, type Lesson } from '../../data/lessons';
-import { getProgress } from '../../lib/storage';
+import { useProgress } from '../../lib/useProgress';
 import { setLessonDone } from '../../lib/progress';
 import { myCurriculumDay } from '../../lib/today';
 
@@ -18,15 +18,14 @@ function matchesQuery(l: Lesson, query: string): boolean {
 }
 
 export function LearnScreen({ onOpenLesson }: { onOpenLesson: (day: number) => void }) {
-  const [progress, setProgress] = useState(getProgress);
+  const progress = useProgress();
   const [query, setQuery] = useState('');
   const today = myCurriculumDay();
   const visible = useMemo(() => LESSONS.filter((l) => matchesQuery(l, query)), [query]);
 
   function toggleDone(day: number, e: React.MouseEvent) {
     e.stopPropagation();
-    const done = !progress[String(day)];
-    setProgress({ ...setLessonDone(day, done) });
+    setLessonDone(day, !progress[String(day)]);
   }
 
   return (
