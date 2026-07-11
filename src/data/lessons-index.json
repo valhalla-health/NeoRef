@@ -1057,6 +1057,13 @@
   "authors": "Hüppi PS, Gressens P / Fanaroff & Martin 2025"
  },
  {
+  "day": 152,
+  "book": "Fanaroff",
+  "chapter": 55,
+  "title": "Intracranial Hemorrhage and Stroke in the Neonate",
+  "authors": "Cizmeci MN, de Vries LS / Fanaroff & Martin 2025"
+ },
+ {
   "day": 153,
   "book": "Fanaroff",
   "chapter": 56,
@@ -1069,6 +1076,13 @@
   "chapter": 57,
   "title": "Seizures in Neonates",
   "authors": "Kayyal S, Inder TE / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 155,
+  "book": "Fanaroff",
+  "chapter": 58,
+  "title": "Hypotonia and Neuromuscular Disease in the Neonate",
+  "authors": "Nancy Bass / Fanaroff & Martin 2025"
  },
  {
   "day": 156,
@@ -1092,11 +1106,67 @@
   "authors": "Betty R. Vohr / Fanaroff & Martin 2025"
  },
  {
+  "day": 159,
+  "book": "Fanaroff",
+  "chapter": 62,
+  "title": "Early Childhood Neurodevelopmental Outcomes of High Risk Neonates",
+  "authors": "Wilson-Costello DE, Payne AH / Fanaroff & Martin 2025"
+ },
+ {
   "day": 160,
   "book": "Fanaroff",
   "chapter": 63,
   "title": "Lung Development and Maturation",
   "authors": "Kallapur SG, Jobe AH / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 161,
+  "book": "Fanaroff",
+  "chapter": 64,
+  "title": "Assessment of Neonatal Pulmonary Function",
+  "authors": "Di Fiore JM, Travers CP, Carlo WA / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 162,
+  "book": "Fanaroff",
+  "chapter": 65,
+  "title": "Respiratory Distress Syndrome in the Neonate",
+  "authors": "Megan Lagoski, Aaron Hamvas, Jennifer A. Wambach"
+ },
+ {
+  "day": 163,
+  "book": "Fanaroff",
+  "chapter": 66,
+  "title": "Assisted Ventilation and Its Complications",
+  "authors": "Donn SM, Stepanovich GE, Attar MA / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 164,
+  "book": "Fanaroff",
+  "chapter": 67,
+  "title": "Spectrum of Neonatal Respiratory Disorders",
+  "authors": "Moira A. Crowley"
+ },
+ {
+  "day": 165,
+  "book": "Fanaroff",
+  "chapter": 68,
+  "title": "Apnea Bradycardia Hypoxemia and the Foundation of Respiratory Control",
+  "authors": "Patrinos ME / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 166,
+  "book": "Fanaroff",
+  "chapter": 69,
+  "title": "Upper Airway Lesions in the Neonate",
+  "authors": "Otteson TD, Shah J / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 167,
+  "book": "Fanaroff",
+  "chapter": 70,
+  "title": "Bronchopulmonary Dysplasia in the Neonate",
+  "authors": "Schmidt AF, Bancalari EH / Fanaroff & Martin 2025"
  },
  {
   "day": 168,
@@ -1111,5 +1181,376 @@
   "chapter": 72,
   "title": "Cardiac Embryology",
   "authors": "Stephanie M. Ford & Michiko Watanabe"
+ },
+ {
+  "day": 170,
+  "book": "Fanaroff",
+  "chapter": 73,
+  "title": "Pulmonary Vascular Development",
+  "authors": "Robin H. Steinhorn / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 171,
+  "book": "Fanaroff",
+  "chapter": 74,
+  "title": "Prenatal Diagnosis of Congenital Heart Disease",
+  "authors": "James Strainic / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 172,
+  "book": "Fanaroff",
+  "chapter": 75,
+  "title": "Patent Ductus Arteriosus",
+  "authors": "William E. Benitz & Shazia Bhombal / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 173,
+  "book": "Fanaroff",
+  "chapter": 76,
+  "title": "Congenital Defects of the Cardiovascular System",
+  "authors": "Nathaniel Robbins & Janine Arruda / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 174,
+  "book": "Fanaroff",
+  "chapter": 77,
+  "title": "Unique Neonatal Cardiovascular Problems",
+  "authors": "Anantha Krishnan Harijith, Tara Sudhadevi & Kothandam Sivakumar / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 175,
+  "book": "Fanaroff",
+  "chapter": 78,
+  "title": "Disorders of Cardiac Rhythm and Conduction in Newborns",
+  "authors": "Bryan Cannon & Christopher S. Snyder / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 176,
+  "book": "Fanaroff",
+  "chapter": 79,
+  "title": "Neonatal Management of Congenital Heart Disease",
+  "authors": "Martin L. Bocks, Brian A. Boe & Travis J. Wilder / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 177,
+  "book": "Fanaroff",
+  "chapter": 80,
+  "title": "The Hemostatic System",
+  "authors": "Hilda Ding, Divyaswathi Citla-Sridhar & Sanjay P. Ahuja / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 178,
+  "book": "Fanaroff",
+  "chapter": 81,
+  "title": "Red Blood Cell Disorders in the Fetus and Neonate",
+  "authors": "Amma Owusu-Ansah, John Letterio & Sanjay P. Ahuja / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 179,
+  "book": "Fanaroff",
+  "chapter": 82,
+  "title": "White Blood Cells and Immune Disorders",
+  "authors": "Irina Pateva, Verania Y. Huerta Urrutia, John Letterio & Sanjay P. Ahuja / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 180,
+  "book": "Fanaroff",
+  "chapter": 83,
+  "title": "Neoplasms in the Neonate",
+  "authors": "Kristen VanHeyst, John Letterio & Rachel Egler / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 181,
+  "book": "Fanaroff",
+  "chapter": 84,
+  "title": "Blood Component Therapy for the Neonate",
+  "authors": "Cyril Jacquot, Yunchuan Delores Mo & Jennifer Webb / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 182,
+  "book": "Fanaroff",
+  "chapter": 85,
+  "title": "Development of the Neonatal Gastrointestinal Tract",
+  "authors": "Michael Dingeldein / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 183,
+  "book": "Fanaroff",
+  "chapter": 86,
+  "title": "Gastrointestinal Reflux and Motility in the Neonate",
+  "authors": "Anna Maria Hibbs / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 184,
+  "book": "Fanaroff",
+  "chapter": 87,
+  "title": "Disorders of Digestion in the Neonate",
+  "authors": "Ali Salar Khalili and Thomas J. Sferra / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 185,
+  "book": "Fanaroff",
+  "chapter": 88,
+  "title": "Selected Gastrointestinal Anomalies in the Neonate",
+  "authors": "Michael Dingeldein / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 186,
+  "book": "Fanaroff",
+  "chapter": 89,
+  "title": "Neonatal Necrotizing Enterocolitis",
+  "authors": "Diomel de la Cruz and Josef Neu / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 187,
+  "book": "Fanaroff",
+  "chapter": 90,
+  "title": "Disorders of Carbohydrate Metabolism in the Neonate",
+  "authors": "Meena Garg and Sherin U. Devaskar / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 188,
+  "book": "Fanaroff",
+  "chapter": 91,
+  "title": "Disorders of Calcium, Phosphorus, and Magnesium Metabolism",
+  "authors": "Steven A. Abrams and Dov Tiosano / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 189,
+  "book": "Fanaroff",
+  "chapter": 92,
+  "title": "Thyroid Disorders in the Neonate",
+  "authors": "Iris Gutmark-Little and Janet Chuang / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 190,
+  "book": "Fanaroff",
+  "chapter": 93,
+  "title": "Disorders of Sex Development",
+  "authors": "Shelby Thompson and Diane Katherine Wherrett / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 191,
+  "book": "Fanaroff",
+  "chapter": 94,
+  "title": "Inborn Errors of Metabolism",
+  "authors": "Laura L. Konczal / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 192,
+  "book": "Fanaroff",
+  "chapter": 95,
+  "title": "Neonatal Jaundice and Liver Disease",
+  "authors": "Kaplan, Wong, Bensen, Sibley, Stevenson / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 193,
+  "book": "Fanaroff",
+  "chapter": 96,
+  "title": "Fluid, Electrolytes, and Acid-Base Homeostasis",
+  "authors": "Sean N. Curtis / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 194,
+  "book": "Fanaroff",
+  "chapter": 97,
+  "title": "The Kidney and Urinary Tract of the Neonate",
+  "authors": "Beth A. Vogt / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 195,
+  "book": "Fanaroff",
+  "chapter": 98,
+  "title": "Skin of the Neonate",
+  "authors": "Vivek Narendran / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 196,
+  "book": "Fanaroff",
+  "chapter": 99,
+  "title": "Examination and Common Problems in the Neonatal Eye",
+  "authors": "Faruk H. Örge, Zeina M. Salem / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 197,
+  "book": "Fanaroff",
+  "chapter": 100,
+  "title": "Retinopathy of Prematurity",
+  "authors": "Ye Sun, Ann Hellström, Lois E.H. Smith / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 198,
+  "book": "Fanaroff",
+  "chapter": 101,
+  "title": "Musculoskeletal Disorders in Neonates",
+  "authors": "Raymond W. Liu, Michael P. Glotzbecker / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 199,
+  "book": "Fanaroff",
+  "chapter": 102,
+  "title": "Bone and Joint Infections in Neonates",
+  "authors": "Allison Gilmore, R. Justin Mistovich / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 200,
+  "book": "Fanaroff",
+  "chapter": 103,
+  "title": "Congenital Abnormalities of the Upper and Lower Extremities and Spine",
+  "authors": "Jochen P. Son-Hing, Christina K. Hardesty / Fanaroff & Martin 2025"
+ },
+ {
+  "day": 201,
+  "book": "NewbornLung",
+  "chapter": 1,
+  "title": "Molecular Bases for Lung Development Injury and Repair",
+  "authors": "Shu Wu & Rashmin C. Savani"
+ },
+ {
+  "day": 202,
+  "book": "NewbornLung",
+  "chapter": 2,
+  "title": "Perinatal Events and Their Influence on Lung Development and Injury",
+  "authors": "Suhas G. Kallapur & Alan H. Jobe"
+ },
+ {
+  "day": 203,
+  "book": "NewbornLung",
+  "chapter": 3,
+  "title": "Pulmonary Vascular Development and the Neonatal Circulation",
+  "authors": "Robin H. Steinhorn"
+ },
+ {
+  "day": 204,
+  "book": "NewbornLung",
+  "chapter": 4,
+  "title": "Surfactant Biology Deficiency and Replacement Therapy",
+  "authors": "Alan H. Jobe & Machiko Ikegami"
+ },
+ {
+  "day": 205,
+  "book": "NewbornLung",
+  "chapter": 5,
+  "title": "Role of Microbiome in Lung Injury",
+  "authors": "Rose M. Viscardi & Namasivayam Ambalavanan"
+ },
+ {
+  "day": 206,
+  "book": "NewbornLung",
+  "chapter": 6,
+  "title": "Definitions and Diagnostic Criteria of Bronchopulmonary Dysplasia",
+  "authors": "Eduardo Bancalari, Nelson Claure, Alan H. Jobe, Matthew M. Laughon"
+ },
+ {
+  "day": 207,
+  "book": "NewbornLung",
+  "chapter": 7,
+  "title": "Patent Ductus Arteriosus and the Lung",
+  "authors": "Martin Kluckow, Eduardo Bancalari, Ilene R.S. Sosenko & Nelson Claure"
+ },
+ {
+  "day": 208,
+  "book": "NewbornLung",
+  "chapter": 8,
+  "title": "Ventilator-Associated Pneumonia",
+  "authors": "in Bancalari E, Polin RA (eds): The Newborn Lung, 3rd ed."
+ },
+ {
+  "day": 209,
+  "book": "NewbornLung",
+  "chapter": 9,
+  "title": "Long-Term Pulmonary Outcome of Preterm Infants",
+  "authors": "Jeanie L.Y. Cheong & Lex W. Doyle"
+ },
+ {
+  "day": 210,
+  "book": "NewbornLung",
+  "chapter": 10,
+  "title": "Respiratory and Cardiovascular Support in the Delivery Room",
+  "authors": "Gary M. Weiner, Stuart B. Hooper, Peter G. Davis, Myra H. Wyckoff"
+ },
+ {
+  "day": 211,
+  "book": "NewbornLung",
+  "chapter": 11,
+  "title": "Noninvasive Ventilation of Preterm Infants",
+  "authors": "Brett J. Manley, Bradley A. Yoder, Peter G. Davis"
+ },
+ {
+  "day": 212,
+  "book": "NewbornLung",
+  "chapter": 12,
+  "title": "Newer Strategies for Surfactant Delivery",
+  "authors": "Peter A. Dargaville"
+ },
+ {
+  "day": 213,
+  "book": "NewbornLung",
+  "chapter": 13,
+  "title": "Respiratory Control and Apnea in Premature Infants",
+  "authors": "Richard J. Martin & Juliann Di Fiore"
+ },
+ {
+  "day": 214,
+  "book": "NewbornLung",
+  "chapter": 14,
+  "title": "Oxygenation Instability in the Premature Infant",
+  "authors": "In Bancalari E & Polin RA (eds): The Newborn Lung, 3rd ed."
+ },
+ {
+  "day": 215,
+  "book": "NewbornLung",
+  "chapter": 15,
+  "title": "Optimal Oxygenation in Extremely Preterm Infants",
+  "authors": "Waldemar A. Carlo & Lisa M. Askie"
+ },
+ {
+  "day": 216,
+  "book": "NewbornLung",
+  "chapter": 16,
+  "title": "Patient-Ventilator Interaction",
+  "authors": "Nelson Claure & Eduardo Bancalari"
+ },
+ {
+  "day": 217,
+  "book": "NewbornLung",
+  "chapter": 17,
+  "title": "Pulmonary-Cardiovascular Interaction",
+  "authors": "Shahab Noori & Martin Kluckow"
+ },
+ {
+  "day": 218,
+  "book": "NewbornLung",
+  "chapter": 18,
+  "title": "Ventilator Strategies to Reduce Lung Injury",
+  "authors": "Eduardo Bancalari & Nelson Claure"
+ },
+ {
+  "day": 219,
+  "book": "NewbornLung",
+  "chapter": 19,
+  "title": "Automation of Respiratory Support",
+  "authors": "Nelson Claure & Eduardo Bancalari"
+ },
+ {
+  "day": 220,
+  "book": "NewbornLung",
+  "chapter": 20,
+  "title": "Prenatal and Postnatal Steroids and Pulmonary Outcomes",
+  "authors": "Alan H. Jobe & Eduardo Bancalari"
+ },
+ {
+  "day": 221,
+  "book": "NewbornLung",
+  "chapter": 21,
+  "title": "Cell-Based Therapy for Neonatal Lung Diseases",
+  "authors": "Karen C. Young, Bernard Thébaud & Won Soon Park"
+ },
+ {
+  "day": 222,
+  "book": "NewbornLung",
+  "chapter": 22,
+  "title": "A Physiology-Based Approach to the Respiratory Care of Children With Severe BPD",
+  "authors": "Leif D. Nelin, Steven H. Abman & Howard B. Panitch"
  }
 ]

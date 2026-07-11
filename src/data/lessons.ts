@@ -11,7 +11,7 @@ import lessonsIndexData from './lessons-index.json';
 
 export interface Lesson {
   day: number;
-  book: 'Avery' | 'Fanaroff';
+  book: 'Avery' | 'Fanaroff' | 'NewbornLung';
   chapter: number;
   title: string;
   authors: string;
@@ -34,6 +34,24 @@ export function lessonPath(day: number): string {
   return `${import.meta.env.BASE_URL}lessons/day-${String(day).padStart(3, '0')}.json`;
 }
 
+/** Display name for a lesson's source book. */
+export function bookLabel(book: string): string {
+  return book === 'NewbornLung' ? 'The Newborn Lung' : book;
+}
+
+/**
+ * Hint for finding a lesson's source file inside the OneDrive folder. The
+ * Newborn Lung series uses its own "NL Day N" filename numbering (independent
+ * of the unified app `day`, which continues past Fanaroff's Day 200), so its
+ * hint must reference the chapter number rather than the app-internal day.
+ */
+export function lessonSourceHint(l: { day: number; book: string; chapter: number }): string {
+  if (l.book === 'NewbornLung') {
+    return `NL Day ${l.chapter} · The Newborn Lung Ch ${l.chapter}`;
+  }
+  return `Day ${l.day} · ${l.book} Ch ${l.chapter}`;
+}
+
 /**
  * Shared OneDrive folder containing the original .docx for every lesson
  * (formatted source, richer than the in-app parsed view). This links to the
@@ -41,4 +59,4 @@ export function lessonPath(day: number): string {
  * readers browse to the matching "Day N ..." file themselves once inside.
  */
 export const LESSON_SOURCE_FOLDER_URL =
-  'https://1drv.ms/f/c/d6f3cdd93d71e377/IgDDaaB5TkxNTrydpwecYNL4AVmR-XUSXGEwa5CX3V6xWGY';
+  'https://1drv.ms/f/c/d6f3cdd93d71e377/IgDDaaB5TkxNTrydpwecYNL4AY1fG7n-D2ulYXhaJqUgib0';

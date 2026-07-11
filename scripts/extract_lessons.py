@@ -18,18 +18,34 @@ FILENAME_RE = re.compile(
     r"^Day\s+(\d+)\s*[-–]?\s*(Avery|Fanaroff)\s+Ch(\d+)\s+(.+)$"
 )
 
+# "The Newborn Lung" series is numbered independently (NL Day 01-22) in its own
+# subfolder. It continues the unified curriculum day count after Fanaroff ends
+# at Day 200, so NL Day NN maps to app day 200+NN (22 chapters -> Days 201-222).
+NL_FILENAME_RE = re.compile(
+    r"^NL Day\s+(\d+)\s*[-–]?\s*The Newborn Lung\s+Ch(\d+)\s+(.+)$"
+)
+
 
 def parse_filename(stem):
     m = FILENAME_RE.match(stem)
-    if not m:
-        return None
-    day, book, chapter, title = m.groups()
-    return {
-        "day": int(day),
-        "book": book,
-        "chapter": int(chapter),
-        "titleFromFilename": title.strip(),
-    }
+    if m:
+        day, book, chapter, title = m.groups()
+        return {
+            "day": int(day),
+            "book": book,
+            "chapter": int(chapter),
+            "titleFromFilename": title.strip(),
+        }
+    m = NL_FILENAME_RE.match(stem)
+    if m:
+        nl_day, chapter, title = m.groups()
+        return {
+            "day": 200 + int(nl_day),
+            "book": "NewbornLung",
+            "chapter": int(chapter),
+            "titleFromFilename": title.strip(),
+        }
+    return None
 
 
 def cell_text(cell):
@@ -93,7 +109,12 @@ def main():
     index = []
     skipped = []
 
-    for path in sorted(src_dir.glob("*.docx")):
+    nl_dir = src_dir / "Newborn Lung Lessons"
+    docx_paths = sorted(src_dir.glob("*.docx")) + (
+        sorted(nl_dir.glob("*.docx")) if nl_dir.is_dir() else []
+    )
+
+    for path in docx_paths:
         if path.name.startswith("~$"):
             continue
         meta = parse_filename(path.stem)

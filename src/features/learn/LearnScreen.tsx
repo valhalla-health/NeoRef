@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { warm, font } from '../../theme/tokens';
-import { LESSONS } from '../../data/lessons';
+import { LESSONS, bookLabel } from '../../data/lessons';
 import { getProgress, markLesson } from '../../lib/storage';
 import { curriculumDay } from '../../lib/today';
 
@@ -21,7 +21,7 @@ export function LearnScreen({ onOpenLesson }: { onOpenLesson: (day: number) => v
           Daily <span style={{ color: warm.terra }}>Lessons</span>
         </div>
         <div style={{ fontSize: 12.5, color: warm.muted, marginTop: 4 }}>
-          Avery 11th ed. + Fanaroff 12th ed. · tap to read, checkmark to mark done
+          Avery 11th ed. + Fanaroff 12th ed. + The Newborn Lung 3rd ed. · tap to read, checkmark to mark done
         </div>
       </div>
 
@@ -49,7 +49,7 @@ export function LearnScreen({ onOpenLesson }: { onOpenLesson: (day: number) => v
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span style={{ fontFamily: font.mono, fontSize: 10.5, color: warm.muted }}>
-                  Day {l.day} · {l.book} Ch {l.chapter}
+                  Day {l.day} · {bookLabel(l.book)} Ch {l.chapter}
                 </span>
                 <span
                   role="checkbox"
