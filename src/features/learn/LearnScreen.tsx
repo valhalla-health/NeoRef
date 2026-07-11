@@ -3,25 +3,15 @@ import { warm, font } from '../../theme/tokens';
 import { LESSONS, bookLabel, type Lesson } from '../../data/lessons';
 import { getProgress } from '../../lib/storage';
 import { setLessonDone } from '../../lib/progress';
-import { myCurriculumDay } from '../../lib/today';
-
-function matchesQuery(l: Lesson, query: string): boolean {
-  const q = query.trim().toLowerCase();
-  if (!q) return true;
-  return (
-    l.title.toLowerCase().includes(q) ||
-    l.authors.toLowerCase().includes(q) ||
-    bookLabel(l.book).toLowerCase().includes(q) ||
-    String(l.chapter).includes(q) ||
-    String(l.day).includes(q)
-  );
-}
+import { resumeDay } from '../../lib/today';
+import { searchLessons } from '../../lib/lessonSearch';
 
 export function LearnScreen({ onOpenLesson }: { onOpenLesson: (day: number) => void }) {
   const [progress, setProgress] = useState(getProgress);
   const [query, setQuery] = useState('');
-  const today = myCurriculumDay();
-  const visible = useMemo(() => LESSONS.filter((l) => matchesQuery(l, query)), [query]);
+  const today = resumeDay(progress);
+
+  const results: Lesson[] = useMemo(() => searchLessons(LESSONS, query), [query]);
 
   function toggleDone(day: number, e: React.MouseEvent) {
     e.stopPropagation();
@@ -38,34 +28,50 @@ export function LearnScreen({ onOpenLesson }: { onOpenLesson: (day: number) => v
         <div style={{ fontSize: 12.5, color: warm.muted, marginTop: 4, marginBottom: 10 }}>
           Avery 11th ed. + Fanaroff 12th ed. + The Newborn Lung 3rd ed. · tap to read, checkmark to mark done
         </div>
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search chapter, author, or book…"
-          aria-label="Search lessons"
-          style={{
-            width: '100%',
-            boxSizing: 'border-box',
-            padding: '8px 12px',
-            fontSize: 13,
-            fontFamily: font.ui,
-            color: warm.ink,
-            background: warm.card,
-            border: `1.5px solid ${warm.line}`,
-            borderRadius: 10,
-            outline: 'none',
-          }}
-        />
+
+        <div style={{ position: 'relative' }}>
+          <span
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              left: 12,
+              top: '50%',
+              transform: 'translateY(-50%)',
+              fontSize: 13,
+              color: warm.muted,
+            }}
+          >
+            🔍
+          </span>
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search chapters, topics, or authors…"
+            aria-label="Search lessons"
+            style={{
+              width: '100%',
+              boxSizing: 'border-box',
+              padding: '9px 12px 9px 32px',
+              borderRadius: 10,
+              border: `1.5px solid ${warm.line}`,
+              background: warm.card,
+              color: warm.ink,
+              fontFamily: font.ui,
+              fontSize: 13.5,
+              outline: 'none',
+            }}
+          />
+        </div>
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px 20px' }}>
-        {visible.length === 0 && (
-          <div style={{ textAlign: 'center', color: warm.muted, fontSize: 13, padding: '24px 0' }}>
-            No lessons match &quot;{query}&quot;.
+        {results.length === 0 && (
+          <div style={{ textAlign: 'center', color: warm.muted, fontSize: 13, marginTop: 24, fontFamily: font.ui }}>
+            No lessons match “{query}”.
           </div>
         )}
-        {visible.map((l) => {
+        {results.map((l) => {
           const done = Boolean(progress[String(l.day)]);
           const isToday = l.day === today;
           return (
