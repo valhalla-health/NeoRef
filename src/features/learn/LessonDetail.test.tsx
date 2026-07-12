@@ -42,6 +42,23 @@ describe('<LessonDetail />', () => {
 
     render(<LessonDetail day={1} />);
     await waitFor(() => expect(screen.getByText(/Couldn't load/i)).toBeInTheDocument());
+    expect(screen.getByRole('button', { name: /try again/i })).toBeInTheDocument();
+  });
+
+  it('retries the fetch when "Try again" is clicked after a failure', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({ ok: false, status: 404 })
+      .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(SAMPLE_CONTENT) });
+    vi.stubGlobal('fetch', fetchMock);
+    const user = userEvent.setup();
+
+    render(<LessonDetail day={1} />);
+    await waitFor(() => expect(screen.getByText(/Couldn't load/i)).toBeInTheDocument());
+
+    await user.click(screen.getByRole('button', { name: /try again/i }));
+    await waitFor(() => expect(screen.getByText('Key Definitions')).toBeInTheDocument());
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
   it('toggles the mark-done button and persists to storage', async () => {
