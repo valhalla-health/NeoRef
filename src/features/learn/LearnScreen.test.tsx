@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { LearnScreen } from './LearnScreen';
 import { LESSONS } from '../../data/lessons';
@@ -24,13 +24,13 @@ describe('LearnScreen', () => {
     expect(onOpenLesson).toHaveBeenCalledWith(lesson.day);
   });
 
-  it('marks a lesson done via its checkbox without opening it, persists it, and toggles back off', async () => {
+  it('marks a lesson done via its checkbox (a standalone, keyboard-reachable button — not nested inside the open-lesson button) without opening it, persists it, and toggles back off', async () => {
     const user = userEvent.setup();
     const onOpenLesson = vi.fn();
     render(<LearnScreen onOpenLesson={onOpenLesson} />);
     const lesson = LESSONS[2];
-    const card = screen.getByText(lesson.title).closest('button')!;
-    const checkbox = within(card).getByRole('checkbox');
+    const checkbox = screen.getAllByRole('checkbox')[2];
+    expect(checkbox.closest('button')).not.toBe(screen.getByText(lesson.title).closest('button'));
 
     await user.click(checkbox);
     expect(checkbox).toHaveAttribute('aria-checked', 'true');
@@ -40,5 +40,18 @@ describe('LearnScreen', () => {
     await user.click(checkbox);
     expect(checkbox).toHaveAttribute('aria-checked', 'false');
     expect(isLessonDone(lesson.day)).toBe(false);
+  });
+
+  it('shows a clear button while searching that resets the query', async () => {
+    const user = userEvent.setup();
+    render(<LearnScreen onOpenLesson={vi.fn()} />);
+    expect(screen.queryByRole('button', { name: /clear search/i })).not.toBeInTheDocument();
+
+    await user.type(screen.getByRole('searchbox', { name: /search lessons/i }), 'jaundice');
+    const clearButton = screen.getByRole('button', { name: /clear search/i });
+    await user.click(clearButton);
+
+    expect(screen.getByRole('searchbox', { name: /search lessons/i })).toHaveValue('');
+    expect(screen.queryByRole('button', { name: /clear search/i })).not.toBeInTheDocument();
   });
 });

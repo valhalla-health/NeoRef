@@ -66,6 +66,7 @@ export function App() {
               onOpenLearn={() => switchTab('learn')}
               onOpenLesson={openLesson}
               onOpenProgress={() => switchTab('progress')}
+              onOpenTools={() => switchTab('calc')}
             />
           )}
 

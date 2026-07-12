@@ -15,11 +15,13 @@ export function HomeScreen({
   onOpenLearn,
   onOpenLesson,
   onOpenProgress,
+  onOpenTools,
 }: {
   onOpenCalc: (id: string) => void;
   onOpenLearn: () => void;
   onOpenLesson: (day: number) => void;
   onOpenProgress: () => void;
+  onOpenTools: () => void;
 }) {
   const progress = useProgress();
   const today = resumeDay(progress); // resumes from the learner's own progress, not the calendar
@@ -166,6 +168,25 @@ export function HomeScreen({
               </button>
             ))}
           </div>
+          <button
+            type="button"
+            onClick={onOpenTools}
+            style={{
+              display: 'block',
+              width: '100%',
+              textAlign: 'right',
+              border: 'none',
+              background: 'none',
+              color: warm.terra,
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: 'pointer',
+              padding: '8px 2px 0',
+              fontFamily: font.ui,
+            }}
+          >
+            See all tools →
+          </button>
         </div>
 
         <DisclaimerBanner muted />
@@ -275,11 +296,11 @@ function NameBadge({ name }: { name: string }) {
             border: 'none',
             background: warm.sage,
             color: '#fff',
-            fontSize: 12,
+            fontSize: 13,
             fontWeight: 700,
             borderRadius: 999,
-            width: 24,
-            height: 24,
+            width: 32,
+            height: 32,
             cursor: busy ? 'default' : 'pointer',
           }}
         >
@@ -294,8 +315,10 @@ function NameBadge({ name }: { name: string }) {
             border: 'none',
             background: 'none',
             color: warm.muted,
-            fontSize: 12,
+            fontSize: 13,
             fontWeight: 700,
+            width: 32,
+            height: 32,
             cursor: busy ? 'default' : 'pointer',
           }}
         >

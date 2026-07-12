@@ -13,8 +13,7 @@ export function LearnScreen({ onOpenLesson }: { onOpenLesson: (day: number) => v
 
   const results: Lesson[] = useMemo(() => searchLessons(LESSONS, query), [query]);
 
-  function toggleDone(day: number, e: React.MouseEvent) {
-    e.stopPropagation();
+  function toggleDone(day: number) {
     setLessonDone(day, !progress[String(day)]);
   }
 
@@ -51,7 +50,7 @@ export function LearnScreen({ onOpenLesson }: { onOpenLesson: (day: number) => v
             style={{
               width: '100%',
               boxSizing: 'border-box',
-              padding: '9px 12px 9px 32px',
+              padding: query ? '9px 32px 9px 32px' : '9px 12px 9px 32px',
               borderRadius: 10,
               border: `1.5px solid ${warm.line}`,
               background: warm.card,
@@ -61,6 +60,29 @@ export function LearnScreen({ onOpenLesson }: { onOpenLesson: (day: number) => v
               outline: 'none',
             }}
           />
+          {query && (
+            <button
+              type="button"
+              onClick={() => setQuery('')}
+              aria-label="Clear search"
+              style={{
+                position: 'absolute',
+                right: 6,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                width: 26,
+                height: 26,
+                border: 'none',
+                background: 'none',
+                color: warm.muted,
+                fontSize: 15,
+                cursor: 'pointer',
+                borderRadius: '50%',
+              }}
+            >
+              ✕
+            </button>
+          )}
         </div>
       </div>
 
@@ -74,42 +96,62 @@ export function LearnScreen({ onOpenLesson }: { onOpenLesson: (day: number) => v
           const done = Boolean(progress[String(l.day)]);
           const isToday = l.day === today;
           return (
-            <button
+            <div
               key={l.day}
-              type="button"
-              onClick={() => onOpenLesson(l.day)}
               style={{
-                display: 'block',
-                width: '100%',
-                textAlign: 'left',
+                position: 'relative',
                 background: done ? '#EBF5E6' : warm.card,
                 border: `1.5px solid ${isToday ? warm.terra : done ? warm.sage : warm.line}`,
                 borderRadius: 12,
-                padding: '11px 14px',
                 marginBottom: 8,
-                cursor: 'pointer',
-                fontFamily: font.ui,
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontFamily: font.mono, fontSize: 10.5, color: warm.muted }}>
+              <button
+                type="button"
+                onClick={() => onOpenLesson(l.day)}
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  textAlign: 'left',
+                  background: 'none',
+                  border: 'none',
+                  borderRadius: 12,
+                  padding: '11px 40px 11px 14px',
+                  cursor: 'pointer',
+                  fontFamily: font.ui,
+                }}
+              >
+                <span style={{ display: 'block', fontFamily: font.mono, fontSize: 10.5, color: warm.muted }}>
                   Day {l.day} · {bookLabel(l.book)} Ch {l.chapter}
                 </span>
-                <span
-                  role="checkbox"
-                  aria-checked={done}
-                  aria-label={done ? 'Mark not done' : 'Mark done'}
-                  onClick={(e) => toggleDone(l.day, e)}
-                  style={{ fontSize: 15, cursor: 'pointer', padding: 2 }}
-                >
-                  {done ? '✓' : '○'}
-                </span>
-              </div>
-              <div style={{ fontSize: 13.5, fontWeight: 700, color: warm.ink, marginTop: 3, lineHeight: 1.25 }}>
-                {l.title}
-              </div>
-              <div style={{ fontSize: 11.5, color: warm.muted, marginTop: 2, fontStyle: 'italic' }}>{l.authors}</div>
-            </button>
+                <div style={{ fontSize: 13.5, fontWeight: 700, color: warm.ink, marginTop: 3, lineHeight: 1.25 }}>
+                  {l.title}
+                </div>
+                <div style={{ fontSize: 11.5, color: warm.muted, marginTop: 2, fontStyle: 'italic' }}>{l.authors}</div>
+              </button>
+              <button
+                type="button"
+                role="checkbox"
+                aria-checked={done}
+                aria-label={done ? `Mark day ${l.day} as not done` : `Mark day ${l.day} as done`}
+                onClick={() => toggleDone(l.day)}
+                style={{
+                  position: 'absolute',
+                  top: 8,
+                  right: 8,
+                  width: 28,
+                  height: 28,
+                  border: 'none',
+                  background: 'none',
+                  color: done ? warm.sage : warm.muted,
+                  fontSize: 15,
+                  cursor: 'pointer',
+                  borderRadius: '50%',
+                }}
+              >
+                {done ? '✓' : '○'}
+              </button>
+            </div>
           );
         })}
       </div>

@@ -97,3 +97,61 @@ surfaces Day 72 "Neonatal Hyperbilirubinemia and Kernicterus" via the synonym
 map in `lessonSearch.ts`) → Progress tab (level, streak, 9 badges). Gamify XP
 math verified live: opening EOS (+5 XP tool-usage) reflected immediately in
 Progress; all screenshots retained for this session.
+
+---
+
+## UX/QOL + accessibility pass (2026-07-12)
+
+Follow-up scrutiny pass focused on interaction accessibility and day-to-day
+usability rather than clinical content (already covered above and in
+AUDIT.md). Full lint/typecheck/test(159, up from 155)/build pass, plus a
+live Playwright walkthrough (390×844, seeded session to bypass Google/GAS
+auth) of Home, Learn (incl. search), Tools hub, and Leaderboard.
+
+**Fixed:**
+- **Learn list "done" checkbox was a non-focusable `<span role="checkbox">`
+  nested inside the row's own `<button>`** — invalid HTML content model, and
+  keyboard-only users could not reach it from the list at all (flagged as a
+  known gap in the previous pass, "a deliberate follow-up rather than a
+  drive-by change here" — done now). `LearnScreen.tsx` row is now a plain
+  container `<div>` with two sibling `<button>`s: one opens the lesson, the
+  other is a real, independently focusable toggle button
+  (`role="checkbox"`, unique `aria-label` per day). Covered by an updated
+  `LearnScreen.test.tsx` that asserts the two buttons are distinct elements.
+- **Viewport disabled pinch-to-zoom** (`maximum-scale=1.0, user-scalable=no`
+  in `index.html`) — a WCAG 1.4.4 (Resize Text) failure, and actively
+  harmful here given the app's dense clinical text and dosing tables. Removed
+  both directives; `width=device-width, initial-scale=1.0, viewport-fit=cover`
+  remains.
+- **No retry path on network failure** — `LessonDetail` and
+  `LeaderboardScreen` both showed a terminal error message with no way to
+  recover short of leaving and re-entering the screen. Added a "Try again"
+  button to both (re-triggers the same fetch via a retry-token state), plus
+  a manual refresh (⟳) button in the Leaderboard header for stale-while-open
+  data. New tests cover both retry paths.
+- **No discoverability path from Home to the other 6 of 12 tools** — Home's
+  "Quick Tools" grid only ever shows `CALCS.slice(0, 6)` with no link to the
+  rest (unlike the Learn section's "See all lessons →"). Added a matching
+  "See all tools →" link wired to a new `onOpenTools` prop
+  (`App.tsx` → `switchTab('calc')`, landing on the hub, not a specific calc).
+- **Search box had no way to clear a query** except manual backspacing —
+  added a "×" clear button inside the input, shown only while a query is
+  present.
+- **NameBadge save/cancel controls were 24×24px** — below the ~44px touch
+  target guideline; bumped to 32×32px (as large as the available header
+  space allows without reflowing the layout).
+
+**Noted, not changed (out of scope for this pass):**
+- No dark mode / `prefers-color-scheme` support — the "Warm Reading" palette
+  is a deliberate design choice (`theme/tokens.ts`); adding a second palette
+  is a product decision, not a QOL bug fix.
+- During the live walkthrough, the Google Identity Services button (loaded
+  from `accounts.google.com`, outside this app's control) attempted to load
+  a `data:font/woff2` resource that our CSP's `font-src 'self'` blocked,
+  console-logging a CSP violation. Cosmetic only (button still renders,
+  Google's iframe has its own CSP/fonts) and not reproducible without live
+  Google/GAS network access to confirm in production — flagged for a future
+  pass rather than loosening `font-src` speculatively.
+- The three AUDIT-flagged clinical-accuracy items (BPD "Grade 3A = death",
+  NEC/POCUS "bowel wall >2.6mm", HIE "BE ≥-16") remain unresolved, correctly,
+  pending clinician sign-off — untouched by this pass.

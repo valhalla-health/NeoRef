@@ -35,6 +35,7 @@ function renderHome(overrides: Partial<Parameters<typeof HomeScreen>[0]> = {}) {
         onOpenLearn={vi.fn()}
         onOpenLesson={vi.fn()}
         onOpenProgress={vi.fn()}
+        onOpenTools={vi.fn()}
         {...overrides}
       />
     </AuthProvider>,
@@ -82,6 +83,14 @@ describe('HomeScreen', () => {
     renderHome({ onOpenCalc });
     await user.click(screen.getByText('EOS factors'));
     expect(onOpenCalc).toHaveBeenCalledWith('eos');
+  });
+
+  it('opens the tools hub via "See all tools"', async () => {
+    const user = userEvent.setup();
+    const onOpenTools = vi.fn();
+    renderHome({ onOpenTools });
+    await user.click(screen.getByText(/See all tools/));
+    expect(onOpenTools).toHaveBeenCalledTimes(1);
   });
 
   it('renders an unported quick tool as disabled and does not call onOpenCalc when clicked', async () => {

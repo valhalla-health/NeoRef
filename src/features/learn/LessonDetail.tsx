@@ -39,6 +39,7 @@ function stripWhyIntro(text: string): string {
 
 export function LessonDetail({ day, onBack }: { day: number; onBack?: () => void }) {
   const [state, setState] = useState<LoadState>({ status: 'loading' });
+  const [retryToken, setRetryToken] = useState(0);
   const progress = useProgress();
   const done = Boolean(progress[String(day)]);
   const meta = lessonForDay(day);
@@ -60,7 +61,7 @@ export function LessonDetail({ day, onBack }: { day: number; onBack?: () => void
     return () => {
       cancelled = true;
     };
-  }, [day]);
+  }, [day, retryToken]);
 
   return (
     <div
@@ -125,8 +126,26 @@ export function LessonDetail({ day, onBack }: { day: number; onBack?: () => void
         )}
 
         {state.status === 'error' && (
-          <div style={{ color: warm.muted, fontSize: 13, padding: '20px 0', textAlign: 'center' }}>
-            Couldn&apos;t load this lesson's content. Check your connection and try again.
+          <div style={{ textAlign: 'center', padding: '20px 0' }}>
+            <div style={{ color: warm.muted, fontSize: 13, marginBottom: 12 }}>
+              Couldn&apos;t load this lesson's content. Check your connection and try again.
+            </div>
+            <button
+              type="button"
+              onClick={() => setRetryToken((t) => t + 1)}
+              style={{
+                border: `1.5px solid ${warm.terra}`,
+                background: 'none',
+                color: warm.terra,
+                fontWeight: 700,
+                fontSize: 13,
+                borderRadius: 10,
+                padding: '9px 18px',
+                cursor: 'pointer',
+              }}
+            >
+              Try again
+            </button>
           </div>
         )}
 
