@@ -64,23 +64,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [applyLoginResponse],
   );
 
-  const updateName = useCallback(async (name: string) => {
-    const trimmed = name.trim();
-    if (!trimmed) return 'กรุณาระบุชื่อ';
-    const current = getSession();
-    if (!current) return 'Unauthorized';
-    try {
-      const resp = await authApi.updateName(current.token, trimmed);
-      if ('error' in resp) return resp.error;
-      const session: Session = { ...current, name: resp.name };
-      setSession(session);
-      setState({ status: 'signed-in', user: session });
-      return null;
-    } catch {
-      return 'ไม่สามารถเชื่อมต่อได้ — ตรวจสอบอินเทอร์เน็ต';
-    }
-  }, []);
-
   const logout = useCallback(() => {
     const token = getSession()?.token;
     clearSession();
@@ -93,6 +76,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     clearSession();
     setState({ status: 'signed-out', user: null });
   }, []);
+
+  const updateName = useCallback(
+    async (name: string) => {
+      const trimmed = name.trim();
+      if (!trimmed) return 'กรุณาระบุชื่อ';
+      const current = getSession();
+      if (!current) {
+        handleUnauthorized();
+        return 'Unauthorized';
+      }
+      try {
+        const resp = await authApi.updateName(current.token, trimmed);
+        if ('error' in resp) {
+          if (resp.error === 'Unauthorized') handleUnauthorized();
+          return resp.error;
+        }
+        const session: Session = { ...current, name: resp.name };
+        setSession(session);
+        setState({ status: 'signed-in', user: session });
+        return null;
+      } catch {
+        return 'ไม่สามารถเชื่อมต่อได้ — ตรวจสอบอินเทอร์เน็ต';
+      }
+    },
+    [handleUnauthorized],
+  );
 
   const value = useMemo<AuthContextValue>(
     () => ({ ...state, loginWithGoogle, loginWithPassword, logout, updateName, handleUnauthorized }),

@@ -131,5 +131,22 @@ describe('<AuthProvider />', () => {
       await waitFor(() => expect(screen.getByTestId('rename-error').textContent).not.toBe(''));
       expect(fetchSpy).not.toHaveBeenCalled();
     });
+
+    it('signs the user out on an Unauthorized response, instead of just showing the raw error', async () => {
+      setSession({ email: 'a@b.com', name: 'Old Name', role: 'user', token: 'stale-tok' });
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({ json: () => Promise.resolve({ error: 'Unauthorized' }) }),
+      );
+      const user = userEvent.setup();
+      render(
+        <AuthProvider>
+          <Probe />
+        </AuthProvider>,
+      );
+      await user.click(screen.getByText('rename'));
+      await waitFor(() => expect(screen.getByTestId('status').textContent).toBe('signed-out'));
+      expect(getSession()).toBeNull();
+    });
   });
 });
