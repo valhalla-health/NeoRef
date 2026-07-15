@@ -8,6 +8,9 @@ import { DisclaimerBanner } from '../../components/Disclaimer';
 import { lessonForDay, lessonPath, LESSON_SOURCE_FOLDER_URL, bookLabel, lessonSourceHint } from '../../data/lessons';
 import { useProgress } from '../../lib/useProgress';
 import { setLessonDone } from '../../lib/progress';
+import { useBookmarks } from '../../lib/useBookmarks';
+import { toggleBookmark } from '../../lib/storage';
+import { lessonBookmarkId } from '../../lib/bookmarkIds';
 
 type Block =
   | { type: 'h1' | 'h2' | 'li' | 'p' | 'callout'; text: string }
@@ -43,6 +46,9 @@ export function LessonDetail({ day, onBack }: { day: number; onBack?: () => void
   const progress = useProgress();
   const done = Boolean(progress[String(day)]);
   const meta = lessonForDay(day);
+  const bookmarks = useBookmarks();
+  const bookmarkId = lessonBookmarkId(day);
+  const bookmarked = Boolean(bookmarks[bookmarkId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -90,22 +96,46 @@ export function LessonDetail({ day, onBack }: { day: number; onBack?: () => void
         >
           ‹ Lessons
         </button>
-        <button
-          type="button"
-          onClick={() => setLessonDone(day, !done)}
-          style={{
-            border: `1px solid ${done ? warm.sage : warm.line}`,
-            background: done ? warm.sage : 'transparent',
-            color: done ? '#fff' : warm.muted,
-            fontSize: 11,
-            fontWeight: 700,
-            padding: '4px 10px',
-            borderRadius: 999,
-            cursor: 'pointer',
-          }}
-        >
-          {done ? '✓ Done' : 'Mark done'}
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <button
+            type="button"
+            onClick={() => toggleBookmark(bookmarkId)}
+            aria-pressed={bookmarked}
+            aria-label={bookmarked ? 'Remove bookmark' : 'Bookmark this lesson'}
+            style={{
+              border: `1px solid ${bookmarked ? warm.ochre : warm.line}`,
+              background: bookmarked ? '#FBEFE3' : 'transparent',
+              color: bookmarked ? warm.ochre : warm.muted,
+              fontSize: 14,
+              width: 28,
+              height: 28,
+              borderRadius: '50%',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 0,
+            }}
+          >
+            {bookmarked ? '★' : '☆'}
+          </button>
+          <button
+            type="button"
+            onClick={() => setLessonDone(day, !done)}
+            style={{
+              border: `1px solid ${done ? warm.sage : warm.line}`,
+              background: done ? warm.sage : 'transparent',
+              color: done ? '#fff' : warm.muted,
+              fontSize: 11,
+              fontWeight: 700,
+              padding: '4px 10px',
+              borderRadius: 999,
+              cursor: 'pointer',
+            }}
+          >
+            {done ? '✓ Done' : 'Mark done'}
+          </button>
+        </div>
       </div>
 
       <div style={{ padding: '2px 22px 6px' }}>

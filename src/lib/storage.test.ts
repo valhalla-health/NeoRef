@@ -5,6 +5,8 @@ import {
   isLessonDone,
   toggleBookmark,
   isBookmarked,
+  getBookmarks,
+  subscribeBookmarks,
   getToolUsage,
   recordToolOpen,
   setProgress,
@@ -35,6 +37,24 @@ describe('bookmarks', () => {
     expect(isBookmarked('proto-caffeine')).toBe(true);
     expect(toggleBookmark('proto-caffeine')).toBe(false);
     expect(isBookmarked('proto-caffeine')).toBe(false);
+  });
+
+  it('returns a new reference after a toggle changes the data (useSyncExternalStore stability)', () => {
+    const before = getBookmarks();
+    toggleBookmark('proto-caffeine');
+    expect(getBookmarks()).not.toBe(before);
+    expect(getBookmarks()).toBe(getBookmarks()); // stable when nothing changed
+  });
+
+  it('notifies subscribers on toggle', () => {
+    let calls = 0;
+    const unsubscribe = subscribeBookmarks(() => calls++);
+    toggleBookmark('proto-caffeine');
+    toggleBookmark('proto-caffeine');
+    expect(calls).toBe(2);
+    unsubscribe();
+    toggleBookmark('proto-caffeine');
+    expect(calls).toBe(2); // no longer subscribed
   });
 });
 

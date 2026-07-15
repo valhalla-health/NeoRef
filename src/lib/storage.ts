@@ -117,15 +117,30 @@ export function isLessonDone(day: number): boolean {
 // ─── Bookmarks: { [id: string]: ISO timestamp } ───────────────────────────
 export type BookmarkMap = Record<string, string>;
 
+// Same reactive-listener pattern as lesson progress above — lets useBookmarks()
+// (useBookmarks.ts) re-render every screen showing a bookmark's star state the
+// moment any other screen toggles it.
+const bookmarkListeners = new Set<() => void>();
+
+function notifyBookmarksChanged(): void {
+  bookmarkListeners.forEach((l) => l());
+}
+
+export function subscribeBookmarks(listener: () => void): () => void {
+  bookmarkListeners.add(listener);
+  return () => bookmarkListeners.delete(listener);
+}
+
 export function getBookmarks(): BookmarkMap {
   return read<BookmarkMap>('bookmarks', {}, isProgressMap);
 }
 
 export function toggleBookmark(id: string, now: Date = new Date()): boolean {
-  const b = getBookmarks();
+  const b = { ...getBookmarks() };
   if (b[id]) delete b[id];
   else b[id] = now.toISOString();
   write('bookmarks', b);
+  notifyBookmarksChanged();
   return Boolean(b[id]);
 }
 
