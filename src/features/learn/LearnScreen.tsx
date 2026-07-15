@@ -3,15 +3,21 @@ import { warm, font } from '../../theme/tokens';
 import { LESSONS, bookLabel, type Lesson } from '../../data/lessons';
 import { useProgress } from '../../lib/useProgress';
 import { setLessonDone } from '../../lib/progress';
+import { useBookmarks } from '../../lib/useBookmarks';
+import { toggleBookmark } from '../../lib/storage';
+import { lessonBookmarkId } from '../../lib/bookmarkIds';
 import { resumeDay } from '../../lib/today';
 import { searchLessons } from '../../lib/lessonSearch';
 
 export function LearnScreen({ onOpenLesson }: { onOpenLesson: (day: number) => void }) {
   const progress = useProgress();
+  const bookmarks = useBookmarks();
   const [query, setQuery] = useState('');
+  const [savedOnly, setSavedOnly] = useState(false);
   const today = resumeDay(progress);
 
-  const results: Lesson[] = useMemo(() => searchLessons(LESSONS, query), [query]);
+  const searched: Lesson[] = useMemo(() => searchLessons(LESSONS, query), [query]);
+  const results = savedOnly ? searched.filter((l) => bookmarks[lessonBookmarkId(l.day)]) : searched;
 
   function toggleDone(day: number) {
     setLessonDone(day, !progress[String(day)]);
@@ -84,17 +90,42 @@ export function LearnScreen({ onOpenLesson }: { onOpenLesson: (day: number) => v
             </button>
           )}
         </div>
+
+        <button
+          type="button"
+          aria-pressed={savedOnly}
+          onClick={() => setSavedOnly((v) => !v)}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 4,
+            marginTop: 10,
+            border: `1.5px solid ${savedOnly ? warm.ochre : warm.line}`,
+            background: savedOnly ? '#FBEFE3' : 'transparent',
+            color: savedOnly ? warm.ochre : warm.muted,
+            fontSize: 11.5,
+            fontWeight: 700,
+            padding: '5px 10px',
+            borderRadius: 999,
+            cursor: 'pointer',
+            fontFamily: font.ui,
+          }}
+        >
+          {savedOnly ? '★' : '☆'} Saved
+        </button>
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px 20px' }}>
         {results.length === 0 && (
           <div style={{ textAlign: 'center', color: warm.muted, fontSize: 13, marginTop: 24, fontFamily: font.ui }}>
-            No lessons match “{query}”.
+            {savedOnly ? 'No bookmarked lessons yet.' : `No lessons match “${query}”.`}
           </div>
         )}
         {results.map((l) => {
           const done = Boolean(progress[String(l.day)]);
           const isToday = l.day === today;
+          const bookmarkId = lessonBookmarkId(l.day);
+          const bookmarked = Boolean(bookmarks[bookmarkId]);
           return (
             <div
               key={l.day}
@@ -116,7 +147,7 @@ export function LearnScreen({ onOpenLesson }: { onOpenLesson: (day: number) => v
                   background: 'none',
                   border: 'none',
                   borderRadius: 12,
-                  padding: '11px 40px 11px 14px',
+                  padding: '11px 72px 11px 14px',
                   cursor: 'pointer',
                   fontFamily: font.ui,
                 }}
@@ -128,6 +159,27 @@ export function LearnScreen({ onOpenLesson }: { onOpenLesson: (day: number) => v
                   {l.title}
                 </div>
                 <div style={{ fontSize: 11.5, color: warm.muted, marginTop: 2, fontStyle: 'italic' }}>{l.authors}</div>
+              </button>
+              <button
+                type="button"
+                aria-pressed={bookmarked}
+                aria-label={bookmarked ? `Remove bookmark for day ${l.day}` : `Bookmark day ${l.day}`}
+                onClick={() => toggleBookmark(bookmarkId)}
+                style={{
+                  position: 'absolute',
+                  top: 8,
+                  right: 36,
+                  width: 28,
+                  height: 28,
+                  border: 'none',
+                  background: 'none',
+                  color: bookmarked ? warm.ochre : warm.muted,
+                  fontSize: 15,
+                  cursor: 'pointer',
+                  borderRadius: '50%',
+                }}
+              >
+                {bookmarked ? '★' : '☆'}
               </button>
               <button
                 type="button"

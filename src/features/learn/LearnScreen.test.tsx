@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { LearnScreen } from './LearnScreen';
 import { LESSONS } from '../../data/lessons';
-import { isLessonDone } from '../../lib/storage';
+import { isLessonDone, isBookmarked } from '../../lib/storage';
 
 beforeEach(() => localStorage.clear());
 
@@ -40,6 +40,38 @@ describe('LearnScreen', () => {
     await user.click(checkbox);
     expect(checkbox).toHaveAttribute('aria-checked', 'false');
     expect(isLessonDone(lesson.day)).toBe(false);
+  });
+
+  it('bookmarks a lesson via its star button (a standalone button, not nested inside the open-lesson button), persists it, and toggles back off', async () => {
+    const user = userEvent.setup();
+    const onOpenLesson = vi.fn();
+    render(<LearnScreen onOpenLesson={onOpenLesson} />);
+    const lesson = LESSONS[2];
+    const star = screen.getByRole('button', { name: `Bookmark day ${lesson.day}` });
+    expect(star.closest('button')).not.toBe(screen.getByText(lesson.title).closest('button'));
+
+    await user.click(star);
+    expect(screen.getByRole('button', { name: `Remove bookmark for day ${lesson.day}` })).toBeInTheDocument();
+    expect(isBookmarked(`lesson-${lesson.day}`)).toBe(true);
+    expect(onOpenLesson).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('button', { name: `Remove bookmark for day ${lesson.day}` }));
+    expect(screen.getByRole('button', { name: `Bookmark day ${lesson.day}` })).toBeInTheDocument();
+    expect(isBookmarked(`lesson-${lesson.day}`)).toBe(false);
+  });
+
+  it('filters to bookmarked lessons only when "Saved" is toggled on', async () => {
+    const user = userEvent.setup();
+    render(<LearnScreen onOpenLesson={vi.fn()} />);
+    const lesson = LESSONS[2];
+    await user.click(screen.getByRole('button', { name: `Bookmark day ${lesson.day}` }));
+
+    await user.click(screen.getByRole('button', { name: /saved/i }));
+    expect(screen.getByText(lesson.title)).toBeInTheDocument();
+    expect(screen.queryByText(LESSONS[0].title)).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /saved/i }));
+    expect(screen.getByText(LESSONS[0].title)).toBeInTheDocument();
   });
 
   it('shows a clear button while searching that resets the query', async () => {

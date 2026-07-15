@@ -1,7 +1,10 @@
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { LessonDetail } from './LessonDetail';
+import { isBookmarked } from '../../lib/storage';
+
+beforeEach(() => localStorage.clear());
 
 const SAMPLE_CONTENT = {
   day: 1,
@@ -72,5 +75,23 @@ describe('<LessonDetail />', () => {
     const button = await screen.findByRole('button', { name: /Mark done/i });
     await user.click(button);
     expect(screen.getByRole('button', { name: /✓ Done/i })).toBeInTheDocument();
+  });
+
+  it('toggles the bookmark button and persists to storage', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve(SAMPLE_CONTENT) }),
+    );
+    const user = userEvent.setup();
+    render(<LessonDetail day={1} />);
+
+    const button = await screen.findByRole('button', { name: /Bookmark this lesson/i });
+    await user.click(button);
+    expect(screen.getByRole('button', { name: /Remove bookmark/i })).toBeInTheDocument();
+    expect(isBookmarked('lesson-1')).toBe(true);
+
+    await user.click(screen.getByRole('button', { name: /Remove bookmark/i }));
+    expect(screen.getByRole('button', { name: /Bookmark this lesson/i })).toBeInTheDocument();
+    expect(isBookmarked('lesson-1')).toBe(false);
   });
 });
