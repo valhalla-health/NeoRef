@@ -151,30 +151,34 @@ function stubGas(handlers: Record<string, unknown>) {
   );
 }
 
-describe('<HomeScreen /> — name badge', () => {
+describe('<HomeScreen /> — account button + panel', () => {
   beforeEach(() => {
     setSession({ email: 'a@b.com', name: 'Peeraporn P', role: 'user', token: 'tok-1' });
   });
 
-  it('shows the signed-in user’s name, tappable to edit', () => {
+  it('shows the signed-in user’s name, tappable to open the account panel', () => {
     stubGas({});
     renderHome();
-    expect(screen.getByRole('button', { name: /Edit your name/i })).toHaveTextContent('Peeraporn P');
+    expect(screen.getByRole('button', { name: /Open account menu/i })).toHaveTextContent('Peeraporn P');
+    expect(screen.queryByRole('dialog', { name: /Account/i })).not.toBeInTheDocument();
   });
 
-  it('tapping the name opens an editable input pre-filled with the current name', async () => {
+  it('opens the account panel with an editable name and sign-out option', async () => {
     stubGas({});
     const user = userEvent.setup();
     renderHome();
-    await user.click(screen.getByRole('button', { name: /Edit your name/i }));
-    expect(screen.getByRole('textbox', { name: /Your name/i })).toHaveValue('Peeraporn P');
+    await user.click(screen.getByRole('button', { name: /Open account menu/i }));
+    expect(screen.getByRole('dialog', { name: /Account/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Edit your name/i })).toHaveTextContent('Peeraporn P');
+    expect(screen.getByRole('button', { name: /^Sign out$/i })).toBeInTheDocument();
   });
 
-  it('saves a new name, which becomes what is shown (and therefore what the leaderboard reads via session.name)', async () => {
+  it('saves a new name from within the panel, which becomes what is shown (and therefore what the leaderboard reads via session.name)', async () => {
     stubGas({ updateName: { ok: true, name: 'Peeraporn Tv' } });
     const user = userEvent.setup();
     renderHome();
 
+    await user.click(screen.getByRole('button', { name: /Open account menu/i }));
     await user.click(screen.getByRole('button', { name: /Edit your name/i }));
     const input = screen.getByRole('textbox', { name: /Your name/i });
     await user.clear(input);
@@ -182,13 +186,16 @@ describe('<HomeScreen /> — name badge', () => {
     await user.click(screen.getByRole('button', { name: /Save name/i }));
 
     await waitFor(() => expect(screen.getByRole('button', { name: /Edit your name/i })).toHaveTextContent('Peeraporn Tv'));
+    await user.click(screen.getByRole('button', { name: /Close account panel/i }));
+    expect(screen.getByRole('button', { name: /Open account menu/i })).toHaveTextContent('Peeraporn Tv');
   });
 
-  it('cancel reverts without saving', async () => {
+  it('cancel reverts the name edit without saving', async () => {
     stubGas({});
     const user = userEvent.setup();
     renderHome();
 
+    await user.click(screen.getByRole('button', { name: /Open account menu/i }));
     await user.click(screen.getByRole('button', { name: /Edit your name/i }));
     const input = screen.getByRole('textbox', { name: /Your name/i });
     await user.clear(input);
@@ -203,6 +210,7 @@ describe('<HomeScreen /> — name badge', () => {
     const user = userEvent.setup();
     renderHome();
 
+    await user.click(screen.getByRole('button', { name: /Open account menu/i }));
     await user.click(screen.getByRole('button', { name: /Edit your name/i }));
     const input = screen.getByRole('textbox', { name: /Your name/i });
     await user.clear(input);
@@ -211,5 +219,37 @@ describe('<HomeScreen /> — name badge', () => {
 
     await waitFor(() => expect(screen.getByText('ชื่อนี้ถูกใช้แล้ว')).toBeInTheDocument());
     expect(screen.getByRole('textbox', { name: /Your name/i })).toHaveValue('Taken Name');
+  });
+
+  it('closes the panel via the close button', async () => {
+    stubGas({});
+    const user = userEvent.setup();
+    renderHome();
+    await user.click(screen.getByRole('button', { name: /Open account menu/i }));
+    expect(screen.getByRole('dialog', { name: /Account/i })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /Close account panel/i }));
+    expect(screen.queryByRole('dialog', { name: /Account/i })).not.toBeInTheDocument();
+  });
+
+  it('signs out after confirming, returning to the signed-out state', async () => {
+    stubGas({});
+    const user = userEvent.setup();
+    renderHome();
+    await user.click(screen.getByRole('button', { name: /Open account menu/i }));
+    await user.click(screen.getByRole('button', { name: /^Sign out$/i }));
+    expect(screen.getByText(/Sign out of Newborn In-Hand/i)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /^Sign out$/i }));
+    expect(screen.queryByRole('dialog', { name: /Account/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Open account menu/i })).not.toBeInTheDocument();
+  });
+
+  it('cancels the sign-out confirmation without signing out', async () => {
+    stubGas({});
+    const user = userEvent.setup();
+    renderHome();
+    await user.click(screen.getByRole('button', { name: /Open account menu/i }));
+    await user.click(screen.getByRole('button', { name: /^Sign out$/i }));
+    await user.click(screen.getByRole('button', { name: /^Cancel$/i }));
+    expect(screen.getByRole('button', { name: /Open account menu/i })).toBeInTheDocument();
   });
 });
