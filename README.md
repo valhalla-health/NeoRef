@@ -72,14 +72,33 @@ Next (incremental): apply the clinical-accuracy fixes above once confirmed; add 
 global disclaimer to `CalcHub`'s hub screen itself (currently only on the individual
 calc screens); reconcile the 365-entry lesson dataset against the source curriculum.
 
-## License
+## License & copyright
 
-Code is [MIT-licensed](LICENSE). The clinical reference content (drug doses, staging
-criteria, protocol summaries) is original educational material written by the author,
-referencing standard published neonatology literature — it is not a verbatim copy of
-any single copyrighted textbook or institutional guideline. It is provided for
-educational purposes only and is not a substitute for your institution's own protocols
-or the official published clinical tools it links to.
+**Code** is [MIT-licensed](LICENSE), © 2026 Valhalla Health.
+
+**Calculator / topic-card content** (`src/features/calc/**`) — drug doses, staging
+criteria, protocol summaries — is original educational material written by the team,
+referencing standard published neonatology literature. It is not a verbatim copy of
+any single copyrighted textbook or institutional guideline.
+
+**Daily Lessons content** (`src/data/lessons.ts`, `public/lessons/*.json`) is a set of
+bilingual (Thai/English) **short-note study summaries written by the Valhalla Health
+team** while studying the referenced chapters of *Avery's Diseases of the Newborn*,
+*Fanaroff and Martin's Neonatal-Perinatal Medicine*, and *The Newborn Lung*. The
+book/chapter/author fields shown in the app are citations to the source chapter, not a
+license to reproduce it — the lesson text itself is the team's own condensed notes and
+commentary, not an excerpt or paraphrase-for-paraphrase copy of the textbook. Copyright
+in each textbook remains with its respective publisher and authors; this project claims
+no rights over that source material, only over the team's own summary write-ups
+(© 2026 Valhalla Health). These notes are for personal/internal educational study —
+if you plan to redistribute them beyond that (e.g. a public course, a for-profit
+product), get the textbook publishers' permission first, since "short notes that closely
+track a book's structure" is exactly the kind of derivative use that benefits from
+clearing rights rather than relying on fair-use/fair-dealing alone.
+
+None of this content is a substitute for your institution's own protocols or the
+official published clinical tools this app links to, and it is provided for educational
+purposes only.
 
 ## Lesson content
 

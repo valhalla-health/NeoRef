@@ -194,7 +194,7 @@ export function HomeScreen({
         <DisclaimerBanner muted />
 
         <div style={{ textAlign: 'center', padding: '0 0 24px', color: warm.muted, fontSize: 11, fontFamily: font.mono }}>
-          Newborn In-Hand · v2.0 · 2026
+          Newborn In-Hand · v2.0 · © 2026 Valhalla Health
         </div>
       </div>
 

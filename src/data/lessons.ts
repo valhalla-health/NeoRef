@@ -43,6 +43,17 @@ export function bookLabel(book: string): string {
 }
 
 /**
+ * Attribution shown alongside a lesson's book/chapter/author citation. These
+ * lessons are the Valhalla Health team's own short-note study summaries
+ * written while reading the cited chapter — not a reproduction of it — so
+ * this line has to say so wherever the citation appears (see README's
+ * License & copyright section for the full rationale).
+ */
+export function lessonAttribution(): string {
+  return 'สรุปย่อ (short note) จัดทำโดยทีม Valhalla Health · ไม่ใช่เนื้อหาต้นฉบับจากตำรา';
+}
+
+/**
  * Hint for finding a lesson's source file inside the OneDrive folder. The
  * Newborn Lung series uses its own "NL Day N" filename numbering (independent
  * of the unified app `day`, which continues past Fanaroff's Day 200), so its
