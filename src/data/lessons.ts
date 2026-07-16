@@ -15,6 +15,9 @@ export interface Lesson {
   chapter: number;
   title: string;
   authors: string;
+  /** ~10 distinctive clinical terms pulled from the lesson body (acronyms,
+   * named entities) so search can match content beyond the title/authors. */
+  keywords?: string[];
 }
 
 export const LESSONS: Lesson[] = lessonsIndexData as unknown as Lesson[];

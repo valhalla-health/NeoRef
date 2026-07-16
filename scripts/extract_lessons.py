@@ -9,10 +9,13 @@ Usage: python scripts/extract_lessons.py <source_dir> <content_out_dir> <index_o
 import json
 import re
 import sys
+from collections import Counter
 from pathlib import Path
 
 import docx
 from docx.oxml.ns import qn
+
+from lesson_keywords import candidate_counts, top_keywords
 
 FILENAME_RE = re.compile(
     r"^Day\s+(\d+)\s*[-–]?\s*(Avery|Fanaroff)\s+Ch(\d+)\s+(.+)$"
@@ -151,8 +154,22 @@ def main():
                 "chapter": meta["chapter"],
                 "title": meta["titleFromFilename"],
                 "authors": authors,
+                "_blocks": blocks,  # used below to derive keywords, stripped before writing
             }
         )
+
+    # Keywords are scored by tf-idf across the whole corpus (see
+    # lesson_keywords.py) so each lesson surfaces terms distinctive to it
+    # rather than boilerplate shared by every lesson (PEARL, NEJM, RCT...).
+    per_lesson_counts = {l["day"]: candidate_counts(l["_blocks"]) for l in index}
+    doc_freq: Counter = Counter()
+    for counts in per_lesson_counts.values():
+        for term in counts:
+            doc_freq[term] += 1
+    n_docs = len(index)
+    for l in index:
+        l["keywords"] = top_keywords(per_lesson_counts[l["day"]], l["title"], doc_freq, n_docs)
+        del l["_blocks"]
 
     index.sort(key=lambda l: l["day"])
     index_out_path.write_text(

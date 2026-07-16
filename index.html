@@ -7,7 +7,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <!--
+      black-translucent lets the app draw under the status bar/notch when
+      installed to the home screen (matching viewport-fit=cover), so the
+      single env(safe-area-inset-top) padding in global.css is the only
+      source of top spacing — with "default" instead, iOS reserves its own
+      status-bar strip AND our padding would apply, doubling the gap on
+      notched models while looking fine on older ones.
+    -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="theme-color" content="#F6EFE3" />
     <meta name="referrer" content="no-referrer" />
     <!--
