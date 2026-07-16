@@ -5,7 +5,14 @@
 import { useEffect, useState } from 'react';
 import { warm, font, chipTone } from '../../theme/tokens';
 import { DisclaimerBanner } from '../../components/Disclaimer';
-import { lessonForDay, lessonPath, LESSON_SOURCE_FOLDER_URL, bookLabel, lessonSourceHint } from '../../data/lessons';
+import {
+  lessonForDay,
+  lessonPath,
+  LESSON_SOURCE_FOLDER_URL,
+  bookLabel,
+  lessonSourceHint,
+  lessonAttribution,
+} from '../../data/lessons';
 import { useProgress } from '../../lib/useProgress';
 import { setLessonDone } from '../../lib/progress';
 import { useBookmarks } from '../../lib/useBookmarks';
@@ -214,6 +221,7 @@ export function LessonDetail({ day, onBack }: { day: number; onBack?: () => void
           {meta.title}
         </div>
         <div style={{ fontSize: 12, color: warm.muted, marginTop: 4, fontStyle: 'italic' }}>{meta.authors}</div>
+        <div style={{ fontSize: 10.5, color: warm.muted, marginTop: 3 }}>{lessonAttribution()}</div>
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '6px 18px 20px' }}>
