@@ -40,6 +40,23 @@ function stripWhyIntro(text: string): string {
   return text.replace(WHY_INTRO_RE, '');
 }
 
+// Many callouts are authored as one dense sentence enumerating "(1) ... (2) ... (3) ..."
+// separated by semicolons — readable in a Word doc, but a wall of text on a phone
+// screen. When that pattern is present, split it into a lead-in plus one line per
+// numbered point instead of rendering it as a single flowing paragraph.
+function splitNumberedCallout(body: string): { intro: string; items: string[] } | null {
+  if (body.includes('\n') || !/\(1\)/.test(body) || !/\(2\)/.test(body)) return null;
+  const firstMarker = body.indexOf('(1)');
+  if (firstMarker < 0) return null;
+  const intro = body.slice(0, firstMarker).trim();
+  const items = body
+    .slice(firstMarker)
+    .split(/;\s*(?=\(\d+\)\s)/)
+    .map((s) => s.replace(/^\(\d+\)\s*/, '').trim())
+    .filter(Boolean);
+  return items.length >= 2 ? { intro, items } : null;
+}
+
 export function LessonDetail({ day, onBack }: { day: number; onBack?: () => void }) {
   const [state, setState] = useState<LoadState>({ status: 'loading' });
   const [retryToken, setRetryToken] = useState(0);
@@ -219,7 +236,12 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
     <div>
       {blocks.map((b, i) => {
         switch (b.type) {
-          case 'callout':
+          case 'callout': {
+            const stripped = stripWhyIntro(b.text);
+            const nlIndex = stripped.indexOf('\n');
+            const title = nlIndex >= 0 ? stripped.slice(0, nlIndex) : null;
+            const body = nlIndex >= 0 ? stripped.slice(nlIndex + 1) : stripped;
+            const parsed = splitNumberedCallout(body);
             return (
               <div
                 key={i}
@@ -232,12 +254,30 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
                   fontSize: 12.5,
                   color: warm.ink2,
                   lineHeight: 1.55,
-                  whiteSpace: 'pre-wrap',
                 }}
               >
-                {stripWhyIntro(b.text)}
+                {title && <div style={{ whiteSpace: 'pre-wrap', marginBottom: 4 }}>{title}</div>}
+                {parsed ? (
+                  <>
+                    {parsed.intro && <div style={{ whiteSpace: 'pre-wrap', marginBottom: 6 }}>{parsed.intro}</div>}
+                    {parsed.items.map((item, idx) => (
+                      <div
+                        key={idx}
+                        style={{ display: 'flex', gap: 6, marginBottom: idx === parsed.items.length - 1 ? 0 : 5 }}
+                      >
+                        <span aria-hidden style={{ color: warm.ochre, fontWeight: 700, lineHeight: 1.5 }}>
+                          {idx + 1}.
+                        </span>
+                        <span style={{ flex: 1, whiteSpace: 'pre-wrap' }}>{item}</span>
+                      </div>
+                    ))}
+                  </>
+                ) : (
+                  <div style={{ whiteSpace: 'pre-wrap' }}>{body}</div>
+                )}
               </div>
             );
+          }
           case 'h1':
             return (
               <div
