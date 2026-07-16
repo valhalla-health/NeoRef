@@ -9,7 +9,7 @@ import { lessonForDay, lessonPath, LESSON_SOURCE_FOLDER_URL, bookLabel, lessonSo
 import { useProgress } from '../../lib/useProgress';
 import { setLessonDone } from '../../lib/progress';
 import { useBookmarks } from '../../lib/useBookmarks';
-import { toggleBookmark } from '../../lib/storage';
+import { toggleBookmark, recordActivity } from '../../lib/storage';
 import { lessonBookmarkId } from '../../lib/bookmarkIds';
 
 type Block =
@@ -59,7 +59,10 @@ export function LessonDetail({ day, onBack }: { day: number; onBack?: () => void
         return r.json() as Promise<LessonContent>;
       })
       .then((content) => {
-        if (!cancelled) setState({ status: 'ready', content });
+        if (!cancelled) {
+          setState({ status: 'ready', content });
+          recordActivity(); // reading a lesson keeps the streak alive, even if not marked done
+        }
       })
       .catch(() => {
         if (!cancelled) setState({ status: 'error' });

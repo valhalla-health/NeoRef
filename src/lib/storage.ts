@@ -114,6 +114,28 @@ export function isLessonDone(day: number): boolean {
   return Boolean(getProgress()[String(day)]);
 }
 
+// ─── Activity log: { [YYYY-MM-DD]: ISO timestamp of that day's first activity } ─
+// Feeds the streak (gamify.ts) independently of lesson completion: opening a
+// lesson to read it, or opening a clinical tool, both count as "showing up"
+// for the day, even on a day where nothing gets marked done.
+export type ActivityMap = Record<string, string>;
+
+function localDateKey(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+export function getActivityLog(): ActivityMap {
+  return read<ActivityMap>('activity-log', {}, isProgressMap);
+}
+
+/** Marks today as active. Idempotent per calendar day — cheap to call from every lesson/tool open. */
+export function recordActivity(now: Date = new Date()): void {
+  const k = localDateKey(now);
+  const log = getActivityLog();
+  if (log[k]) return;
+  write('activity-log', { ...log, [k]: now.toISOString() });
+}
+
 // ─── Bookmarks: { [id: string]: ISO timestamp } ───────────────────────────
 export type BookmarkMap = Record<string, string>;
 
