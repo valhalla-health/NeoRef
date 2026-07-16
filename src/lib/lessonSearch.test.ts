@@ -7,12 +7,13 @@ const LESSONS: Lesson[] = [
   { day: 72, book: 'Avery', chapter: 72, title: 'Neonatal Hyperbilirubinemia and Kernicterus', authors: 'Someone' },
   { day: 33, book: 'Avery', chapter: 33, title: 'Bacterial Sepsis and Meningitis', authors: 'Someone Else' },
   { day: 48, book: 'Avery', chapter: 48, title: 'Patent Ductus Arteriosus in the Preterm Infant', authors: 'Author' },
+  { day: 91, book: 'Avery', chapter: 91, title: 'Disorders of the Adrenal Gland', authors: 'Someone', keywords: ['CAH', 'ACTH'] },
 ];
 
 describe('searchLessons', () => {
   it('returns all lessons for an empty query', () => {
-    expect(searchLessons(LESSONS, '')).toHaveLength(4);
-    expect(searchLessons(LESSONS, '   ')).toHaveLength(4);
+    expect(searchLessons(LESSONS, '')).toHaveLength(5);
+    expect(searchLessons(LESSONS, '   ')).toHaveLength(5);
   });
 
   it('matches by title substring, case-insensitively', () => {
@@ -41,6 +42,10 @@ describe('searchLessons', () => {
 
   it('matches Thai related terms', () => {
     expect(searchLessons(LESSONS, 'ดีซ่าน').map((l) => l.day)).toEqual([72]);
+  });
+
+  it('matches by a generated body keyword not present in title/authors', () => {
+    expect(searchLessons(LESSONS, 'ACTH').map((l) => l.day)).toEqual([91]);
   });
 
   it('returns nothing for a query with no match', () => {

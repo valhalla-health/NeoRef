@@ -45,7 +45,7 @@ function relatedTerms(token: string): string[] {
 
 function haystackFor(lesson: Lesson): string {
   return normalize(
-    `${lesson.book} chapter ${lesson.chapter} ch${lesson.chapter} day ${lesson.day} ${lesson.title} ${lesson.authors}`,
+    `${lesson.book} chapter ${lesson.chapter} ch${lesson.chapter} day ${lesson.day} ${lesson.title} ${lesson.authors} ${(lesson.keywords ?? []).join(' ')}`,
   );
 }
 
