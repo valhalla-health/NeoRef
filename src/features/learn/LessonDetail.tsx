@@ -40,6 +40,71 @@ function stripWhyIntro(text: string): string {
   return text.replace(WHY_INTRO_RE, '');
 }
 
+// Lots of blocks (callouts, self-check answers, the occasional dense bullet) are
+// authored as one sentence enumerating "(1) ... (2) ... (3) ..." separated by
+// semicolons or commas — readable in a Word doc, but a wall of text on a phone
+// screen. When that pattern is present, split it into a lead-in plus one line
+// per numbered point instead of rendering it as a single flowing paragraph.
+function splitNumberedList(body: string): { intro: string; items: string[] } | null {
+  if (body.includes('\n') || !/\(1\)/.test(body) || !/\(2\)/.test(body)) return null;
+  const firstMarker = body.indexOf('(1)');
+  if (firstMarker < 0) return null;
+  const intro = body.slice(0, firstMarker).trim();
+  const items = body
+    .slice(firstMarker)
+    .split(/[;,]\s*(?=\(\d+\)\s)/)
+    .map((s) => s.replace(/^\(\d+\)\s*/, '').trim())
+    .filter(Boolean);
+  return items.length >= 2 ? { intro, items } : null;
+}
+
+function NumberedItems({ items, accent, textColor }: { items: string[]; accent: string; textColor: string }) {
+  return (
+    <>
+      {items.map((item, idx) => (
+        <div key={idx} style={{ display: 'flex', gap: 6, marginBottom: idx === items.length - 1 ? 0 : 5 }}>
+          <span aria-hidden style={{ color: accent, fontWeight: 700, lineHeight: 1.5, flexShrink: 0 }}>
+            {idx + 1}.
+          </span>
+          <span style={{ flex: 1, whiteSpace: 'pre-wrap', color: textColor }}>{item}</span>
+        </div>
+      ))}
+    </>
+  );
+}
+
+// Shared box for anything shaped like "title line + body paragraph": real
+// `callout` blocks, but also `table` blocks that were authored the same way
+// (a 2-row single-column table, or a run of "Pearl" cards) — see the `table`
+// case below.
+function CalloutBox({ title, body }: { title: string | null; body: string }) {
+  const parsed = splitNumberedList(body);
+  return (
+    <div
+      style={{
+        background: '#FBEFE3',
+        border: `1px solid ${warm.ochre}55`,
+        borderRadius: 10,
+        padding: '10px 12px',
+        marginBottom: 12,
+        fontSize: 12.5,
+        color: warm.ink2,
+        lineHeight: 1.55,
+      }}
+    >
+      {title && <div style={{ whiteSpace: 'pre-wrap', marginBottom: 4 }}>{title}</div>}
+      {parsed ? (
+        <>
+          {parsed.intro && <div style={{ whiteSpace: 'pre-wrap', marginBottom: 6 }}>{parsed.intro}</div>}
+          <NumberedItems items={parsed.items} accent={warm.ochre} textColor={warm.ink2} />
+        </>
+      ) : (
+        <div style={{ whiteSpace: 'pre-wrap' }}>{body}</div>
+      )}
+    </div>
+  );
+}
+
 export function LessonDetail({ day, onBack }: { day: number; onBack?: () => void }) {
   const [state, setState] = useState<LoadState>({ status: 'loading' });
   const [retryToken, setRetryToken] = useState(0);
@@ -219,25 +284,13 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
     <div>
       {blocks.map((b, i) => {
         switch (b.type) {
-          case 'callout':
-            return (
-              <div
-                key={i}
-                style={{
-                  background: '#FBEFE3',
-                  border: `1px solid ${warm.ochre}55`,
-                  borderRadius: 10,
-                  padding: '10px 12px',
-                  marginBottom: 12,
-                  fontSize: 12.5,
-                  color: warm.ink2,
-                  lineHeight: 1.55,
-                  whiteSpace: 'pre-wrap',
-                }}
-              >
-                {stripWhyIntro(b.text)}
-              </div>
-            );
+          case 'callout': {
+            const stripped = stripWhyIntro(b.text);
+            const nlIndex = stripped.indexOf('\n');
+            const title = nlIndex >= 0 ? stripped.slice(0, nlIndex) : null;
+            const body = nlIndex >= 0 ? stripped.slice(nlIndex + 1) : stripped;
+            return <CalloutBox key={i} title={title} body={body} />;
+          }
           case 'h1':
             return (
               <div
@@ -297,6 +350,9 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
             }
             // Plain bullet lists (references, evidence citations) get a light
             // zebra tint per item so a long run of lines doesn't read as one block.
+            // A minority of bullets are themselves "(1) ... (2) ... (3) ..." lists —
+            // split those into a sub-list instead of one dense line.
+            const parsed = splitNumberedList(b.text);
             return (
               <div
                 key={i}
@@ -312,40 +368,106 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
                 <span aria-hidden style={{ color: warm.terra, fontSize: 12, lineHeight: 1.6 }}>
                   ·
                 </span>
-                <span style={{ flex: 1, fontSize: 12.5, color: warm.ink2, lineHeight: 1.55 }}>{b.text}</span>
+                <div style={{ flex: 1, fontSize: 12.5, color: warm.ink2, lineHeight: 1.55 }}>
+                  {parsed ? (
+                    <>
+                      {parsed.intro && <div style={{ whiteSpace: 'pre-wrap', marginBottom: 4 }}>{parsed.intro}</div>}
+                      <NumberedItems items={parsed.items} accent={warm.terra} textColor={warm.ink2} />
+                    </>
+                  ) : (
+                    <span style={{ whiteSpace: 'pre-wrap' }}>{b.text}</span>
+                  )}
+                </div>
               </div>
             );
           }
-          case 'table':
+          case 'table': {
+            const rows = b.rows;
+
+            // A few tables were extracted with a caption meant to span the whole
+            // table, but the same caption text ended up copied into every column
+            // of the first row instead of one wide cell — showing the same
+            // paragraph two/three/four times side by side. Pull it out and show
+            // it once, above the table, instead.
+            const firstRow = rows[0];
+            const hasDuplicateCaption =
+              firstRow.length > 1 && new Set(firstRow).size === 1 && firstRow[0].length > 40;
+            const caption = hasDuplicateCaption ? firstRow[0] : null;
+            const dataRows = hasDuplicateCaption ? rows.slice(1) : rows;
+
+            const ncols = Math.max(...dataRows.map((r) => r.length));
+            if (ncols === 1) {
+              const cells = dataRows.map((r) => r[0] ?? '');
+              // A run of self-contained "title\nbody" rows (e.g. "5 Bedside
+              // Pearls") — render each as its own callout card instead of a
+              // one-column table where only the first row looked styled.
+              if (cells.length >= 3 && cells.every((c) => c.includes('\n'))) {
+                return (
+                  <div key={i}>
+                    {cells.map((c, ci) => {
+                      const nl = c.indexOf('\n');
+                      return <CalloutBox key={ci} title={c.slice(0, nl)} body={c.slice(nl + 1)} />;
+                    })}
+                  </div>
+                );
+              }
+              // A single title + body pair authored as a 2-row table — same
+              // shape as a callout block, so render it identically.
+              if (cells.length === 2) {
+                return <CalloutBox key={i} title={cells[0]} body={cells[1]} />;
+              }
+            }
+
             return (
-              <div key={i} style={{ overflowX: 'auto', marginBottom: 12 }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11.5 }}>
-                  <tbody>
-                    {b.rows.map((row, ri) => (
-                      <tr key={ri} style={{ borderBottom: `1px solid ${warm.line}` }}>
-                        {row.map((cell, ci) => (
-                          <td
-                            key={ci}
-                            style={{
-                              padding: '6px 8px',
-                              verticalAlign: 'top',
-                              fontWeight: ri === 0 ? 700 : 400,
-                              color: ri === 0 ? warm.ink : warm.ink2,
-                              background: ri === 0 ? warm.paperDeep : 'transparent',
-                              whiteSpace: 'pre-wrap',
-                            }}
-                          >
-                            {cell}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div key={i} style={{ marginBottom: 12 }}>
+                {caption && <CalloutBox title={null} body={caption} />}
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11.5 }}>
+                    <tbody>
+                      {dataRows.map((row, ri) => (
+                        <tr key={ri} style={{ borderBottom: `1px solid ${warm.line}` }}>
+                          {row.map((cell, ci) => (
+                            <td
+                              key={ci}
+                              style={{
+                                padding: '6px 8px',
+                                verticalAlign: 'top',
+                                fontWeight: ri === 0 ? 700 : 400,
+                                color: ri === 0 ? warm.ink : warm.ink2,
+                                background: ri === 0 ? warm.paperDeep : 'transparent',
+                                whiteSpace: 'pre-wrap',
+                              }}
+                            >
+                              {cell}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             );
+          }
           case 'p': {
+            // Self-check answers ("ตอบ: ...") are the most common place a "(1)
+            // ... (2) ... (3) ..." list shows up buried in one paragraph — split
+            // it the same way callouts are split, using colors that match
+            // whichever box style this paragraph is in.
             const aMatch = /^ตอบ\s*[:：]\s*/.exec(b.text);
+            const body = aMatch ? b.text.slice(aMatch[0].length) : b.text;
+            const accent = aMatch ? chipTone.sage.fg : warm.terra;
+            const textColor = aMatch ? chipTone.sage.fg : warm.ink2;
+            const parsed = splitNumberedList(body);
+            const content = parsed ? (
+              <>
+                {parsed.intro && <div style={{ whiteSpace: 'pre-wrap', marginBottom: 6 }}>{parsed.intro}</div>}
+                <NumberedItems items={parsed.items} accent={accent} textColor={textColor} />
+              </>
+            ) : (
+              <span style={{ whiteSpace: 'pre-wrap' }}>{body}</span>
+            );
+
             if (aMatch) {
               return (
                 <div
@@ -355,19 +477,19 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
                     borderRadius: 10,
                     padding: '8px 10px',
                     marginBottom: 12,
-                    whiteSpace: 'pre-wrap',
+                    fontSize: 12.5,
+                    color: chipTone.sage.fg,
+                    lineHeight: 1.6,
                   }}
                 >
-                  <span style={{ fontWeight: 800, color: chipTone.sage.fg, fontSize: 11.5 }}>ตอบ </span>
-                  <span style={{ fontSize: 12.5, color: chipTone.sage.fg, lineHeight: 1.6 }}>
-                    {b.text.slice(aMatch[0].length)}
-                  </span>
+                  <span style={{ fontWeight: 800 }}>ตอบ </span>
+                  {content}
                 </div>
               );
             }
             return (
-              <div key={i} style={{ fontSize: 12.5, color: warm.ink2, lineHeight: 1.6, marginBottom: 8, whiteSpace: 'pre-wrap' }}>
-                {b.text}
+              <div key={i} style={{ fontSize: 12.5, color: warm.ink2, lineHeight: 1.6, marginBottom: 8 }}>
+                {content}
               </div>
             );
           }
