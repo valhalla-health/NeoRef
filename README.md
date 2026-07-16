@@ -81,6 +81,17 @@ any single copyrighted textbook or institutional guideline. It is provided for
 educational purposes only and is not a substitute for your institution's own protocols
 or the official published clinical tools it links to.
 
+## Lesson content
+
+`public/lessons/day-*.json` is generated from a source `.docx` series by
+`scripts/extract_lessons.py` (source directory not in this repo). Before
+adding or re-extracting lessons, see
+[`scripts/LESSON_CHECKLIST.md`](scripts/LESSON_CHECKLIST.md) — it covers what
+`LessonDetail.tsx` already fixes automatically (dense-text bulleting, a couple
+of table extraction quirks) and what to check by hand. `npm test` includes a
+corpus-wide check (`src/data/lessonContentRules.test.ts`) that runs against
+every lesson file.
+
 ## Layout
 
 ```
