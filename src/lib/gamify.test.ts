@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { markLesson, recordToolOpen, toggleBookmark } from './storage';
+import { markLesson, recordToolOpen, toggleBookmark, recordActivity } from './storage';
 import { levelFromXp, computeStreak, getGamifyState } from './gamify';
 import { CALCS } from '../data/calcs';
 
@@ -32,8 +32,8 @@ describe('levelFromXp', () => {
 });
 
 describe('computeStreak', () => {
-  it('is zero with no completed lessons', () => {
-    expect(computeStreak({})).toEqual({ current: 0, longest: 0 });
+  it('is zero with no completed lessons or activity', () => {
+    expect(computeStreak({}, {})).toEqual({ current: 0, longest: 0 });
   });
 
   it('counts a run of consecutive calendar days as the current streak', () => {
@@ -42,13 +42,13 @@ describe('computeStreak', () => {
       '2': new Date(2026, 0, 6).toISOString(),
       '3': new Date(2026, 0, 7).toISOString(),
     };
-    expect(computeStreak(progress, new Date(2026, 0, 7, 20))).toEqual({ current: 3, longest: 3 });
+    expect(computeStreak(progress, {}, new Date(2026, 0, 7, 20))).toEqual({ current: 3, longest: 3 });
   });
 
   it('keeps the current streak alive with a one-day grace before today is logged', () => {
     const progress = { '1': new Date(2026, 0, 6).toISOString(), '2': new Date(2026, 0, 7).toISOString() };
     // "Now" is Jan 8th and nothing is done yet today — streak shouldn't reset until a full day is missed.
-    expect(computeStreak(progress, new Date(2026, 0, 8, 6))).toEqual({ current: 2, longest: 2 });
+    expect(computeStreak(progress, {}, new Date(2026, 0, 8, 6))).toEqual({ current: 2, longest: 2 });
   });
 
   it('resets the current streak once a day is fully missed, but preserves the longest', () => {
@@ -58,7 +58,28 @@ describe('computeStreak', () => {
       '3': new Date(2026, 0, 3).toISOString(),
       '4': new Date(2026, 0, 10).toISOString(),
     };
-    expect(computeStreak(progress, new Date(2026, 0, 12))).toEqual({ current: 0, longest: 3 });
+    expect(computeStreak(progress, {}, new Date(2026, 0, 12))).toEqual({ current: 0, longest: 3 });
+  });
+
+  it('extends the streak from activity (reading a lesson / opening a tool) even with no lesson marked done that day', () => {
+    // A lesson was completed on Jan 5th, and nothing was ever marked done on Jan 6th or
+    // Jan 7th — but the learner opened the app and read/used something on both of those
+    // days, which should be enough on its own to keep the streak running to 3.
+    const progress = { '9': new Date(2026, 0, 5).toISOString() };
+    const activity = {
+      '2026-01-06': new Date(2026, 0, 6, 8).toISOString(),
+      '2026-01-07': new Date(2026, 0, 7, 8).toISOString(),
+    };
+    expect(computeStreak(progress, activity, new Date(2026, 0, 7, 20))).toEqual({ current: 3, longest: 3 });
+  });
+
+  it("doesn't extend the streak just because today's already-completed lesson is shown, when nothing new happened today", () => {
+    // Reproduces the reported bug: a batch of lessons (including "today's") was
+    // completed a day early, so there's no fresh timestamp for today anywhere,
+    // and no activity was recorded today either — streak should stay flat.
+    const progress: Record<string, string> = {};
+    for (let i = 1; i <= 9; i++) progress[String(i)] = new Date(2026, 0, 5, 21).toISOString();
+    expect(computeStreak(progress, {}, new Date(2026, 0, 6, 7))).toEqual({ current: 1, longest: 1 });
   });
 });
 
@@ -104,5 +125,12 @@ describe('getGamifyState', () => {
     for (let i = 0; i < 10; i++) toggleBookmark(`proto-${i}`);
     const state = getGamifyState();
     expect(state.badges.find((b) => b.id === 'bookworm')!.earned).toBe(true);
+  });
+
+  it('folds recordActivity() into the streak so opening a lesson/tool keeps it alive without a completion', () => {
+    markLesson(1, true, new Date(2026, 0, 1));
+    recordActivity(new Date(2026, 0, 2));
+    const state = getGamifyState(new Date(2026, 0, 2, 12));
+    expect(state.streak).toEqual({ current: 2, longest: 2 });
   });
 });

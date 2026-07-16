@@ -6,7 +6,7 @@
 // did, and there is nothing extra to keep in sync once per-account storage
 // (email login + GAS history, see AUDIT C-3/S-5) lands later.
 
-import { getProgress, getBookmarks, getToolUsage, type ProgressMap } from './storage';
+import { getProgress, getBookmarks, getToolUsage, getActivityLog, type ProgressMap, type ActivityMap } from './storage';
 import { CURRICULUM_LENGTH } from './today';
 import { CALCS } from '../data/calcs';
 
@@ -101,9 +101,16 @@ function dayNumber(key: string): number {
   return Math.floor(Date.UTC(y, m - 1, d) / 86_400_000);
 }
 
-/** Current + longest consecutive-calendar-day streak of completed lessons. "Current" allows a grace day (today not done yet) so it doesn't reset until a full day is missed. */
-export function computeStreak(progress: ProgressMap, now: Date = new Date()): StreakInfo {
-  const days = new Set(Object.values(progress).map((iso) => dayNumber(dateKey(new Date(iso)))));
+/**
+ * Current + longest consecutive-calendar-day streak. A day counts if the learner
+ * completed a lesson OR just opened a lesson/tool that day (see storage.ts
+ * recordActivity) — logging in and reading/using something is enough to keep
+ * the streak alive, not only finishing a lesson. "Current" allows a grace day
+ * (today not done yet) so it doesn't reset until a full day is missed.
+ */
+export function computeStreak(progress: ProgressMap, activity: ActivityMap, now: Date = new Date()): StreakInfo {
+  const timestamps = [...Object.values(progress), ...Object.values(activity)];
+  const days = new Set(timestamps.map((iso) => dayNumber(dateKey(new Date(iso)))));
   if (days.size === 0) return { current: 0, longest: 0 };
 
   const sorted = [...days].sort((a, b) => a - b);
@@ -234,12 +241,13 @@ export function getGamifyState(now: Date = new Date()): GamifyState {
   const progress = getProgress();
   const bookmarks = getBookmarks();
   const toolUsage = getToolUsage();
+  const activity = getActivityLog();
 
   const lessonsDone = Object.keys(progress).length;
   const toolsUsed = Object.keys(toolUsage).length;
   const bookmarkCount = Object.keys(bookmarks).length;
   const totalTools = CALCS.length;
-  const streak = computeStreak(progress, now);
+  const streak = computeStreak(progress, activity, now);
 
   const xp = lessonsDone * XP_PER_LESSON + toolsUsed * XP_PER_TOOL;
   const level = levelFromXp(xp);

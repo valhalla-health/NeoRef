@@ -11,7 +11,7 @@ import { LeaderboardScreen } from './features/gamify/LeaderboardScreen';
 import { GamifyScreen } from './features/gamify/GamifyScreen';
 import { useAuth } from './features/auth/AuthContext';
 import { LoginScreen } from './features/auth/LoginScreen';
-import { recordToolOpen } from './lib/storage';
+import { recordToolOpen, recordActivity } from './lib/storage';
 
 // Simple state-based navigation (no router needed for a 5-tab PWA).
 // Sub-navigation within the Tools tab is a single `calcId` (null = hub);
@@ -30,12 +30,14 @@ export function App() {
 
   function openCalc(id: string) {
     recordToolOpen(id); // first open per tool counts toward gamification XP/badges
+    recordActivity(); // using a tool keeps the streak alive, even without a lesson done today
     setTab('calc');
     setCalcId(id);
   }
 
   function selectCalc(id: string) {
     recordToolOpen(id);
+    recordActivity();
     setCalcId(id);
   }
 
