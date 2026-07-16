@@ -63,7 +63,7 @@ export function LoginScreen() {
         <div style={{ fontSize: 12.5, color: warm.muted, marginTop: 4 }}>Sign in to track your progress</div>
       </div>
 
-      <DisclaimerBanner compact />
+      {!busy && <DisclaimerBanner compact />}
 
       {error && (
         <div
@@ -97,7 +97,7 @@ export function LoginScreen() {
             textAlign: 'center',
           }}
         >
-          กำลังเข้าสู่ระบบ อาจใช้เวลาสักครู่ กรุณาอย่าปิดหรือรีเฟรชหน้านี้…
+          กำลังเข้าสู่ระบบ…
         </div>
       )}
 
