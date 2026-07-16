@@ -11,6 +11,13 @@ import { setLessonDone } from '../../lib/progress';
 import { useBookmarks } from '../../lib/useBookmarks';
 import { toggleBookmark, recordActivity } from '../../lib/storage';
 import { lessonBookmarkId } from '../../lib/bookmarkIds';
+import {
+  stripWhyIntro,
+  splitNumberedList,
+  splitDenseProse,
+  extractDuplicateCaption,
+  classifySingleColumnTable,
+} from '../../lib/lessonFormatting';
 
 type Block =
   | { type: 'h1' | 'h2' | 'li' | 'p' | 'callout'; text: string }
@@ -30,34 +37,6 @@ type LoadState =
   | { status: 'error' }
   | { status: 'ready'; content: LessonContent };
 
-// Every lesson's opening callout is authored with a rhetorical lead-in line
-// ("ทำไม neonatologist ต้องเข้าใจ <topic>?") before the actual key-points
-// summary — redundant once it's inside the app, so it's stripped for display
-// only (the source .docx on OneDrive is left untouched).
-const WHY_INTRO_RE = /^ทำไม\s*neonatologist\s*ต้องเข้าใจ[^\n]*\?\s*\n+/;
-
-function stripWhyIntro(text: string): string {
-  return text.replace(WHY_INTRO_RE, '');
-}
-
-// Lots of blocks (callouts, self-check answers, the occasional dense bullet) are
-// authored as one sentence enumerating "(1) ... (2) ... (3) ..." separated by
-// semicolons or commas — readable in a Word doc, but a wall of text on a phone
-// screen. When that pattern is present, split it into a lead-in plus one line
-// per numbered point instead of rendering it as a single flowing paragraph.
-function splitNumberedList(body: string): { intro: string; items: string[] } | null {
-  if (body.includes('\n') || !/\(1\)/.test(body) || !/\(2\)/.test(body)) return null;
-  const firstMarker = body.indexOf('(1)');
-  if (firstMarker < 0) return null;
-  const intro = body.slice(0, firstMarker).trim();
-  const items = body
-    .slice(firstMarker)
-    .split(/[;,]\s*(?=\(\d+\)\s)/)
-    .map((s) => s.replace(/^\(\d+\)\s*/, '').trim())
-    .filter(Boolean);
-  return items.length >= 2 ? { intro, items } : null;
-}
-
 function NumberedItems({ items, accent, textColor }: { items: string[]; accent: string; textColor: string }) {
   return (
     <>
@@ -73,12 +52,28 @@ function NumberedItems({ items, accent, textColor }: { items: string[]; accent: 
   );
 }
 
+function PlainBulletItems({ items, accent, textColor }: { items: string[]; accent: string; textColor: string }) {
+  return (
+    <>
+      {items.map((item, idx) => (
+        <div key={idx} style={{ display: 'flex', gap: 6, marginBottom: idx === items.length - 1 ? 0 : 5 }}>
+          <span aria-hidden style={{ color: accent, lineHeight: 1.6, flexShrink: 0 }}>
+            ·
+          </span>
+          <span style={{ flex: 1, whiteSpace: 'pre-wrap', color: textColor }}>{item}</span>
+        </div>
+      ))}
+    </>
+  );
+}
+
 // Shared box for anything shaped like "title line + body paragraph": real
 // `callout` blocks, but also `table` blocks that were authored the same way
 // (a 2-row single-column table, or a run of "Pearl" cards) — see the `table`
 // case below.
 function CalloutBox({ title, body }: { title: string | null; body: string }) {
   const parsed = splitNumberedList(body);
+  const prose = parsed ? null : splitDenseProse(body);
   return (
     <div
       style={{
@@ -98,6 +93,8 @@ function CalloutBox({ title, body }: { title: string | null; body: string }) {
           {parsed.intro && <div style={{ whiteSpace: 'pre-wrap', marginBottom: 6 }}>{parsed.intro}</div>}
           <NumberedItems items={parsed.items} accent={warm.ochre} textColor={warm.ink2} />
         </>
+      ) : prose ? (
+        <PlainBulletItems items={prose} accent={warm.ochre} textColor={warm.ink2} />
       ) : (
         <div style={{ whiteSpace: 'pre-wrap' }}>{body}</div>
       )}
@@ -350,9 +347,10 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
             }
             // Plain bullet lists (references, evidence citations) get a light
             // zebra tint per item so a long run of lines doesn't read as one block.
-            // A minority of bullets are themselves "(1) ... (2) ... (3) ..." lists —
+            // A minority of bullets are themselves dense multi-clause text —
             // split those into a sub-list instead of one dense line.
             const parsed = splitNumberedList(b.text);
+            const prose = parsed ? null : splitDenseProse(b.text);
             return (
               <div
                 key={i}
@@ -374,6 +372,8 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
                       {parsed.intro && <div style={{ whiteSpace: 'pre-wrap', marginBottom: 4 }}>{parsed.intro}</div>}
                       <NumberedItems items={parsed.items} accent={warm.terra} textColor={warm.ink2} />
                     </>
+                  ) : prose ? (
+                    <PlainBulletItems items={prose} accent={warm.terra} textColor={warm.ink2} />
                   ) : (
                     <span style={{ whiteSpace: 'pre-wrap' }}>{b.text}</span>
                   )}
@@ -382,45 +382,39 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
             );
           }
           case 'table': {
-            const rows = b.rows;
-
             // A few tables were extracted with a caption meant to span the whole
             // table, but the same caption text ended up copied into every column
             // of the first row instead of one wide cell — showing the same
             // paragraph two/three/four times side by side. Pull it out and show
             // it once, above the table, instead.
-            const firstRow = rows[0];
-            const hasDuplicateCaption =
-              firstRow.length > 1 && new Set(firstRow).size === 1 && firstRow[0].length > 40;
-            const caption = hasDuplicateCaption ? firstRow[0] : null;
-            const dataRows = hasDuplicateCaption ? rows.slice(1) : rows;
+            const dup = extractDuplicateCaption(b.rows);
+            const dataRows = dup ? dup.dataRows : b.rows;
 
             const ncols = Math.max(...dataRows.map((r) => r.length));
             if (ncols === 1) {
-              const cells = dataRows.map((r) => r[0] ?? '');
+              const shape = classifySingleColumnTable(dataRows.map((r) => r[0] ?? ''));
               // A run of self-contained "title\nbody" rows (e.g. "5 Bedside
               // Pearls") — render each as its own callout card instead of a
               // one-column table where only the first row looked styled.
-              if (cells.length >= 3 && cells.every((c) => c.includes('\n'))) {
+              if (shape?.kind === 'pearlCards') {
                 return (
                   <div key={i}>
-                    {cells.map((c, ci) => {
-                      const nl = c.indexOf('\n');
-                      return <CalloutBox key={ci} title={c.slice(0, nl)} body={c.slice(nl + 1)} />;
-                    })}
+                    {shape.cards.map((c, ci) => (
+                      <CalloutBox key={ci} title={c.title} body={c.body} />
+                    ))}
                   </div>
                 );
               }
               // A single title + body pair authored as a 2-row table — same
               // shape as a callout block, so render it identically.
-              if (cells.length === 2) {
-                return <CalloutBox key={i} title={cells[0]} body={cells[1]} />;
+              if (shape?.kind === 'titleBody') {
+                return <CalloutBox key={i} title={shape.title} body={shape.body} />;
               }
             }
 
             return (
               <div key={i} style={{ marginBottom: 12 }}>
-                {caption && <CalloutBox title={null} body={caption} />}
+                {dup && <CalloutBox title={null} body={dup.caption} />}
                 <div style={{ overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11.5 }}>
                     <tbody>
@@ -459,11 +453,14 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
             const accent = aMatch ? chipTone.sage.fg : warm.terra;
             const textColor = aMatch ? chipTone.sage.fg : warm.ink2;
             const parsed = splitNumberedList(body);
+            const prose = parsed ? null : splitDenseProse(body);
             const content = parsed ? (
               <>
                 {parsed.intro && <div style={{ whiteSpace: 'pre-wrap', marginBottom: 6 }}>{parsed.intro}</div>}
                 <NumberedItems items={parsed.items} accent={accent} textColor={textColor} />
               </>
+            ) : prose ? (
+              <PlainBulletItems items={prose} accent={accent} textColor={textColor} />
             ) : (
               <span style={{ whiteSpace: 'pre-wrap' }}>{body}</span>
             );
