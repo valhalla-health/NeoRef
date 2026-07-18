@@ -3,8 +3,8 @@
 // Deliberately a pure read-side computation over the existing stores
 // (lesson-progress, tool-usage, bookmarks) rather than a new source of
 // truth — XP/streaks/badges can never drift from what the learner actually
-// did, and there is nothing extra to keep in sync once per-account storage
-// (email login + GAS history, see AUDIT C-3/S-5) lands later.
+// did, and there is nothing extra to keep in sync now that those stores are
+// namespaced per signed-in account (see storage.ts's storageKey, AUDIT C-3/S-5).
 
 import { getProgress, getBookmarks, getToolUsage, getActivityLog, type ProgressMap, type ActivityMap } from './storage';
 import { CURRICULUM_LENGTH } from './today';
