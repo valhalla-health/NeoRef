@@ -1,12 +1,16 @@
 import { useEffect, useState } from 'react';
+import { storageKey } from '../../lib/storage';
 import * as gamifyApi from './gamifyApi';
 import type { StatsResponse } from './gamifyApi';
 
-const CACHE_KEY = 'neoref:my-stats-cache';
-
+// Namespaced per signed-in account (storageKey, see storage.ts / AUDIT C-3/S-5)
+// so a second account signing in on the same device doesn't briefly show the
+// previous account's own points/streak/lessonsDone as "your" stats while the
+// real fetch is in flight — this is private per-account data, not the shared
+// leaderboard.
 function readCache(): StatsResponse | null {
   try {
-    const raw = localStorage.getItem(CACHE_KEY);
+    const raw = localStorage.getItem(storageKey('my-stats-cache'));
     return raw ? (JSON.parse(raw) as StatsResponse) : null;
   } catch {
     return null;
@@ -15,7 +19,7 @@ function readCache(): StatsResponse | null {
 
 function writeCache(data: StatsResponse): void {
   try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+    localStorage.setItem(storageKey('my-stats-cache'), JSON.stringify(data));
   } catch {
     // ignore
   }

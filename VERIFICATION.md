@@ -155,3 +155,63 @@ auth) of Home, Learn (incl. search), Tools hub, and Leaderboard.
 - The three AUDIT-flagged clinical-accuracy items (BPD "Grade 3A = death",
   NEC/POCUS "bowel wall >2.6mm", HIE "BE ≥-16") remain unresolved, correctly,
   pending clinician sign-off — untouched by this pass.
+
+---
+
+## Full re-verification + data-isolation follow-up (2026-07-18)
+
+Full walkthrough of the current app (commit `4642bf6`, right after the prior
+pass's account-namespacing fix landed): lint/typecheck/test(198)/build,
+source review of the auth, session, and storage layers, and a live Playwright
+walkthrough (390×844, seeded session) of Home, the account panel, Tools hub,
+EOS, Learn, and Progress.
+
+| Check | Result |
+|---|---|
+| `npm run lint` | ✅ clean (1 pre-existing, unrelated fast-refresh warning) |
+| `npm run typecheck` | ✅ clean |
+| `npm test` (198 tests, 35 files, before this pass's fix) | ✅ all pass |
+| `npm run build` | ✅ succeeds, PWA precache generates (49 entries) |
+| Secrets/token-shape greps (`SECURITY_CHECKLIST.md` Rounds 1–2), against both `src/` and a real `dist/` build | ✅ none found; no `.map` files shipped |
+| `dangerouslySetInnerHTML` / `innerHTML =` / `eval(` in `src/` | ✅ none |
+| CSP `<meta>` in `index.html` | ✅ intact — `default-src 'self'` + the two required Google origins only |
+| `Session.role` used for any client-side gating | ✅ no — stored but never read for access control, per checklist |
+| `LeaderboardRow` shape returned to the client | ✅ `name`/`points`/`streak`/`isMe` only — no `email` |
+| Live walkthrough: login screen, home (real lesson/XP/streak data), account panel (rename, change-password, sign-out), Tools hub, EOS (qualitative-only, confirmed no invented risk score), Learn list, Progress (XP/badges) | ✅ all render and function correctly, no console errors beyond expected Google Sign-In network noise (no live GAS/Google reachable in this environment) |
+
+### Fixed during this pass
+
+**Two gamify caches were missed by the previous pass's account-namespacing
+fix.** The prior pass (`6037d00`, "Namespace local storage... per
+signed-in account") correctly namespaced lesson progress, the activity/streak
+log, bookmarks, tool usage, and the gamify sync outbox by signed-in email —
+but `LeaderboardScreen.tsx`'s `neoref:leaderboard-cache` and
+`useMyStats.ts`'s `neoref:my-stats-cache` still lived under fixed,
+device-wide keys. `my-stats-cache` in particular holds this account's own
+private `{ points, streak, lessonsDone, lastActivity }` — the same class of
+per-account data the namespacing fix was written to protect. On a device
+shared by two accounts (e.g. a shared ward tablet), signing in as a second
+account would render the *first* account's cached points/streak on Home's
+"leaderboard points" card as if they were the second account's own, until
+the background refetch completed (or indefinitely, if offline). The
+leaderboard-wide cache had a milder version of the same gap: a stale
+`isMe` flag could highlight the wrong row as "(you)" for a moment.
+
+**Fix applied:** both caches now go through `storage.ts`'s exported
+`storageKey()` — the same per-account-namespacing + legacy-migration helper
+`progress.ts`'s gamify outbox already uses — instead of a bare string
+constant. Covered by two new regression tests (`useMyStats.test.ts`,
+and an addition to `LeaderboardScreen.test.tsx`) asserting a second account
+never sees the first account's cached values. Full suite re-run after the
+fix: 201 tests / 36 files, all passing; lint/typecheck/build re-confirmed
+clean.
+
+### Noted, not changed (out of scope for this pass)
+
+- Lesson dataset now covers 222/365 days (up from 159 at the last pass);
+  still short of the full curriculum — tracked, not a new finding.
+- `curriculumDay()`/`resumeDay()` (`src/lib/today.ts`) has since been
+  reworked to anchor "today's lesson" on the learner's own first-completion
+  date rather than a fixed global epoch, which independently resolves the
+  "Today vs Latest lesson" label mismatch this document's 2026-07-09 pass
+  patched around — confirmed still correct, no further action needed.
