@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { setSession, clearSession } from './session';
 import {
   getProgress,
   markLesson,
@@ -139,5 +140,36 @@ describe('schema/version safety (regression for C-6)', () => {
     expect(() => toggleBookmark('x')).not.toThrow();
 
     setItem.mockRestore();
+  });
+});
+
+describe('per-account isolation (regression for AUDIT C-3/S-5)', () => {
+  afterEach(() => clearSession());
+
+  it('keeps different accounts on the same device from seeing each other\'s progress', () => {
+    setSession({ email: 'a@b.com', name: 'A', role: 'user', token: 'tok-a', hasPassword: true });
+    markLesson(5, true, new Date(2026, 0, 5));
+    expect(isLessonDone(5)).toBe(true);
+
+    setSession({ email: 'other@b.com', name: 'Other', role: 'user', token: 'tok-o', hasPassword: true });
+    expect(isLessonDone(5)).toBe(false); // a different account must start from a clean slate
+
+    markLesson(6, true, new Date(2026, 0, 6));
+    setSession({ email: 'a@b.com', name: 'A', role: 'user', token: 'tok-a', hasPassword: true });
+    expect(isLessonDone(5)).toBe(true); // switching back recovers this account's own data
+    expect(isLessonDone(6)).toBe(false); // and never inherits the other account's data
+  });
+
+  it('migrates pre-existing unnamespaced data to whichever account signs in first, then stops sharing it', () => {
+    // Data written before this fix (or by a signed-out/legacy session) lived
+    // under the bare key with no account attached to it.
+    markLesson(9, true, new Date(2026, 0, 9));
+
+    setSession({ email: 'a@b.com', name: 'A', role: 'user', token: 'tok-a', hasPassword: true });
+    expect(isLessonDone(9)).toBe(true); // first account to sign in claims the legacy data
+    expect(localStorage.getItem('neoref:lesson-progress')).toBeNull(); // legacy key is cleared once claimed
+
+    setSession({ email: 'other@b.com', name: 'Other', role: 'user', token: 'tok-o', hasPassword: true });
+    expect(isLessonDone(9)).toBe(false); // a second account must not also inherit it
   });
 });

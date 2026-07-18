@@ -5,13 +5,46 @@
 // every store carries a schema version and validates its shape on read, so a
 // future format change has an explicit upgrade path instead of silent data loss.
 
+import { getSession } from './session';
+
 const NS = 'neoref';
 const VERSION = 1;
 
 type Envelope<T> = { v: number; data: T };
 
-function key(name: string): string {
+function legacyKey(name: string): string {
   return `${NS}:${name}`;
+}
+
+// Fixes AUDIT C-3/S-5: every store below used to live under one fixed
+// per-device key, so logging in as a second account on the same browser/PWA
+// instantly inherited whatever the previous account had done — streak,
+// progress, bookmarks, all of it. Namespacing by the signed-in email keeps
+// each account's data in its own slot, and switching back to an earlier
+// account on the same device recovers that account's own data instead of
+// showing someone else's (or an empty slate).
+//
+// The first read/write for a given store after this landed migrates any
+// pre-existing unnamespaced data to whichever account is currently signed
+// in, then clears the legacy key — so the account that already had local
+// history keeps it, but no other account can inherit it afterward.
+export function storageKey(name: string): string {
+  const email = getSession()?.email;
+  if (!email) return legacyKey(name);
+
+  const k = `${NS}:${email}:${name}`;
+  try {
+    if (localStorage.getItem(k) === null) {
+      const legacyRaw = localStorage.getItem(legacyKey(name));
+      if (legacyRaw !== null) {
+        localStorage.setItem(k, legacyRaw);
+        localStorage.removeItem(legacyKey(name));
+      }
+    }
+  } catch {
+    // best-effort only — fall through and use the namespaced key regardless
+  }
+  return k;
 }
 
 // Read-through cache keyed by the raw localStorage string, so getProgress()
@@ -22,7 +55,7 @@ function key(name: string): string {
 const cache = new Map<string, { raw: string | null; value: unknown }>();
 
 function read<T>(name: string, fallback: T, validate: (data: unknown) => data is T): T {
-  const k = key(name);
+  const k = storageKey(name);
   let raw: string | null;
   try {
     raw = localStorage.getItem(k);
@@ -49,7 +82,7 @@ function read<T>(name: string, fallback: T, validate: (data: unknown) => data is
 }
 
 function write<T>(name: string, data: T): void {
-  const k = key(name);
+  const k = storageKey(name);
   try {
     const env: Envelope<T> = { v: VERSION, data };
     const raw = JSON.stringify(env);

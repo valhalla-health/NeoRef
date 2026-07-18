@@ -29,14 +29,16 @@ describe('setLessonDone', () => {
     setLessonDone(7, true);
     // Let the fire-and-forget async handler run.
     await new Promise((r) => setTimeout(r, 0));
-    expect(JSON.parse(localStorage.getItem('neoref:gamify-pending') ?? '[]')).toEqual([{ day: 7, done: true }]);
+    expect(JSON.parse(localStorage.getItem('neoref:a@b.com:gamify-pending') ?? '[]')).toEqual([
+      { day: 7, done: true },
+    ]);
 
     vi.stubGlobal(
       'fetch',
       vi.fn().mockResolvedValue({ json: () => Promise.resolve({ ok: true, points: 1, streak: 1 }) }),
     );
     await flushGamifyOutbox();
-    expect(JSON.parse(localStorage.getItem('neoref:gamify-pending') ?? '[]')).toEqual([]);
+    expect(JSON.parse(localStorage.getItem('neoref:a@b.com:gamify-pending') ?? '[]')).toEqual([]);
   });
 
   it('does not enqueue when the remote call succeeds', async () => {
@@ -46,6 +48,6 @@ describe('setLessonDone', () => {
     );
     setLessonDone(7, true);
     await new Promise((r) => setTimeout(r, 0));
-    expect(JSON.parse(localStorage.getItem('neoref:gamify-pending') ?? '[]')).toEqual([]);
+    expect(JSON.parse(localStorage.getItem('neoref:a@b.com:gamify-pending') ?? '[]')).toEqual([]);
   });
 });

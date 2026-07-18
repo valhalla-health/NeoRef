@@ -6,19 +6,25 @@
 // offline (the whole point of this being a PWA) would just vanish from the
 // leaderboard/streak.
 
-import { markLesson, type ProgressMap } from './storage';
+import { markLesson, storageKey, type ProgressMap } from './storage';
 import * as gamifyApi from '../features/gamify/gamifyApi';
-
-const OUTBOX_KEY = 'neoref:gamify-pending';
 
 interface PendingEvent {
   day: number;
   done: boolean;
 }
 
+// Resolved fresh on every call (not cached in a module-level const): it must
+// track whichever account is currently signed in, same as storage.ts's other
+// stores, so one account's queued offline completions never sync under (or
+// leak into) another account sharing the device.
+function outboxKey(): string {
+  return storageKey('gamify-pending');
+}
+
 function readOutbox(): PendingEvent[] {
   try {
-    const raw = localStorage.getItem(OUTBOX_KEY);
+    const raw = localStorage.getItem(outboxKey());
     if (!raw) return [];
     const parsed = JSON.parse(raw) as unknown;
     return Array.isArray(parsed) ? (parsed as PendingEvent[]) : [];
@@ -29,7 +35,7 @@ function readOutbox(): PendingEvent[] {
 
 function writeOutbox(events: PendingEvent[]): void {
   try {
-    localStorage.setItem(OUTBOX_KEY, JSON.stringify(events));
+    localStorage.setItem(outboxKey(), JSON.stringify(events));
   } catch {
     // ignore — best-effort only
   }
