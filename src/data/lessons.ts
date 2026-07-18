@@ -33,6 +33,23 @@ export function lessonForDay(day: number): Lesson {
   return earlier ?? LESSONS[0];
 }
 
+/** All lessons for a single textbook, in chapter order (day is the tiebreaker
+ * for lessons sharing a chapter number). Used to group the Learn tab by book
+ * and to walk chapter-to-chapter within one textbook. */
+export function lessonsForBook(book: Lesson['book']): Lesson[] {
+  return LESSONS.filter((l) => l.book === book).sort((a, b) => a.chapter - b.chapter || a.day - b.day);
+}
+
+/** The previous/next chapter within the same textbook as `day` (null at
+ * either end of that book's chapter list), for the reader's chapter nav. */
+export function adjacentLessons(day: number): { prev: Lesson | null; next: Lesson | null } {
+  const current = lessonForDay(day);
+  const siblings = lessonsForBook(current.book);
+  const idx = siblings.findIndex((l) => l.day === current.day);
+  if (idx === -1) return { prev: null, next: null };
+  return { prev: siblings[idx - 1] ?? null, next: siblings[idx + 1] ?? null };
+}
+
 export function lessonPath(day: number): string {
   return `${import.meta.env.BASE_URL}lessons/day-${String(day).padStart(3, '0')}.json`;
 }

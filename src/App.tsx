@@ -84,7 +84,7 @@ export function App() {
 
           {tab === 'learn' &&
             (lessonDay !== null ? (
-              <LessonDetail day={lessonDay} onBack={() => setLessonDay(null)} />
+              <LessonDetail day={lessonDay} onBack={() => setLessonDay(null)} onOpenLesson={setLessonDay} />
             ) : (
               <LearnScreen onOpenLesson={setLessonDay} />
             ))}

@@ -14,6 +14,7 @@ import {
   lessonSourceHint,
   lessonAttribution,
   hasSourceDoc,
+  adjacentLessons,
 } from '../../data/lessons';
 import { useProgress } from '../../lib/useProgress';
 import { setLessonDone } from '../../lib/progress';
@@ -112,7 +113,15 @@ function CalloutBox({ title, body }: { title: string | null; body: string }) {
   );
 }
 
-export function LessonDetail({ day, onBack }: { day: number; onBack?: () => void }) {
+export function LessonDetail({
+  day,
+  onBack,
+  onOpenLesson,
+}: {
+  day: number;
+  onBack?: () => void;
+  onOpenLesson?: (day: number) => void;
+}) {
   const [state, setState] = useState<LoadState>({ status: 'loading' });
   const [retryToken, setRetryToken] = useState(0);
   const progress = useProgress();
@@ -121,6 +130,7 @@ export function LessonDetail({ day, onBack }: { day: number; onBack?: () => void
   const bookmarks = useBookmarks();
   const bookmarkId = lessonBookmarkId(day);
   const bookmarked = Boolean(bookmarks[bookmarkId]);
+  const { prev, next } = adjacentLessons(day);
 
   useEffect(() => {
     let cancelled = false;
@@ -284,9 +294,105 @@ export function LessonDetail({ day, onBack }: { day: number; onBack?: () => void
                 </div>
               </>
             )}
+            <ChapterNav prev={prev} next={next} onOpenLesson={onOpenLesson} />
           </>
         )}
       </div>
+    </div>
+  );
+}
+
+// Chapter-to-chapter nav shown at the end of a lesson's content, once the
+// reader has scrolled through it — right advances to the next chapter of the
+// same textbook, left goes back to the previous one.
+function ChapterNav({
+  prev,
+  next,
+  onOpenLesson,
+}: {
+  prev: { day: number; title: string } | null;
+  next: { day: number; title: string } | null;
+  onOpenLesson?: (day: number) => void;
+}) {
+  if (!prev && !next) return null;
+  return (
+    <div style={{ display: 'flex', gap: 10, marginTop: 20, paddingTop: 16, borderTop: `1px solid ${warm.line}` }}>
+      <button
+        type="button"
+        disabled={!prev}
+        onClick={() => prev && onOpenLesson?.(prev.day)}
+        aria-label={prev ? `Previous chapter: ${prev.title}` : 'No previous chapter'}
+        style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          textAlign: 'left',
+          border: `1.5px solid ${warm.line}`,
+          background: prev ? warm.card : 'transparent',
+          borderRadius: 10,
+          padding: '9px 12px',
+          cursor: prev ? 'pointer' : 'default',
+          opacity: prev ? 1 : 0.4,
+          fontFamily: font.ui,
+          minWidth: 0,
+        }}
+      >
+        <span style={{ fontSize: 11, color: warm.muted, fontWeight: 700 }}>‹ Previous</span>
+        {prev && (
+          <span
+            style={{
+              fontSize: 12,
+              color: warm.ink,
+              marginTop: 2,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              width: '100%',
+            }}
+          >
+            {prev.title}
+          </span>
+        )}
+      </button>
+      <button
+        type="button"
+        disabled={!next}
+        onClick={() => next && onOpenLesson?.(next.day)}
+        aria-label={next ? `Next chapter: ${next.title}` : 'No next chapter'}
+        style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-end',
+          textAlign: 'right',
+          border: `1.5px solid ${warm.line}`,
+          background: next ? warm.card : 'transparent',
+          borderRadius: 10,
+          padding: '9px 12px',
+          cursor: next ? 'pointer' : 'default',
+          opacity: next ? 1 : 0.4,
+          fontFamily: font.ui,
+          minWidth: 0,
+        }}
+      >
+        <span style={{ fontSize: 11, color: warm.muted, fontWeight: 700 }}>Next ›</span>
+        {next && (
+          <span
+            style={{
+              fontSize: 12,
+              color: warm.ink,
+              marginTop: 2,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              width: '100%',
+            }}
+          >
+            {next.title}
+          </span>
+        )}
+      </button>
     </div>
   );
 }
