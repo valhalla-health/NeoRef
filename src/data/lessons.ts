@@ -15,6 +15,9 @@ export interface Lesson {
   chapter: number;
   title: string;
   authors: string;
+  /** ~10 distinctive clinical terms pulled from the lesson body (acronyms,
+   * named entities) so search can match content beyond the title/authors. */
+  keywords?: string[];
 }
 
 export const LESSONS: Lesson[] = lessonsIndexData as unknown as Lesson[];
@@ -45,12 +48,27 @@ export function bookLabel(book: string): string {
 }
 
 /**
+ * Attribution shown alongside a lesson's book/chapter/author citation.
+ * Avery/Fanaroff/Newborn Lung lessons are the Valhalla Health team's own
+ * short-note study summaries written while reading the cited chapter — not a
+ * reproduction of it. Pimolrat lessons are the opposite: the full original
+ * textbook text, used with the author's explicit permission — so they get a
+ * distinct attribution rather than the "not the original text" disclaimer
+ * (see README's License & copyright section for the full rationale).
+ */
+export function lessonAttribution(book: string): string {
+  if (book === 'Pimolrat') {
+    return 'เนื้อหาต้นฉบับจากตำรา คู่มือการดูแลทารกแรกเกิด โดย ศ.กิตติคุณ พญ.พิมลรัตน์ ไทยธรรมยานนท์ · ใช้โดยได้รับอนุญาตจากผู้เขียน';
+  }
+  return 'สรุปย่อ (short note) จัดทำโดยทีม Valhalla Health · ไม่ใช่เนื้อหาต้นฉบับจากตำรา';
+}
+
+/**
  * Whether a lesson has a separate original source document worth linking to.
  * Avery/Fanaroff/Newborn Lung lessons are shortnotes distilled from an
  * external docx, so LessonDetail links back to it. Pimolrat lessons ARE the
- * full source text (used with the author's permission) - there's no
- * separate "original" to open, so no link is shown for them. Future
- * shortnote-style additions should default to true here.
+ * full source text - there's no separate "original" to open, so no link is
+ * shown for them. Future shortnote-style additions should default to true.
  */
 export function hasSourceDoc(book: string): boolean {
   return book !== 'Pimolrat';

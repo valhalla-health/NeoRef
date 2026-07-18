@@ -1,5 +1,18 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { getProgress, markLesson, isLessonDone, toggleBookmark, isBookmarked } from './storage';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { setSession, clearSession } from './session';
+import {
+  getProgress,
+  markLesson,
+  isLessonDone,
+  toggleBookmark,
+  isBookmarked,
+  getBookmarks,
+  subscribeBookmarks,
+  getToolUsage,
+  recordToolOpen,
+  setProgress,
+  subscribeProgress,
+} from './storage';
 
 beforeEach(() => localStorage.clear());
 
@@ -26,6 +39,77 @@ describe('bookmarks', () => {
     expect(toggleBookmark('proto-caffeine')).toBe(false);
     expect(isBookmarked('proto-caffeine')).toBe(false);
   });
+
+  it('returns a new reference after a toggle changes the data (useSyncExternalStore stability)', () => {
+    const before = getBookmarks();
+    toggleBookmark('proto-caffeine');
+    expect(getBookmarks()).not.toBe(before);
+    expect(getBookmarks()).toBe(getBookmarks()); // stable when nothing changed
+  });
+
+  it('notifies subscribers on toggle', () => {
+    let calls = 0;
+    const unsubscribe = subscribeBookmarks(() => calls++);
+    toggleBookmark('proto-caffeine');
+    toggleBookmark('proto-caffeine');
+    expect(calls).toBe(2);
+    unsubscribe();
+    toggleBookmark('proto-caffeine');
+    expect(calls).toBe(2); // no longer subscribed
+  });
+});
+
+describe('tool usage', () => {
+  it('records only the first open of a tool', () => {
+    recordToolOpen('eos', new Date(2026, 0, 5));
+    recordToolOpen('eos', new Date(2026, 0, 9)); // second open should not overwrite the first timestamp
+    expect(getToolUsage()).toEqual({ eos: new Date(2026, 0, 5).toISOString() });
+  });
+
+  it('starts empty', () => {
+    expect(getToolUsage()).toEqual({});
+  });
+});
+
+describe('reference stability (regression for useSyncExternalStore infinite loop)', () => {
+  it('returns the same object reference across calls when nothing changed', () => {
+    markLesson(3, true, new Date(2026, 0, 3));
+    expect(getProgress()).toBe(getProgress());
+  });
+
+  it('returns a new reference after markLesson changes the data', () => {
+    markLesson(3, true, new Date(2026, 0, 3));
+    const before = getProgress();
+    markLesson(4, true, new Date(2026, 0, 4));
+    expect(getProgress()).not.toBe(before);
+  });
+
+  it('returns a new reference after setProgress overwrites the map', () => {
+    markLesson(3, true, new Date(2026, 0, 3));
+    const before = getProgress();
+    setProgress({ '3': before['3'], '9': new Date(2026, 0, 9).toISOString() });
+    const after = getProgress();
+    expect(after).not.toBe(before);
+    expect(after['9']).toBeDefined();
+  });
+});
+
+describe('setProgress + subscribeProgress', () => {
+  it('bulk-overwrites the progress map', () => {
+    setProgress({ '10': '2026-01-10T00:00:00.000Z', '11': '2026-01-11T00:00:00.000Z' });
+    expect(getProgress()).toEqual({ '10': '2026-01-10T00:00:00.000Z', '11': '2026-01-11T00:00:00.000Z' });
+  });
+
+  it('notifies subscribers on markLesson and setProgress', () => {
+    let calls = 0;
+    const unsubscribe = subscribeProgress(() => calls++);
+    markLesson(1, true);
+    setProgress({ '1': new Date().toISOString() });
+    expect(calls).toBe(2);
+    unsubscribe();
+    markLesson(2, true);
+    expect(calls).toBe(2); // no longer subscribed
+  });
 });
 
 describe('schema/version safety (regression for C-6)', () => {
@@ -43,5 +127,49 @@ describe('schema/version safety (regression for C-6)', () => {
   it('ignores corrupt JSON gracefully', () => {
     localStorage.setItem('neoref:bookmarks', '{not json');
     expect(isBookmarked('x')).toBe(false);
+  });
+
+  it('degrades silently (no throw) when localStorage.setItem throws (quota exceeded / private mode)', () => {
+    const setItem = vi
+      .spyOn(Storage.prototype, 'setItem')
+      .mockImplementation(() => {
+        throw new DOMException('QuotaExceededError');
+      });
+
+    expect(() => markLesson(1, true)).not.toThrow();
+    expect(() => toggleBookmark('x')).not.toThrow();
+
+    setItem.mockRestore();
+  });
+});
+
+describe('per-account isolation (regression for AUDIT C-3/S-5)', () => {
+  afterEach(() => clearSession());
+
+  it('keeps different accounts on the same device from seeing each other\'s progress', () => {
+    setSession({ email: 'a@b.com', name: 'A', role: 'user', token: 'tok-a', hasPassword: true });
+    markLesson(5, true, new Date(2026, 0, 5));
+    expect(isLessonDone(5)).toBe(true);
+
+    setSession({ email: 'other@b.com', name: 'Other', role: 'user', token: 'tok-o', hasPassword: true });
+    expect(isLessonDone(5)).toBe(false); // a different account must start from a clean slate
+
+    markLesson(6, true, new Date(2026, 0, 6));
+    setSession({ email: 'a@b.com', name: 'A', role: 'user', token: 'tok-a', hasPassword: true });
+    expect(isLessonDone(5)).toBe(true); // switching back recovers this account's own data
+    expect(isLessonDone(6)).toBe(false); // and never inherits the other account's data
+  });
+
+  it('migrates pre-existing unnamespaced data to whichever account signs in first, then stops sharing it', () => {
+    // Data written before this fix (or by a signed-out/legacy session) lived
+    // under the bare key with no account attached to it.
+    markLesson(9, true, new Date(2026, 0, 9));
+
+    setSession({ email: 'a@b.com', name: 'A', role: 'user', token: 'tok-a', hasPassword: true });
+    expect(isLessonDone(9)).toBe(true); // first account to sign in claims the legacy data
+    expect(localStorage.getItem('neoref:lesson-progress')).toBeNull(); // legacy key is cleared once claimed
+
+    setSession({ email: 'other@b.com', name: 'Other', role: 'user', token: 'tok-o', hasPassword: true });
+    expect(isLessonDone(9)).toBe(false); // a second account must not also inherit it
   });
 });

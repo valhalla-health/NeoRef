@@ -5,9 +5,28 @@
 import { useEffect, useState } from 'react';
 import { warm, font, chipTone } from '../../theme/tokens';
 import { DisclaimerBanner } from '../../components/Disclaimer';
-import { lessonForDay, lessonPath, lessonImagePath, LESSON_SOURCE_FOLDER_URL, bookLabel, lessonSourceHint, hasSourceDoc } from '../../data/lessons';
-import { isLessonDone } from '../../lib/storage';
+import {
+  lessonForDay,
+  lessonPath,
+  lessonImagePath,
+  LESSON_SOURCE_FOLDER_URL,
+  bookLabel,
+  lessonSourceHint,
+  lessonAttribution,
+  hasSourceDoc,
+} from '../../data/lessons';
+import { useProgress } from '../../lib/useProgress';
 import { setLessonDone } from '../../lib/progress';
+import { useBookmarks } from '../../lib/useBookmarks';
+import { toggleBookmark, recordActivity } from '../../lib/storage';
+import { lessonBookmarkId } from '../../lib/bookmarkIds';
+import {
+  stripWhyIntro,
+  splitNumberedList,
+  splitDenseProse,
+  extractDuplicateCaption,
+  classifySingleColumnTable,
+} from '../../lib/lessonFormatting';
 
 type Block =
   | { type: 'h1' | 'h2' | 'li' | 'p' | 'callout'; text: string }
@@ -28,20 +47,80 @@ type LoadState =
   | { status: 'error' }
   | { status: 'ready'; content: LessonContent };
 
-// Every lesson's opening callout is authored with a rhetorical lead-in line
-// ("ทำไม neonatologist ต้องเข้าใจ <topic>?") before the actual key-points
-// summary — redundant once it's inside the app, so it's stripped for display
-// only (the source .docx on OneDrive is left untouched).
-const WHY_INTRO_RE = /^ทำไม\s*neonatologist\s*ต้องเข้าใจ[^\n]*\?\s*\n+/;
+function NumberedItems({ items, accent, textColor }: { items: string[]; accent: string; textColor: string }) {
+  return (
+    <>
+      {items.map((item, idx) => (
+        <div key={idx} style={{ display: 'flex', gap: 6, marginBottom: idx === items.length - 1 ? 0 : 5 }}>
+          <span aria-hidden style={{ color: accent, fontWeight: 700, lineHeight: 1.5, flexShrink: 0 }}>
+            {idx + 1}.
+          </span>
+          <span style={{ flex: 1, whiteSpace: 'pre-wrap', color: textColor }}>{item}</span>
+        </div>
+      ))}
+    </>
+  );
+}
 
-function stripWhyIntro(text: string): string {
-  return text.replace(WHY_INTRO_RE, '');
+function PlainBulletItems({ items, accent, textColor }: { items: string[]; accent: string; textColor: string }) {
+  return (
+    <>
+      {items.map((item, idx) => (
+        <div key={idx} style={{ display: 'flex', gap: 6, marginBottom: idx === items.length - 1 ? 0 : 5 }}>
+          <span aria-hidden style={{ color: accent, lineHeight: 1.6, flexShrink: 0 }}>
+            ·
+          </span>
+          <span style={{ flex: 1, whiteSpace: 'pre-wrap', color: textColor }}>{item}</span>
+        </div>
+      ))}
+    </>
+  );
+}
+
+// Shared box for anything shaped like "title line + body paragraph": real
+// `callout` blocks, but also `table` blocks that were authored the same way
+// (a 2-row single-column table, or a run of "Pearl" cards) — see the `table`
+// case below.
+function CalloutBox({ title, body }: { title: string | null; body: string }) {
+  const parsed = splitNumberedList(body);
+  const prose = parsed ? null : splitDenseProse(body);
+  return (
+    <div
+      style={{
+        background: '#FBEFE3',
+        border: `1px solid ${warm.ochre}55`,
+        borderRadius: 10,
+        padding: '10px 12px',
+        marginBottom: 12,
+        fontSize: 12.5,
+        color: warm.ink2,
+        lineHeight: 1.55,
+      }}
+    >
+      {title && <div style={{ whiteSpace: 'pre-wrap', marginBottom: 4 }}>{title}</div>}
+      {parsed ? (
+        <>
+          {parsed.intro && <div style={{ whiteSpace: 'pre-wrap', marginBottom: 6 }}>{parsed.intro}</div>}
+          <NumberedItems items={parsed.items} accent={warm.ochre} textColor={warm.ink2} />
+        </>
+      ) : prose ? (
+        <PlainBulletItems items={prose} accent={warm.ochre} textColor={warm.ink2} />
+      ) : (
+        <div style={{ whiteSpace: 'pre-wrap' }}>{body}</div>
+      )}
+    </div>
+  );
 }
 
 export function LessonDetail({ day, onBack }: { day: number; onBack?: () => void }) {
   const [state, setState] = useState<LoadState>({ status: 'loading' });
-  const [done, setDone] = useState(() => isLessonDone(day));
+  const [retryToken, setRetryToken] = useState(0);
+  const progress = useProgress();
+  const done = Boolean(progress[String(day)]);
   const meta = lessonForDay(day);
+  const bookmarks = useBookmarks();
+  const bookmarkId = lessonBookmarkId(day);
+  const bookmarked = Boolean(bookmarks[bookmarkId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -52,7 +131,10 @@ export function LessonDetail({ day, onBack }: { day: number; onBack?: () => void
         return r.json() as Promise<LessonContent>;
       })
       .then((content) => {
-        if (!cancelled) setState({ status: 'ready', content });
+        if (!cancelled) {
+          setState({ status: 'ready', content });
+          recordActivity(); // reading a lesson keeps the streak alive, even if not marked done
+        }
       })
       .catch(() => {
         if (!cancelled) setState({ status: 'error' });
@@ -60,7 +142,7 @@ export function LessonDetail({ day, onBack }: { day: number; onBack?: () => void
     return () => {
       cancelled = true;
     };
-  }, [day]);
+  }, [day, retryToken]);
 
   return (
     <div
@@ -89,25 +171,46 @@ export function LessonDetail({ day, onBack }: { day: number; onBack?: () => void
         >
           ‹ Lessons
         </button>
-        <button
-          type="button"
-          onClick={() => {
-            setLessonDone(day, !done);
-            setDone(!done);
-          }}
-          style={{
-            border: `1px solid ${done ? warm.sage : warm.line}`,
-            background: done ? warm.sage : 'transparent',
-            color: done ? '#fff' : warm.muted,
-            fontSize: 11,
-            fontWeight: 700,
-            padding: '4px 10px',
-            borderRadius: 999,
-            cursor: 'pointer',
-          }}
-        >
-          {done ? '✓ Done' : 'Mark done'}
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <button
+            type="button"
+            onClick={() => toggleBookmark(bookmarkId)}
+            aria-pressed={bookmarked}
+            aria-label={bookmarked ? 'Remove bookmark' : 'Bookmark this lesson'}
+            style={{
+              border: `1px solid ${bookmarked ? warm.ochre : warm.line}`,
+              background: bookmarked ? '#FBEFE3' : 'transparent',
+              color: bookmarked ? warm.ochre : warm.muted,
+              fontSize: 14,
+              width: 28,
+              height: 28,
+              borderRadius: '50%',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 0,
+            }}
+          >
+            {bookmarked ? '★' : '☆'}
+          </button>
+          <button
+            type="button"
+            onClick={() => setLessonDone(day, !done)}
+            style={{
+              border: `1px solid ${done ? warm.sage : warm.line}`,
+              background: done ? warm.sage : 'transparent',
+              color: done ? '#fff' : warm.muted,
+              fontSize: 11,
+              fontWeight: 700,
+              padding: '4px 10px',
+              borderRadius: 999,
+              cursor: 'pointer',
+            }}
+          >
+            {done ? '✓ Done' : 'Mark done'}
+          </button>
+        </div>
       </div>
 
       <div style={{ padding: '2px 22px 6px' }}>
@@ -118,6 +221,7 @@ export function LessonDetail({ day, onBack }: { day: number; onBack?: () => void
           {meta.title}
         </div>
         <div style={{ fontSize: 12, color: warm.muted, marginTop: 4, fontStyle: 'italic' }}>{meta.authors}</div>
+        <div style={{ fontSize: 10.5, color: warm.muted, marginTop: 3 }}>{lessonAttribution(meta.book)}</div>
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '6px 18px 20px' }}>
@@ -128,15 +232,33 @@ export function LessonDetail({ day, onBack }: { day: number; onBack?: () => void
         )}
 
         {state.status === 'error' && (
-          <div style={{ color: warm.muted, fontSize: 13, padding: '20px 0', textAlign: 'center' }}>
-            Couldn&apos;t load this lesson's content. Check your connection and try again.
+          <div style={{ textAlign: 'center', padding: '20px 0' }}>
+            <div style={{ color: warm.muted, fontSize: 13, marginBottom: 12 }}>
+              Couldn&apos;t load this lesson's content. Check your connection and try again.
+            </div>
+            <button
+              type="button"
+              onClick={() => setRetryToken((t) => t + 1)}
+              style={{
+                border: `1.5px solid ${warm.terra}`,
+                background: 'none',
+                color: warm.terra,
+                fontWeight: 700,
+                fontSize: 13,
+                borderRadius: 10,
+                padding: '9px 18px',
+                cursor: 'pointer',
+              }}
+            >
+              Try again
+            </button>
           </div>
         )}
 
         {state.status === 'ready' && (
           <>
             <LessonBody blocks={state.content.blocks} />
-            {hasSourceDoc(state.content.book) && (
+            {hasSourceDoc(meta.book) && (
               <>
                 <a
                   href={LESSON_SOURCE_FOLDER_URL}
@@ -174,25 +296,13 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
     <div>
       {blocks.map((b, i) => {
         switch (b.type) {
-          case 'callout':
-            return (
-              <div
-                key={i}
-                style={{
-                  background: '#FBEFE3',
-                  border: `1px solid ${warm.ochre}55`,
-                  borderRadius: 10,
-                  padding: '10px 12px',
-                  marginBottom: 12,
-                  fontSize: 12.5,
-                  color: warm.ink2,
-                  lineHeight: 1.55,
-                  whiteSpace: 'pre-wrap',
-                }}
-              >
-                {stripWhyIntro(b.text)}
-              </div>
-            );
+          case 'callout': {
+            const stripped = stripWhyIntro(b.text);
+            const nlIndex = stripped.indexOf('\n');
+            const title = nlIndex >= 0 ? stripped.slice(0, nlIndex) : null;
+            const body = nlIndex >= 0 ? stripped.slice(nlIndex + 1) : stripped;
+            return <CalloutBox key={i} title={title} body={body} />;
+          }
           case 'h1':
             return (
               <div
@@ -252,6 +362,10 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
             }
             // Plain bullet lists (references, evidence citations) get a light
             // zebra tint per item so a long run of lines doesn't read as one block.
+            // A minority of bullets are themselves dense multi-clause text —
+            // split those into a sub-list instead of one dense line.
+            const parsed = splitNumberedList(b.text);
+            const prose = parsed ? null : splitDenseProse(b.text);
             return (
               <div
                 key={i}
@@ -267,7 +381,18 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
                 <span aria-hidden style={{ color: warm.terra, fontSize: 12, lineHeight: 1.6 }}>
                   ·
                 </span>
-                <span style={{ flex: 1, fontSize: 12.5, color: warm.ink2, lineHeight: 1.55 }}>{b.text}</span>
+                <div style={{ flex: 1, fontSize: 12.5, color: warm.ink2, lineHeight: 1.55 }}>
+                  {parsed ? (
+                    <>
+                      {parsed.intro && <div style={{ whiteSpace: 'pre-wrap', marginBottom: 4 }}>{parsed.intro}</div>}
+                      <NumberedItems items={parsed.items} accent={warm.terra} textColor={warm.ink2} />
+                    </>
+                  ) : prose ? (
+                    <PlainBulletItems items={prose} accent={warm.terra} textColor={warm.ink2} />
+                  ) : (
+                    <span style={{ whiteSpace: 'pre-wrap' }}>{b.text}</span>
+                  )}
+                </div>
               </div>
             );
           }
@@ -287,36 +412,90 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
                 />
               </div>
             );
-          case 'table':
-            return (
-              <div key={i} style={{ overflowX: 'auto', marginBottom: 12 }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11.5 }}>
-                  <tbody>
-                    {b.rows.map((row, ri) => (
-                      <tr key={ri} style={{ borderBottom: `1px solid ${warm.line}` }}>
-                        {row.map((cell, ci) => (
-                          <td
-                            key={ci}
-                            style={{
-                              padding: '6px 8px',
-                              verticalAlign: 'top',
-                              fontWeight: ri === 0 ? 700 : 400,
-                              color: ri === 0 ? warm.ink : warm.ink2,
-                              background: ri === 0 ? warm.paperDeep : 'transparent',
-                              whiteSpace: 'pre-wrap',
-                            }}
-                          >
-                            {cell}
-                          </td>
-                        ))}
-                      </tr>
+          case 'table': {
+            // A few tables were extracted with a caption meant to span the whole
+            // table, but the same caption text ended up copied into every column
+            // of the first row instead of one wide cell — showing the same
+            // paragraph two/three/four times side by side. Pull it out and show
+            // it once, above the table, instead.
+            const dup = extractDuplicateCaption(b.rows);
+            const dataRows = dup ? dup.dataRows : b.rows;
+
+            const ncols = Math.max(...dataRows.map((r) => r.length));
+            if (ncols === 1) {
+              const shape = classifySingleColumnTable(dataRows.map((r) => r[0] ?? ''));
+              // A run of self-contained "title\nbody" rows (e.g. "5 Bedside
+              // Pearls") — render each as its own callout card instead of a
+              // one-column table where only the first row looked styled.
+              if (shape?.kind === 'pearlCards') {
+                return (
+                  <div key={i}>
+                    {shape.cards.map((c, ci) => (
+                      <CalloutBox key={ci} title={c.title} body={c.body} />
                     ))}
-                  </tbody>
-                </table>
+                  </div>
+                );
+              }
+              // A single title + body pair authored as a 2-row table — same
+              // shape as a callout block, so render it identically.
+              if (shape?.kind === 'titleBody') {
+                return <CalloutBox key={i} title={shape.title} body={shape.body} />;
+              }
+            }
+
+            return (
+              <div key={i} style={{ marginBottom: 12 }}>
+                {dup && <CalloutBox title={null} body={dup.caption} />}
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11.5 }}>
+                    <tbody>
+                      {dataRows.map((row, ri) => (
+                        <tr key={ri} style={{ borderBottom: `1px solid ${warm.line}` }}>
+                          {row.map((cell, ci) => (
+                            <td
+                              key={ci}
+                              style={{
+                                padding: '6px 8px',
+                                verticalAlign: 'top',
+                                fontWeight: ri === 0 ? 700 : 400,
+                                color: ri === 0 ? warm.ink : warm.ink2,
+                                background: ri === 0 ? warm.paperDeep : 'transparent',
+                                whiteSpace: 'pre-wrap',
+                              }}
+                            >
+                              {cell}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             );
+          }
           case 'p': {
+            // Self-check answers ("ตอบ: ...") are the most common place a "(1)
+            // ... (2) ... (3) ..." list shows up buried in one paragraph — split
+            // it the same way callouts are split, using colors that match
+            // whichever box style this paragraph is in.
             const aMatch = /^ตอบ\s*[:：]\s*/.exec(b.text);
+            const body = aMatch ? b.text.slice(aMatch[0].length) : b.text;
+            const accent = aMatch ? chipTone.sage.fg : warm.terra;
+            const textColor = aMatch ? chipTone.sage.fg : warm.ink2;
+            const parsed = splitNumberedList(body);
+            const prose = parsed ? null : splitDenseProse(body);
+            const content = parsed ? (
+              <>
+                {parsed.intro && <div style={{ whiteSpace: 'pre-wrap', marginBottom: 6 }}>{parsed.intro}</div>}
+                <NumberedItems items={parsed.items} accent={accent} textColor={textColor} />
+              </>
+            ) : prose ? (
+              <PlainBulletItems items={prose} accent={accent} textColor={textColor} />
+            ) : (
+              <span style={{ whiteSpace: 'pre-wrap' }}>{body}</span>
+            );
+
             if (aMatch) {
               return (
                 <div
@@ -326,19 +505,19 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
                     borderRadius: 10,
                     padding: '8px 10px',
                     marginBottom: 12,
-                    whiteSpace: 'pre-wrap',
+                    fontSize: 12.5,
+                    color: chipTone.sage.fg,
+                    lineHeight: 1.6,
                   }}
                 >
-                  <span style={{ fontWeight: 800, color: chipTone.sage.fg, fontSize: 11.5 }}>ตอบ </span>
-                  <span style={{ fontSize: 12.5, color: chipTone.sage.fg, lineHeight: 1.6 }}>
-                    {b.text.slice(aMatch[0].length)}
-                  </span>
+                  <span style={{ fontWeight: 800 }}>ตอบ </span>
+                  {content}
                 </div>
               );
             }
             return (
-              <div key={i} style={{ fontSize: 12.5, color: warm.ink2, lineHeight: 1.6, marginBottom: 8, whiteSpace: 'pre-wrap' }}>
-                {b.text}
+              <div key={i} style={{ fontSize: 12.5, color: warm.ink2, lineHeight: 1.6, marginBottom: 8 }}>
+                {content}
               </div>
             );
           }

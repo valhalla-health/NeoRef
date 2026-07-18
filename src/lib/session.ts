@@ -57,3 +57,22 @@ export function clearSession(): void {
     // ignore
   }
 }
+
+const UNAUTHORIZED_EVENT = 'neoref:unauthorized';
+
+// Bridges an expired/invalid session token back to AuthContext (mounted once
+// at the app root, see main.tsx) from call sites that aren't React
+// components/hooks and so can't call useAuth().handleUnauthorized() directly
+// — e.g. progress.ts's fire-and-forget outbox flush. Hook-based call sites
+// (useMyStats, useProgress, LeaderboardScreen) use the same event for
+// consistency, so there's exactly one path from "backend said Unauthorized"
+// to "sign the user out."
+export function notifyUnauthorized(): void {
+  if (typeof window !== 'undefined') window.dispatchEvent(new Event(UNAUTHORIZED_EVENT));
+}
+
+export function onUnauthorized(listener: () => void): () => void {
+  if (typeof window === 'undefined') return () => {};
+  window.addEventListener(UNAUTHORIZED_EVENT, listener);
+  return () => window.removeEventListener(UNAUTHORIZED_EVENT, listener);
+}

@@ -4,15 +4,23 @@ for the NeoRef Learn tab. Reads from a source directory (not part of this
 repo), writes one JSON file per lesson into public/lessons/, plus an index
 (lessons-index.json) with day/chapter/title/authors metadata for all lessons.
 
+Before adding or re-extracting lessons, see LESSON_CHECKLIST.md in this
+directory — it covers what the app's renderer already fixes automatically
+(dense-text bulleting, a couple of table extraction quirks) and what's still
+worth checking by hand.
+
 Usage: python scripts/extract_lessons.py <source_dir> <content_out_dir> <index_out_path>
 """
 import json
 import re
 import sys
+from collections import Counter
 from pathlib import Path
 
 import docx
 from docx.oxml.ns import qn
+
+from lesson_keywords import candidate_counts, top_keywords
 
 FILENAME_RE = re.compile(
     r"^Day\s+(\d+)\s*[-–]?\s*(Avery|Fanaroff)\s+Ch(\d+)\s+(.+)$"
@@ -52,6 +60,25 @@ def cell_text(cell):
     return "\n".join(p.text.strip() for p in cell.paragraphs if p.text.strip())
 
 
+def row_cells_deduped(row):
+    """python-docx represents a horizontally-merged cell by repeating the same
+    underlying _Cell object once per grid column it spans, so a naive
+    `[cell_text(c) for c in row.cells]` turns one merged caption into the same
+    paragraph duplicated across every column (seen in the wild: an "AAP 2010
+    Policy" note meant to span a 4-column table, rendered 4 times side by
+    side). Collapse consecutive cells that are the *same* underlying XML
+    element — true merges only, not coincidentally-identical text in separate
+    cells — into a single value."""
+    cells = []
+    prev_tc = None
+    for c in row.cells:
+        if c._tc is prev_tc:
+            continue
+        cells.append(cell_text(c))
+        prev_tc = c._tc
+    return cells
+
+
 def extract_body(doc):
     """Walks the document body in true order, splitting into a title block
     (everything before the first Heading 1) and a list of content blocks."""
@@ -88,7 +115,7 @@ def extract_body(doc):
             t = tables_by_id.get(id(child))
             if t is None:
                 continue
-            rows = [[cell_text(c) for c in row.cells] for row in t.rows]
+            rows = [row_cells_deduped(row) for row in t.rows]
             rows = [r for r in rows if any(c for c in r)]
             if not rows:
                 continue
@@ -151,8 +178,22 @@ def main():
                 "chapter": meta["chapter"],
                 "title": meta["titleFromFilename"],
                 "authors": authors,
+                "_blocks": blocks,  # used below to derive keywords, stripped before writing
             }
         )
+
+    # Keywords are scored by tf-idf across the whole corpus (see
+    # lesson_keywords.py) so each lesson surfaces terms distinctive to it
+    # rather than boilerplate shared by every lesson (PEARL, NEJM, RCT...).
+    per_lesson_counts = {l["day"]: candidate_counts(l["_blocks"]) for l in index}
+    doc_freq: Counter = Counter()
+    for counts in per_lesson_counts.values():
+        for term in counts:
+            doc_freq[term] += 1
+    n_docs = len(index)
+    for l in index:
+        l["keywords"] = top_keywords(per_lesson_counts[l["day"]], l["title"], doc_freq, n_docs)
+        del l["_blocks"]
 
     index.sort(key=lambda l: l["day"])
     index_out_path.write_text(

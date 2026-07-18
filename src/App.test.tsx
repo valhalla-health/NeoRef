@@ -29,8 +29,10 @@ describe('<App /> — end-to-end shell', () => {
     renderApp();
     expect(screen.getAllByText(/Newborn/).length).toBeGreaterThan(0);
     expect(screen.getByRole('note')).toHaveTextContent(/Educational reference only/i);
-    // "Today · Day N" is computed from the real clock, never the frozen 139.
-    expect(screen.getByText(/Today · Day \d+/)).toBeInTheDocument();
+    // The curriculum day is computed from the real clock, never the frozen 139.
+    // Once the lesson dataset falls behind today's real day, the header honestly
+    // switches to "Latest lesson" instead of misreporting "Today".
+    expect(screen.getByText(/(Today|Latest lesson) · Day \d+/)).toBeInTheDocument();
   });
 
   it('navigates Home → Tools → EOS and shows the educational screen (no invented risk)', async () => {
@@ -56,5 +58,26 @@ describe('<App /> — end-to-end shell', () => {
     await user.click(within(nav).getByText('Learn'));
     expect(screen.getByText(/Daily/)).toBeInTheDocument();
     expect(screen.getByText(/Neonatal and Perinatal Epidemiology/i)).toBeInTheDocument();
+  });
+
+  it('navigates to the Progress tab and shows gamification state', async () => {
+    const user = userEvent.setup();
+    renderApp();
+    const nav = screen.getByRole('navigation', { name: /primary/i });
+    await user.click(within(nav).getByText('Progress'));
+    expect(screen.getByText(/Earn XP by finishing lessons/)).toBeInTheDocument();
+    expect(screen.getByText(/Achievements ·/)).toBeInTheDocument();
+  });
+
+  it('awards tool-usage XP the first time a calculator is opened', async () => {
+    const user = userEvent.setup();
+    renderApp();
+    const nav = screen.getByRole('navigation', { name: /primary/i });
+
+    await user.click(within(nav).getByText('Tools'));
+    await user.click(screen.getByRole('button', { name: /EOS factors/i }));
+
+    await user.click(within(nav).getByText('Progress'));
+    expect(screen.getByText(/5\/50 XP/)).toBeInTheDocument();
   });
 });

@@ -1,5 +1,5 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
-import { clearSession, getSession, setSession, type Session } from '../../lib/session';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { clearSession, getSession, onUnauthorized, setSession, type Session } from '../../lib/session';
 import * as authApi from './authApi';
 import { disableGoogleAutoSelect } from './googleIdentity';
 
@@ -16,12 +16,14 @@ interface AuthContextValue extends AuthState {
   /** Returns an error message on failure, or null on success. */
   loginWithPassword: (email: string, password: string) => Promise<string | null>;
   logout: () => void;
-  /** Called by any GAS API wrapper that gets back {error:"Unauthorized"}. */
-  handleUnauthorized: () => void;
-  /** Returns an error message on failure, or null on success. */
+  /** Returns an error message on failure, or null on success. Persists the new
+   *  name locally and — since the leaderboard's name column is server-authoritative
+   *  — round-trips it through the GAS backend first, so both stay in sync. */
   updateName: (name: string) => Promise<string | null>;
   /** Returns an error message on failure, or null on success. */
   changePassword: (oldPassword: string, newPassword: string) => Promise<string | null>;
+  /** Called by any GAS API wrapper that gets back {error:"Unauthorized"}. */
+  handleUnauthorized: () => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -83,20 +85,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setState({ status: 'signed-out', user: null });
   }, []);
 
-  const updateName = useCallback(async (name: string) => {
-    const session = getSession();
-    if (!session) return 'ต้องเข้าสู่ระบบก่อน';
-    try {
-      const resp = await authApi.updateName(session.token, name);
-      if ('error' in resp) return resp.error;
-      const updated: Session = { ...session, name: resp.name };
-      setSession(updated);
-      setState({ status: 'signed-in', user: updated });
-      return null;
-    } catch {
-      return 'ไม่สามารถเชื่อมต่อได้ — ตรวจสอบอินเทอร์เน็ต';
-    }
-  }, []);
+  // Non-hook callers (progress.ts's outbox flush) signal an expired/invalid
+  // token via this event rather than calling handleUnauthorized directly.
+  useEffect(() => onUnauthorized(handleUnauthorized), [handleUnauthorized]);
+
+  const updateName = useCallback(
+    async (name: string) => {
+      const trimmed = name.trim();
+      if (!trimmed) return 'กรุณาระบุชื่อ';
+      const current = getSession();
+      if (!current) {
+        handleUnauthorized();
+        return 'Unauthorized';
+      }
+      try {
+        const resp = await authApi.updateName(current.token, trimmed);
+        if ('error' in resp) {
+          if (resp.error === 'Unauthorized') handleUnauthorized();
+          return resp.error;
+        }
+        const session: Session = { ...current, name: resp.name };
+        setSession(session);
+        setState({ status: 'signed-in', user: session });
+        return null;
+      } catch {
+        return 'ไม่สามารถเชื่อมต่อได้ — ตรวจสอบอินเทอร์เน็ต';
+      }
+    },
+    [handleUnauthorized],
+  );
 
   const changePassword = useCallback(async (oldPassword: string, newPassword: string) => {
     const session = getSession();
@@ -115,11 +132,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loginWithGoogle,
       loginWithPassword,
       logout,
-      handleUnauthorized,
       updateName,
       changePassword,
+      handleUnauthorized,
     }),
-    [state, loginWithGoogle, loginWithPassword, logout, handleUnauthorized, updateName, changePassword],
+    [state, loginWithGoogle, loginWithPassword, logout, updateName, changePassword, handleUnauthorized],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

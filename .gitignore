@@ -6,6 +6,7 @@ dist/
 dev-dist/
 coverage/
 *.tsbuildinfo
+__pycache__/
 
 # Editor / OS
 .DS_Store

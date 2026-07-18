@@ -1,17 +1,22 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { useState } from 'react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AuthProvider, useAuth } from './AuthContext';
-import { setSession, getSession } from '../../lib/session';
+import { setSession, getSession, notifyUnauthorized } from '../../lib/session';
 
 function Probe() {
-  const { status, user, loginWithGoogle, handleUnauthorized } = useAuth();
+  const { status, user, loginWithGoogle, handleUnauthorized, updateName } = useAuth();
+  const [renameError, setRenameError] = useState('');
   return (
     <div>
       <div data-testid="status">{status}</div>
       <div data-testid="email">{user?.email ?? ''}</div>
+      <div data-testid="name">{user?.name ?? ''}</div>
+      <div data-testid="rename-error">{renameError}</div>
       <button onClick={() => void loginWithGoogle('fake.jwt.token')}>login</button>
       <button onClick={handleUnauthorized}>unauthorized</button>
+      <button onClick={() => void updateName('New Name').then((err) => setRenameError(err ?? ''))}>rename</button>
     </div>
   );
 }
@@ -49,7 +54,14 @@ describe('<AuthProvider />', () => {
       'fetch',
       vi.fn().mockResolvedValue({
         json: () =>
-          Promise.resolve({ status: 'ok', token: 'tok-2', email: 'c@d.com', role: 'user', name: 'C D', hasPassword: false }),
+          Promise.resolve({
+            status: 'ok',
+            token: 'tok-2',
+            email: 'c@d.com',
+            role: 'user',
+            name: 'C D',
+            hasPassword: true,
+          }),
       }),
     );
     const user = userEvent.setup();
@@ -75,5 +87,86 @@ describe('<AuthProvider />', () => {
     await user.click(screen.getByText('unauthorized'));
     expect(screen.getByTestId('status').textContent).toBe('signed-out');
     expect(getSession()).toBeNull();
+  });
+
+  it('signs out when notified via the unauthorized event, for callers that are not hooks (e.g. progress.ts\'s outbox)', () => {
+    setSession({ email: 'a@b.com', name: 'A', role: 'user', token: 'tok-1', hasPassword: true });
+    render(
+      <AuthProvider>
+        <Probe />
+      </AuthProvider>,
+    );
+    expect(screen.getByTestId('status').textContent).toBe('signed-in');
+    act(() => notifyUnauthorized());
+    expect(screen.getByTestId('status').textContent).toBe('signed-out');
+    expect(getSession()).toBeNull();
+  });
+
+  describe('updateName', () => {
+    it('persists the new name locally and to the session on success — shows up wherever session.name is read (e.g. the leaderboard)', async () => {
+      setSession({ email: 'a@b.com', name: 'Old Name', role: 'user', token: 'tok-1', hasPassword: true });
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({ json: () => Promise.resolve({ ok: true, name: 'New Name' }) }),
+      );
+      const user = userEvent.setup();
+      render(
+        <AuthProvider>
+          <Probe />
+        </AuthProvider>,
+      );
+      await user.click(screen.getByText('rename'));
+      await waitFor(() => expect(screen.getByTestId('name').textContent).toBe('New Name'));
+      expect(getSession()?.name).toBe('New Name');
+    });
+
+    it('surfaces a backend error and leaves the old name in place', async () => {
+      setSession({ email: 'a@b.com', name: 'Old Name', role: 'user', token: 'tok-1', hasPassword: true });
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({ json: () => Promise.resolve({ error: 'Name already taken' }) }),
+      );
+      const user = userEvent.setup();
+      render(
+        <AuthProvider>
+          <Probe />
+        </AuthProvider>,
+      );
+      await user.click(screen.getByText('rename'));
+      await waitFor(() => expect(screen.getByTestId('rename-error').textContent).toBe('Name already taken'));
+      expect(screen.getByTestId('name').textContent).toBe('Old Name');
+      expect(getSession()?.name).toBe('Old Name');
+    });
+
+    it('returns an error instead of calling the network when signed out', async () => {
+      const fetchSpy = vi.fn();
+      vi.stubGlobal('fetch', fetchSpy);
+      const user = userEvent.setup();
+      render(
+        <AuthProvider>
+          <Probe />
+        </AuthProvider>,
+      );
+      await user.click(screen.getByText('rename'));
+      await waitFor(() => expect(screen.getByTestId('rename-error').textContent).not.toBe(''));
+      expect(fetchSpy).not.toHaveBeenCalled();
+    });
+
+    it('signs the user out on an Unauthorized response, instead of just showing the raw error', async () => {
+      setSession({ email: 'a@b.com', name: 'Old Name', role: 'user', token: 'stale-tok', hasPassword: true });
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({ json: () => Promise.resolve({ error: 'Unauthorized' }) }),
+      );
+      const user = userEvent.setup();
+      render(
+        <AuthProvider>
+          <Probe />
+        </AuthProvider>,
+      );
+      await user.click(screen.getByText('rename'));
+      await waitFor(() => expect(screen.getByTestId('status').textContent).toBe('signed-out'));
+      expect(getSession()).toBeNull();
+    });
   });
 });

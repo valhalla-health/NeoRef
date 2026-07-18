@@ -6,19 +6,26 @@
 // offline (the whole point of this being a PWA) would just vanish from the
 // leaderboard/streak.
 
-import { markLesson, type ProgressMap } from './storage';
+import { markLesson, storageKey, type ProgressMap } from './storage';
+import { notifyUnauthorized } from './session';
 import * as gamifyApi from '../features/gamify/gamifyApi';
-
-const OUTBOX_KEY = 'neoref:gamify-pending';
 
 interface PendingEvent {
   day: number;
   done: boolean;
 }
 
+// Resolved fresh on every call (not cached in a module-level const): it must
+// track whichever account is currently signed in, same as storage.ts's other
+// stores, so one account's queued offline completions never sync under (or
+// leak into) another account sharing the device.
+function outboxKey(): string {
+  return storageKey('gamify-pending');
+}
+
 function readOutbox(): PendingEvent[] {
   try {
-    const raw = localStorage.getItem(OUTBOX_KEY);
+    const raw = localStorage.getItem(outboxKey());
     if (!raw) return [];
     const parsed = JSON.parse(raw) as unknown;
     return Array.isArray(parsed) ? (parsed as PendingEvent[]) : [];
@@ -29,7 +36,7 @@ function readOutbox(): PendingEvent[] {
 
 function writeOutbox(events: PendingEvent[]): void {
   try {
-    localStorage.setItem(OUTBOX_KEY, JSON.stringify(events));
+    localStorage.setItem(outboxKey(), JSON.stringify(events));
   } catch {
     // ignore — best-effort only
   }
@@ -53,7 +60,10 @@ export async function flushGamifyOutbox(): Promise<void> {
     for (const event of pending) {
       try {
         const resp = await gamifyApi.logLessonDone(event.day, event.done);
-        if (gamifyApi.isErrorResponse(resp)) remaining.push(event);
+        if (gamifyApi.isErrorResponse(resp)) {
+          if (resp.error === 'Unauthorized') notifyUnauthorized();
+          remaining.push(event);
+        }
       } catch {
         remaining.push(event);
       }
@@ -76,6 +86,7 @@ export function setLessonDone(day: number, done: boolean): ProgressMap {
     try {
       const resp = await gamifyApi.logLessonDone(day, done);
       if (gamifyApi.isErrorResponse(resp)) {
+        if (resp.error === 'Unauthorized') notifyUnauthorized();
         enqueue({ day, done });
       } else {
         void flushGamifyOutbox(); // opportunistically drain any older backlog too

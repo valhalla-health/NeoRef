@@ -63,7 +63,7 @@ export function LoginScreen() {
         <div style={{ fontSize: 12.5, color: warm.muted, marginTop: 4 }}>Sign in to track your progress</div>
       </div>
 
-      <DisclaimerBanner compact />
+      {!busy && <DisclaimerBanner compact />}
 
       {error && (
         <div
@@ -80,6 +80,24 @@ export function LoginScreen() {
           }}
         >
           {error}
+        </div>
+      )}
+
+      {busy && !error && (
+        <div
+          role="status"
+          style={{
+            background: '#DEE4D5',
+            border: `1px solid ${warm.sage}`,
+            color: warm.sage,
+            borderRadius: 10,
+            padding: '8px 12px',
+            fontSize: 12,
+            marginBottom: 12,
+            textAlign: 'center',
+          }}
+        >
+          กำลังเข้าสู่ระบบ…
         </div>
       )}
 
@@ -122,7 +140,8 @@ export function LoginScreen() {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            style={inputStyle}
+            disabled={busy}
+            style={{ ...inputStyle, opacity: busy ? 0.7 : 1 }}
           />
           <input
             type="password"
@@ -130,7 +149,8 @@ export function LoginScreen() {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            style={inputStyle}
+            disabled={busy}
+            style={{ ...inputStyle, opacity: busy ? 0.7 : 1 }}
           />
           <button
             type="submit"
@@ -155,7 +175,16 @@ export function LoginScreen() {
               setMode('google');
               setError(null);
             }}
-            style={{ border: 'none', background: 'none', color: warm.muted, fontSize: 12.5, fontWeight: 600, cursor: 'pointer' }}
+            disabled={busy}
+            style={{
+              border: 'none',
+              background: 'none',
+              color: warm.muted,
+              fontSize: 12.5,
+              fontWeight: 600,
+              cursor: busy ? 'default' : 'pointer',
+              opacity: busy ? 0.7 : 1,
+            }}
           >
             ← Back to Google Sign-In
           </button>

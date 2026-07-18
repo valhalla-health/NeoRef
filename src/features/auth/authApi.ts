@@ -47,6 +47,11 @@ export function changePassword(
   return post({ action: 'changePassword', token, oldPassword, newPassword });
 }
 
-export function updateName(token: string, name: string): Promise<{ ok: true; name: string } | ErrorResponse> {
+export interface UpdateNameOkResponse {
+  ok: true;
+  name: string;
+}
+
+export function updateName(token: string, name: string): Promise<UpdateNameOkResponse | ErrorResponse> {
   return post({ action: 'updateName', token, name });
 }
