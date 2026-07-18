@@ -8,10 +8,12 @@ import { DisclaimerBanner } from '../../components/Disclaimer';
 import {
   lessonForDay,
   lessonPath,
+  lessonImagePath,
   LESSON_SOURCE_FOLDER_URL,
   bookLabel,
   lessonSourceHint,
   lessonAttribution,
+  hasSourceDoc,
 } from '../../data/lessons';
 import { useProgress } from '../../lib/useProgress';
 import { setLessonDone } from '../../lib/progress';
@@ -28,7 +30,8 @@ import {
 
 type Block =
   | { type: 'h1' | 'h2' | 'li' | 'p' | 'callout'; text: string }
-  | { type: 'table'; rows: string[][] };
+  | { type: 'table'; rows: string[][] }
+  | { type: 'image'; src: string };
 
 interface LessonContent {
   day: number;
@@ -218,7 +221,7 @@ export function LessonDetail({ day, onBack }: { day: number; onBack?: () => void
           {meta.title}
         </div>
         <div style={{ fontSize: 12, color: warm.muted, marginTop: 4, fontStyle: 'italic' }}>{meta.authors}</div>
-        <div style={{ fontSize: 10.5, color: warm.muted, marginTop: 3 }}>{lessonAttribution()}</div>
+        <div style={{ fontSize: 10.5, color: warm.muted, marginTop: 3 }}>{lessonAttribution(meta.book)}</div>
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '6px 18px 20px' }}>
@@ -255,28 +258,32 @@ export function LessonDetail({ day, onBack }: { day: number; onBack?: () => void
         {state.status === 'ready' && (
           <>
             <LessonBody blocks={state.content.blocks} />
-            <a
-              href={LESSON_SOURCE_FOLDER_URL}
-              target="_blank"
-              rel="noreferrer noopener"
-              style={{
-                display: 'block',
-                textAlign: 'center',
-                marginTop: 16,
-                padding: '11px 14px',
-                borderRadius: 10,
-                background: warm.terra,
-                color: '#fff',
-                fontWeight: 700,
-                fontSize: 13,
-                textDecoration: 'none',
-              }}
-            >
-              Open original lesson document →
-            </a>
-            <div style={{ fontSize: 10.5, color: warm.muted, marginTop: 8, lineHeight: 1.4, textAlign: 'center' }}>
-              Opens the shared OneDrive folder — look for &quot;{lessonSourceHint(meta)}&quot;.
-            </div>
+            {hasSourceDoc(meta.book) && (
+              <>
+                <a
+                  href={LESSON_SOURCE_FOLDER_URL}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  style={{
+                    display: 'block',
+                    textAlign: 'center',
+                    marginTop: 16,
+                    padding: '11px 14px',
+                    borderRadius: 10,
+                    background: warm.terra,
+                    color: '#fff',
+                    fontWeight: 700,
+                    fontSize: 13,
+                    textDecoration: 'none',
+                  }}
+                >
+                  Open original lesson document →
+                </a>
+                <div style={{ fontSize: 10.5, color: warm.muted, marginTop: 8, lineHeight: 1.4, textAlign: 'center' }}>
+                  Opens the shared OneDrive folder — look for &quot;{lessonSourceHint(meta)}&quot;.
+                </div>
+              </>
+            )}
           </>
         )}
       </div>
@@ -389,6 +396,22 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
               </div>
             );
           }
+          case 'image':
+            return (
+              <div key={i} style={{ marginBottom: 12 }}>
+                <img
+                  src={lessonImagePath(b.src)}
+                  alt="Figure from the original textbook"
+                  loading="lazy"
+                  style={{
+                    width: '100%',
+                    borderRadius: 10,
+                    border: `1px solid ${warm.line}`,
+                    display: 'block',
+                  }}
+                />
+              </div>
+            );
           case 'table': {
             // A few tables were extracted with a caption meant to span the whole
             // table, but the same caption text ended up copied into every column

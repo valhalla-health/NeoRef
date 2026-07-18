@@ -11,7 +11,7 @@ import lessonsIndexData from './lessons-index.json';
 
 export interface Lesson {
   day: number;
-  book: 'Avery' | 'Fanaroff' | 'NewbornLung';
+  book: 'Avery' | 'Fanaroff' | 'NewbornLung' | 'Pimolrat';
   chapter: number;
   title: string;
   authors: string;
@@ -37,20 +37,41 @@ export function lessonPath(day: number): string {
   return `${import.meta.env.BASE_URL}lessons/day-${String(day).padStart(3, '0')}.json`;
 }
 
+/** Resolves a lesson image block's relative src (e.g. "images/day-227-fig-1.png") to a fetchable URL. */
+export function lessonImagePath(src: string): string {
+  return `${import.meta.env.BASE_URL}lessons/${src}`;
+}
+
 /** Display name for a lesson's source book. */
 export function bookLabel(book: string): string {
   return book === 'NewbornLung' ? 'The Newborn Lung' : book;
 }
 
 /**
- * Attribution shown alongside a lesson's book/chapter/author citation. These
- * lessons are the Valhalla Health team's own short-note study summaries
- * written while reading the cited chapter — not a reproduction of it — so
- * this line has to say so wherever the citation appears (see README's
- * License & copyright section for the full rationale).
+ * Attribution shown alongside a lesson's book/chapter/author citation.
+ * Avery/Fanaroff/Newborn Lung lessons are the Valhalla Health team's own
+ * short-note study summaries written while reading the cited chapter — not a
+ * reproduction of it. Pimolrat lessons are the opposite: the full original
+ * textbook text, used with the author's explicit permission — so they get a
+ * distinct attribution rather than the "not the original text" disclaimer
+ * (see README's License & copyright section for the full rationale).
  */
-export function lessonAttribution(): string {
+export function lessonAttribution(book: string): string {
+  if (book === 'Pimolrat') {
+    return 'เนื้อหาต้นฉบับจากตำรา คู่มือการดูแลทารกแรกเกิด โดย ศ.กิตติคุณ พญ.พิมลรัตน์ ไทยธรรมยานนท์ · ใช้โดยได้รับอนุญาตจากผู้เขียน';
+  }
   return 'สรุปย่อ (short note) จัดทำโดยทีม Valhalla Health · ไม่ใช่เนื้อหาต้นฉบับจากตำรา';
+}
+
+/**
+ * Whether a lesson has a separate original source document worth linking to.
+ * Avery/Fanaroff/Newborn Lung lessons are shortnotes distilled from an
+ * external docx, so LessonDetail links back to it. Pimolrat lessons ARE the
+ * full source text - there's no separate "original" to open, so no link is
+ * shown for them. Future shortnote-style additions should default to true.
+ */
+export function hasSourceDoc(book: string): boolean {
+  return book !== 'Pimolrat';
 }
 
 /**

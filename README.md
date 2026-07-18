@@ -96,6 +96,17 @@ product), get the textbook publishers' permission first, since "short notes that
 track a book's structure" is exactly the kind of derivative use that benefits from
 clearing rights rather than relying on fair-use/fair-dealing alone.
 
+**Pimolrat textbook content** (Days 223–246, `book: "Pimolrat"` in
+`public/lessons/*.json`) is different from the Daily Lessons above: it is the
+**full original text** of ศ.กิตติคุณ พญ.พิมลรัตน์ ไทยธรรมยานนท์'s (Prof.
+Emeritus Dr. Pimolrat Thaithumyanon's) newborn-care textbook, reformatted for
+on-screen readability (headings, bullet lists, tables, figures) but with no
+wording changed — reproduced here **with the author's explicit permission**,
+not under the "team's own summary" framing above. Copyright in the original
+text and figures remains with the author; this project's license does not
+extend to that content, and it should not be redistributed outside this app
+without her separate permission.
+
 None of this content is a substitute for your institution's own protocols or the
 official published clinical tools this app links to, and it is provided for educational
 purposes only.
