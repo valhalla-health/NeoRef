@@ -51,17 +51,38 @@ export function splitNumberedList(body: string): NumberedList | null {
 //    ("0.5 mL"), not a sentence end.
 //  - "et al." is the single biggest source of false sentence breaks (citations
 //    like "Anand KJ et al. Lancet 2004") — explicitly excluded.
+//  - Thai unit/dose abbreviations (มก. = mg, กก. = kg, ชม. = hour, ...) are
+//    everywhere in dosing instructions ("20 มก./กก. ทุก 8 ชม. นาน 10 วัน") and
+//    always followed by a space + the next Thai word, so without this
+//    exclusion a single dosing line gets chopped into a fragment per
+//    abbreviation instead of staying one scannable line.
+const THAI_ABBREVIATIONS = ['มก', 'กก', 'ชม', 'ซม', 'มล', 'ซซ', 'ดล', 'มม', 'ลบ'];
 const SEMI_SPLIT_RE = /;\s+(?=[A-Za-zก-๙])/;
-const SENTENCE_BOUNDARY_RE = /(?<!\d)\.(?!\d)\s+(?=[A-Zก-๙])/g;
+const SENTENCE_BOUNDARY_RE = new RegExp(
+  `(?<!\\d)(?<!${THAI_ABBREVIATIONS.join('|')})\\.(?!\\d)\\s+(?=[A-Zก-๙])`,
+  'g'
+);
 const DASH_SPLIT_RE = /\s+—\s+/;
+
+// A body that opens with its own list marker — a Thai enumeration letter
+// (ก.), a lowercase roman numeral (i. ii. iii. ...), or a number (1.) — has
+// that marker's period sitting right at the start of the string. It isn't a
+// sentence end, but a blanket "roman numeral" exclusion in SENTENCE_BOUNDARY_RE
+// would also wrongly swallow real sentence breaks after ordinary words that
+// happen to end in i/v/x ("reflex.", "complex."), so it's only skipped here,
+// positionally, when it's the leading marker.
+const LEADING_MARKER_RE = /^(?:[ก-ฮ]|[ivx]{1,4}|\d+)\./;
 
 function splitOnSentences(body: string): string[] {
   const parts: string[] = [];
   let last = 0;
   let match: RegExpExecArray | null;
   const re = new RegExp(SENTENCE_BOUNDARY_RE.source, 'g');
+  const leadingMarker = LEADING_MARKER_RE.exec(body);
+  const markerPeriodEnd = leadingMarker ? leadingMarker[0].length : -1;
   while ((match = re.exec(body))) {
     const idx = match.index;
+    if (idx + 1 === markerPeriodEnd) continue;
     if (/\bet\s+al$/i.test(body.slice(Math.max(0, idx - 8), idx))) continue;
     parts.push(body.slice(last, idx + 1).trim());
     last = idx + match[0].length;

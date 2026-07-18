@@ -77,6 +77,40 @@ describe('splitDenseProse', () => {
     expect(result).not.toBeNull();
     expect(result!.length).toBe(2);
   });
+
+  it('does not chop a Thai dosing line at unit-abbreviation periods (มก./กก./ชม./ดล./...)', () => {
+    // Regression: "ก. 20 มก./กก. ทุก 8 ชม. นาน 10 วัน ..." from a real Pimolrat
+    // lesson used to fracture into "ก. 20 มก./กก.", "ทุก 8 ชม.", "นาน 10 วัน ..."
+    // because the sentence-boundary heuristic treated กก./ชม. as sentence ends.
+    const body =
+      'ก. 20 มก./กก. ทุก 8 ชม. นาน 10 วัน สำหรับรายที่มีความเสี่ยงสูง จากมารดาที่เคย ติดเชื้อ HSV และกำลังมีแผลเริมขณะคลอด ทารกไม่มีอาการทางคลินิกและผลเพาะเชื้อ/หรือ PCR ในเลือดเป็นบวก แต่ผลตรวจน้ำไขสันหลังเป็นลบ';
+    expect(splitDenseProse(body)).toBeNull();
+  });
+
+  it('does not split a leading roman-numeral marker ("i." "iii.") off from the rest of the item', () => {
+    // Regression: "i. เจ็บครรภ์นาน (prolonged labor) ระยะเวลา..." used to split
+    // into a lone "i." fragment plus the rest, because the marker's period
+    // looked like an English sentence boundary.
+    const body =
+      'i. เจ็บครรภ์นาน (prolonged labor) ระยะเวลาดำเนินการคลอดนานผิดปกติ โดยเฉพาะตั้งแต่ปากมดลูกเปิดเต็มที่ จนคลอดทารก (prolonged 2nd stage) ทำให้ทารกเสี่ยง ต่อการเกิดภาวะขาดออกซิเจน (birth asphyxia) หรือบาดเจ็บจากการคลอด เนื่องจาก เป็นการคลอดยาก มักต้องใช้สูติศาสตร์หัตถการช่วยในการคลอด';
+    const result = splitDenseProse(body);
+    expect(result === null || result[0] !== 'i.').toBe(true);
+  });
+
+  it('still splits genuine sentence boundaries after words that happen to end in i/v/x', () => {
+    const body =
+      'The infant had a normal reflex. Tone and cry were both appropriate for gestational age and there were no other concerning findings on this initial newborn examination today.';
+    const result = splitDenseProse(body);
+    expect(result).not.toBeNull();
+    expect(result!.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('does not split a value expressed as X มก./ดล. from the sentence around it', () => {
+    const body =
+      'ระดับกลูโคสในเลือดต่ำกว่า 40 มก./ดล. และทารกมีอาการ ให้เจาะเลือดตรวจซ้ำทุก 30 นาทีจนกว่าระดับน้ำตาลจะกลับมาปกติและคงที่ตลอดระยะเวลาการสังเกตอาการต่อเนื่องอย่างน้อยหนึ่งชั่วโมงเต็ม';
+    const result = splitDenseProse(body);
+    expect(result === null || result.every((s) => !/^ดล\.?$/.test(s))).toBe(true);
+  });
 });
 
 describe('extractDuplicateCaption', () => {
