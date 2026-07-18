@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react';
 import { warm, font } from '../../theme/tokens';
+import { storageKey } from '../../lib/storage';
 import * as gamifyApi from './gamifyApi';
 import type { LeaderboardResponse } from './gamifyApi';
 
-const CACHE_KEY = 'neoref:leaderboard-cache';
-
+// Namespaced per signed-in account (storageKey, see storage.ts / AUDIT C-3/S-5)
+// so a second account signing in on the same device doesn't briefly render
+// the previous account's cached `isMe` row as its own while the real fetch
+// is in flight.
 function readCache(): LeaderboardResponse | null {
   try {
-    const raw = localStorage.getItem(CACHE_KEY);
+    const raw = localStorage.getItem(storageKey('leaderboard-cache'));
     return raw ? (JSON.parse(raw) as LeaderboardResponse) : null;
   } catch {
     return null;
@@ -16,7 +19,7 @@ function readCache(): LeaderboardResponse | null {
 
 function writeCache(data: LeaderboardResponse): void {
   try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+    localStorage.setItem(storageKey('leaderboard-cache'), JSON.stringify(data));
   } catch {
     // ignore
   }

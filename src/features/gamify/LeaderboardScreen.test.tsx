@@ -72,7 +72,7 @@ describe('<LeaderboardScreen />', () => {
 
   it('falls back to a cached response when offline, marked as cached', async () => {
     localStorage.setItem(
-      'neoref:leaderboard-cache',
+      'neoref:a@b.com:leaderboard-cache',
       JSON.stringify({
         rows: [{ name: 'Offline Alice', points: 2, streak: 1, isMe: false }],
         asOf: new Date(2026, 0, 1).toISOString(),
@@ -82,5 +82,20 @@ describe('<LeaderboardScreen />', () => {
     render(<LeaderboardScreen />);
     expect(screen.getByText('Offline Alice')).toBeInTheDocument();
     await waitFor(() => expect(screen.getByText(/\(cached\)/i)).toBeInTheDocument());
+  });
+
+  it('does not show a previous account\'s cached leaderboard snapshot (regression for AUDIT C-3/S-5)', () => {
+    localStorage.setItem(
+      'neoref:a@b.com:leaderboard-cache',
+      JSON.stringify({
+        rows: [{ name: 'Account A view', points: 2, streak: 1, isMe: true }],
+        asOf: new Date(2026, 0, 1).toISOString(),
+      }),
+    );
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
+
+    setSession({ email: 'other@b.com', name: 'Other', role: 'user', token: 'tok-o', hasPassword: true });
+    render(<LeaderboardScreen />);
+    expect(screen.queryByText('Account A view')).not.toBeInTheDocument();
   });
 });
