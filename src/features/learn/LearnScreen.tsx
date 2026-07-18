@@ -30,8 +30,9 @@ export function LearnScreen({ onOpenLesson }: { onOpenLesson: (day: number) => v
           Daily <span style={{ color: warm.terra }}>Lessons</span>
         </div>
         <div style={{ fontSize: 12.5, color: warm.muted, marginTop: 4, marginBottom: 10 }}>
-          Short-note summaries by the Valhalla Health team, studying Avery 11th ed. +
-          Fanaroff 12th ed. + The Newborn Lung 3rd ed. · tap to read, checkmark to mark done
+          Short-note summaries by the Valhalla Health team (Avery 11th ed. + Fanaroff 12th
+          ed. + The Newborn Lung 3rd ed.), plus the full Pimolrat Thaithumyanon textbook,
+          used with permission · tap to read, checkmark to mark done
         </div>
 
         <div style={{ position: 'relative' }}>

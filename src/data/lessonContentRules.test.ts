@@ -18,7 +18,8 @@ import {
 
 type Block =
   | { type: 'h1' | 'h2' | 'li' | 'p' | 'callout'; text: string }
-  | { type: 'table'; rows: string[][] };
+  | { type: 'table'; rows: string[][] }
+  | { type: 'image'; src: string };
 
 const LESSONS_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '../../public/lessons');
 
@@ -65,7 +66,7 @@ describe('lesson content rules (public/lessons/day-*.json)', () => {
     // take down the whole lesson reader for that day, not just one block.
     for (const { file, blocks } of lessons) {
       for (const b of blocks) {
-        if (b.type === 'table') continue;
+        if (b.type === 'table' || b.type === 'image') continue;
         expect(() => {
           const body = b.type === 'callout' ? stripWhyIntro(b.text) : b.text;
           const parsed = splitNumberedList(body);
