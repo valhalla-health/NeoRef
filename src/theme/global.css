@@ -24,6 +24,14 @@ body {
   margin: 0 auto;
   overflow: hidden;
   background: #f6efe3;
+  /* iOS lays the viewport out under the status bar/notch/Dynamic Island when
+     viewport-fit=cover is set (needed for the bottom home-indicator inset in
+     BottomNav). Without this, top controls like LessonDetail's back button
+     render underneath that cutout — and the cutout's size differs by model
+     (tall on notched/Dynamic Island iPhones, just the status bar on older
+     ones), so a fixed pixel padding can't cover every device the way the
+     safe-area-inset-top env() value does. */
+  padding-top: env(safe-area-inset-top);
 }
 
 /* Hide scrollbars inside the app frame */

@@ -15,6 +15,9 @@ export interface Lesson {
   chapter: number;
   title: string;
   authors: string;
+  /** ~10 distinctive clinical terms pulled from the lesson body (acronyms,
+   * named entities) so search can match content beyond the title/authors. */
+  keywords?: string[];
 }
 
 export const LESSONS: Lesson[] = lessonsIndexData as unknown as Lesson[];
@@ -37,6 +40,17 @@ export function lessonPath(day: number): string {
 /** Display name for a lesson's source book. */
 export function bookLabel(book: string): string {
   return book === 'NewbornLung' ? 'The Newborn Lung' : book;
+}
+
+/**
+ * Attribution shown alongside a lesson's book/chapter/author citation. These
+ * lessons are the Valhalla Health team's own short-note study summaries
+ * written while reading the cited chapter — not a reproduction of it — so
+ * this line has to say so wherever the citation appears (see README's
+ * License & copyright section for the full rationale).
+ */
+export function lessonAttribution(): string {
+  return 'สรุปย่อ (short note) จัดทำโดยทีม Valhalla Health · ไม่ใช่เนื้อหาต้นฉบับจากตำรา';
 }
 
 /**

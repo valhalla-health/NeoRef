@@ -11,7 +11,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'apple-touch-icon.svg'],
+      includeAssets: ['favicon.png', 'apple-touch-icon.png'],
       manifest: {
         name: 'Newborn · In-Hand Reference',
         short_name: 'NeoRef',
@@ -24,8 +24,8 @@ export default defineConfig({
         start_url: './',
         scope: './',
         icons: [
-          { src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
-          { src: 'icon-maskable.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'maskable' },
+          { src: 'icon.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: 'icon-maskable.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
       workbox: {
@@ -34,7 +34,7 @@ export default defineConfig({
         // content (public/lessons/*.json, ~6.5MB across 159 files) is deliberately
         // NOT in this glob — eagerly precaching it would bloat the install. It's
         // cached lazily instead, once a lesson is actually opened (see below).
-        globPatterns: ['**/*.{js,css,html,svg,woff,woff2}'],
+        globPatterns: ['**/*.{js,css,html,png,woff,woff2}'],
         cleanupOutdatedCaches: true,
         navigateFallback: 'index.html',
         runtimeCaching: [
@@ -55,5 +55,15 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     css: false,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html'],
+      exclude: [
+        'src/main.tsx', // entry point — no logic to unit test
+        'src/vite-env.d.ts',
+        'src/test/**',
+        '**/*.config.*',
+      ],
+    },
   },
 });

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { LeaderboardScreen } from './LeaderboardScreen';
 import { setSession } from '../../lib/session';
 
@@ -48,6 +49,25 @@ describe('<LeaderboardScreen />', () => {
     );
     render(<LeaderboardScreen />);
     await waitFor(() => expect(screen.getByText(/be the first/i)).toBeInTheDocument());
+  });
+
+  it('re-fetches when the refresh button is clicked', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      json: () =>
+        Promise.resolve({
+          rows: [{ name: 'Alice', points: 10, streak: 3, isMe: false }],
+          asOf: new Date().toISOString(),
+        }),
+    });
+    vi.stubGlobal('fetch', fetchMock);
+    const user = userEvent.setup();
+
+    render(<LeaderboardScreen />);
+    await waitFor(() => expect(screen.getByText('Alice')).toBeInTheDocument());
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    await user.click(screen.getByRole('button', { name: /refresh leaderboard/i }));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
   });
 
   it('falls back to a cached response when offline, marked as cached', async () => {
