@@ -20,6 +20,8 @@ interface AuthContextValue extends AuthState {
    *  name locally and — since the leaderboard's name column is server-authoritative
    *  — round-trips it through the GAS backend first, so both stay in sync. */
   updateName: (name: string) => Promise<string | null>;
+  /** Returns an error message on failure, or null on success. */
+  changePassword: (oldPassword: string, newPassword: string) => Promise<string | null>;
   /** Called by any GAS API wrapper that gets back {error:"Unauthorized"}. */
   handleUnauthorized: () => void;
 }
@@ -36,7 +38,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const applyLoginResponse = useCallback((resp: authApi.LoginResponse): string | null => {
     if ('error' in resp) return resp.error;
-    const session: Session = { email: resp.email, name: resp.name, role: resp.role, token: resp.token };
+    const session: Session = {
+      email: resp.email,
+      name: resp.name,
+      role: resp.role,
+      token: resp.token,
+      hasPassword: resp.hasPassword,
+    };
     setSession(session);
     setState({ status: 'signed-in', user: session });
     return null;
@@ -103,9 +111,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [handleUnauthorized],
   );
 
+  const changePassword = useCallback(async (oldPassword: string, newPassword: string) => {
+    const session = getSession();
+    if (!session) return 'ต้องเข้าสู่ระบบก่อน';
+    try {
+      const resp = await authApi.changePassword(session.token, oldPassword, newPassword);
+      return 'error' in resp ? resp.error : null;
+    } catch {
+      return 'ไม่สามารถเชื่อมต่อได้ — ตรวจสอบอินเทอร์เน็ต';
+    }
+  }, []);
+
   const value = useMemo<AuthContextValue>(
-    () => ({ ...state, loginWithGoogle, loginWithPassword, logout, updateName, handleUnauthorized }),
-    [state, loginWithGoogle, loginWithPassword, logout, updateName, handleUnauthorized],
+    () => ({
+      ...state,
+      loginWithGoogle,
+      loginWithPassword,
+      logout,
+      updateName,
+      changePassword,
+      handleUnauthorized,
+    }),
+    [state, loginWithGoogle, loginWithPassword, logout, updateName, changePassword, handleUnauthorized],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

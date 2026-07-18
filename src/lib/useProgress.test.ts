@@ -6,7 +6,7 @@ import { useProgress } from './useProgress';
 
 beforeEach(() => {
   localStorage.clear();
-  setSession({ email: 'a@b.com', name: 'A', role: 'user', token: 'tok-123' });
+  setSession({ email: 'a@b.com', name: 'A', role: 'user', token: 'tok-123', hasPassword: true });
 });
 
 afterEach(() => {

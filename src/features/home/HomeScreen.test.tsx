@@ -153,7 +153,7 @@ function stubGas(handlers: Record<string, unknown>) {
 
 describe('<HomeScreen /> — account button + panel', () => {
   beforeEach(() => {
-    setSession({ email: 'a@b.com', name: 'Peeraporn P', role: 'user', token: 'tok-1' });
+    setSession({ email: 'a@b.com', name: 'Peeraporn P', role: 'user', token: 'tok-1', hasPassword: true });
   });
 
   it('shows the signed-in user’s name, tappable to open the account panel', () => {
@@ -251,5 +251,44 @@ describe('<HomeScreen /> — account button + panel', () => {
     await user.click(screen.getByRole('button', { name: /^Sign out$/i }));
     await user.click(screen.getByRole('button', { name: /^Cancel$/i }));
     expect(screen.getByRole('button', { name: /Open account menu/i })).toBeInTheDocument();
+  });
+
+  it('changes the password from within the panel', async () => {
+    stubGas({ changePassword: { ok: true } });
+    const user = userEvent.setup();
+    renderHome();
+
+    await user.click(screen.getByRole('button', { name: /Open account menu/i }));
+    await user.click(screen.getByRole('button', { name: /Change password/i }));
+    await user.type(screen.getByPlaceholderText('รหัสผ่านเดิม'), 'old-pass');
+    await user.type(screen.getByPlaceholderText(/รหัสผ่านใหม่ \(/), 'new-pass');
+    await user.type(screen.getByPlaceholderText('ยืนยันรหัสผ่านใหม่'), 'new-pass');
+    await user.click(screen.getByRole('button', { name: 'บันทึก' }));
+
+    await waitFor(() => expect(screen.getByText('เปลี่ยนรหัสผ่านเรียบร้อยแล้ว')).toBeInTheDocument());
+  });
+
+  it('shows a mismatch error instead of saving when the passwords disagree', async () => {
+    stubGas({});
+    const user = userEvent.setup();
+    renderHome();
+
+    await user.click(screen.getByRole('button', { name: /Open account menu/i }));
+    await user.click(screen.getByRole('button', { name: /Change password/i }));
+    await user.type(screen.getByPlaceholderText('รหัสผ่านเดิม'), 'old-pass');
+    await user.type(screen.getByPlaceholderText(/รหัสผ่านใหม่ \(/), 'new-pass');
+    await user.type(screen.getByPlaceholderText('ยืนยันรหัสผ่านใหม่'), 'different');
+    await user.click(screen.getByRole('button', { name: 'บันทึก' }));
+
+    expect(screen.getByText('รหัสผ่านใหม่ทั้งสองช่องไม่ตรงกัน')).toBeInTheDocument();
+  });
+
+  it('hides the change-password option for Google-only accounts', async () => {
+    setSession({ email: 'a@b.com', name: 'Peeraporn P', role: 'user', token: 'tok-1', hasPassword: false });
+    stubGas({});
+    const user = userEvent.setup();
+    renderHome();
+    await user.click(screen.getByRole('button', { name: /Open account menu/i }));
+    expect(screen.queryByRole('button', { name: /Change password/i })).not.toBeInTheDocument();
   });
 });

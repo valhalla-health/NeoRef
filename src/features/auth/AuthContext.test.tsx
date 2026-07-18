@@ -35,7 +35,7 @@ describe('<AuthProvider />', () => {
   });
 
   it('starts signed-in immediately from a cached session, with no network call', () => {
-    setSession({ email: 'a@b.com', name: 'A', role: 'user', token: 'tok-1' });
+    setSession({ email: 'a@b.com', name: 'A', role: 'user', token: 'tok-1', hasPassword: true });
     const fetchSpy = vi.fn();
     vi.stubGlobal('fetch', fetchSpy);
 
@@ -54,7 +54,14 @@ describe('<AuthProvider />', () => {
       'fetch',
       vi.fn().mockResolvedValue({
         json: () =>
-          Promise.resolve({ status: 'ok', token: 'tok-2', email: 'c@d.com', role: 'user', name: 'C D' }),
+          Promise.resolve({
+            status: 'ok',
+            token: 'tok-2',
+            email: 'c@d.com',
+            role: 'user',
+            name: 'C D',
+            hasPassword: true,
+          }),
       }),
     );
     const user = userEvent.setup();
@@ -69,7 +76,7 @@ describe('<AuthProvider />', () => {
   });
 
   it('clears the session and flips to signed-out on handleUnauthorized', async () => {
-    setSession({ email: 'a@b.com', name: 'A', role: 'user', token: 'tok-1' });
+    setSession({ email: 'a@b.com', name: 'A', role: 'user', token: 'tok-1', hasPassword: true });
     const user = userEvent.setup();
     render(
       <AuthProvider>
@@ -84,7 +91,7 @@ describe('<AuthProvider />', () => {
 
   describe('updateName', () => {
     it('persists the new name locally and to the session on success — shows up wherever session.name is read (e.g. the leaderboard)', async () => {
-      setSession({ email: 'a@b.com', name: 'Old Name', role: 'user', token: 'tok-1' });
+      setSession({ email: 'a@b.com', name: 'Old Name', role: 'user', token: 'tok-1', hasPassword: true });
       vi.stubGlobal(
         'fetch',
         vi.fn().mockResolvedValue({ json: () => Promise.resolve({ ok: true, name: 'New Name' }) }),
@@ -101,7 +108,7 @@ describe('<AuthProvider />', () => {
     });
 
     it('surfaces a backend error and leaves the old name in place', async () => {
-      setSession({ email: 'a@b.com', name: 'Old Name', role: 'user', token: 'tok-1' });
+      setSession({ email: 'a@b.com', name: 'Old Name', role: 'user', token: 'tok-1', hasPassword: true });
       vi.stubGlobal(
         'fetch',
         vi.fn().mockResolvedValue({ json: () => Promise.resolve({ error: 'Name already taken' }) }),
@@ -133,7 +140,7 @@ describe('<AuthProvider />', () => {
     });
 
     it('signs the user out on an Unauthorized response, instead of just showing the raw error', async () => {
-      setSession({ email: 'a@b.com', name: 'Old Name', role: 'user', token: 'stale-tok' });
+      setSession({ email: 'a@b.com', name: 'Old Name', role: 'user', token: 'stale-tok', hasPassword: true });
       vi.stubGlobal(
         'fetch',
         vi.fn().mockResolvedValue({ json: () => Promise.resolve({ error: 'Unauthorized' }) }),

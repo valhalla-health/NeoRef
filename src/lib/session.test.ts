@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { getSession, setSession, clearSession } from './session';
 
-const SAMPLE = { email: 'a@b.com', name: 'A B', role: 'user', token: 'tok-123' };
+const SAMPLE = { email: 'a@b.com', name: 'A B', role: 'user', token: 'tok-123', hasPassword: true };
 
 beforeEach(() => localStorage.clear());
 

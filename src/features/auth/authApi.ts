@@ -11,6 +11,7 @@ export interface LoginOkResponse {
   email: string;
   role: string;
   name: string;
+  hasPassword: boolean;
 }
 export interface ErrorResponse {
   error: string;

@@ -11,15 +11,35 @@ function initialsOf(name: string): string {
   return (parts[0][0] + parts[1][0]).toUpperCase();
 }
 
+const inputStyle = {
+  border: `1.5px solid ${warm.line}`,
+  borderRadius: 8,
+  padding: '8px 10px',
+  fontSize: 13,
+  fontFamily: font.ui,
+  background: warm.paper,
+  color: warm.ink,
+};
+
 /** Bottom-sheet account panel: rename (round-trips through AuthContext.updateName,
- *  same as before) plus sign-out, gated behind an inline confirm step. */
+ *  same as before), self-service password change (accounts with a password only —
+ *  Google-only accounts have no password_hash to change), and sign-out, gated
+ *  behind an inline confirm step. */
 export function AccountPanel({ onClose }: { onClose: () => void }) {
-  const { user, logout, updateName } = useAuth();
+  const { user, logout, updateName, changePassword } = useAuth();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmingLogout, setConfirmingLogout] = useState(false);
+
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [pwBusy, setPwBusy] = useState(false);
+  const [pwError, setPwError] = useState<string | null>(null);
+  const [pwDone, setPwDone] = useState(false);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -62,6 +82,32 @@ export function AccountPanel({ onClose }: { onClose: () => void }) {
   function confirmLogout() {
     logout();
     onClose();
+  }
+
+  function resetPasswordChange() {
+    setChangingPassword(false);
+    setOldPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
+    setPwError(null);
+    setPwDone(false);
+  }
+
+  async function savePassword() {
+    if (newPassword.length < 6) {
+      setPwError('รหัสผ่านใหม่ต้องมีอย่างน้อย 6 ตัวอักษร');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPwError('รหัสผ่านใหม่ทั้งสองช่องไม่ตรงกัน');
+      return;
+    }
+    setPwBusy(true);
+    setPwError(null);
+    const err = await changePassword(oldPassword, newPassword);
+    setPwBusy(false);
+    if (err) setPwError(err);
+    else setPwDone(true);
   }
 
   return (
@@ -219,6 +265,126 @@ export function AccountPanel({ onClose }: { onClose: () => void }) {
         </div>
 
         <div style={{ height: 1, background: warm.line, margin: '4px 0 16px' }} />
+
+        {user.hasPassword && (
+          <div style={{ marginBottom: 16 }}>
+            {!changingPassword ? (
+              <button
+                type="button"
+                onClick={() => setChangingPassword(true)}
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  border: `1.5px solid ${warm.line}`,
+                  background: warm.card,
+                  color: warm.ink2,
+                  fontWeight: 700,
+                  fontSize: 14,
+                  borderRadius: 10,
+                  padding: '11px 14px',
+                  cursor: 'pointer',
+                }}
+              >
+                🔑 Change password
+              </button>
+            ) : (
+              <div
+                style={{
+                  border: `1.5px solid ${warm.line}`,
+                  borderRadius: 12,
+                  padding: 14,
+                  background: warm.card,
+                }}
+              >
+                <div style={{ fontSize: 13, fontWeight: 700, color: warm.ink, marginBottom: 10 }}>
+                  เปลี่ยนรหัสผ่าน
+                </div>
+                {pwDone ? (
+                  <>
+                    <div style={{ fontSize: 12.5, color: warm.sage, marginBottom: 10 }}>
+                      เปลี่ยนรหัสผ่านเรียบร้อยแล้ว
+                    </div>
+                    <button
+                      type="button"
+                      onClick={resetPasswordChange}
+                      style={{
+                        border: 'none',
+                        borderRadius: 8,
+                        background: warm.terra,
+                        color: '#fff',
+                        fontSize: 12,
+                        fontWeight: 700,
+                        padding: '6px 12px',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      ปิด
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 10 }}>
+                      <input
+                        type="password"
+                        placeholder="รหัสผ่านเดิม"
+                        value={oldPassword}
+                        onChange={(e) => setOldPassword(e.target.value)}
+                        disabled={pwBusy}
+                        style={inputStyle}
+                      />
+                      <input
+                        type="password"
+                        placeholder="รหัสผ่านใหม่ (อย่างน้อย 6 ตัวอักษร)"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        disabled={pwBusy}
+                        style={inputStyle}
+                      />
+                      <input
+                        type="password"
+                        placeholder="ยืนยันรหัสผ่านใหม่"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && void savePassword()}
+                        disabled={pwBusy}
+                        style={inputStyle}
+                      />
+                    </div>
+                    {pwError && <div style={{ fontSize: 11, color: warm.warn, marginBottom: 10 }}>{pwError}</div>}
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button
+                        type="button"
+                        onClick={() => void savePassword()}
+                        disabled={pwBusy}
+                        style={{
+                          border: 'none',
+                          borderRadius: 8,
+                          background: warm.terra,
+                          color: '#fff',
+                          fontSize: 12,
+                          fontWeight: 700,
+                          padding: '6px 14px',
+                          cursor: pwBusy ? 'default' : 'pointer',
+                          opacity: pwBusy ? 0.7 : 1,
+                        }}
+                      >
+                        {pwBusy ? '…' : 'บันทึก'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={resetPasswordChange}
+                        disabled={pwBusy}
+                        style={{ border: 'none', background: 'none', color: warm.muted, fontSize: 12, cursor: 'pointer' }}
+                      >
+                        ยกเลิก
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {!confirmingLogout ? (
           <button
