@@ -291,7 +291,30 @@ export function LessonDetail({ day, onBack }: { day: number; onBack?: () => void
   );
 }
 
+// Matches a section heading whose only job is to introduce a bibliography —
+// its `li` children are citations, not scannable bullet points, so they get
+// a distinct rendering (see `inReferences` below).
+const REFERENCES_HEADING_RE = /^(references|เอกสารอ้างอิง)$/i;
+
+// A list item that already carries its own marker — a Thai enumeration
+// letter (ก./ข./ค.), a lowercase roman numeral (i./ii./iii.), or a plain
+// number (1./2.) — doesn't need the renderer's own "·" bullet in front of
+// it too; showing both reads as a doubled-up marker ("· ก. ...").
+const OWN_MARKER_RE = /^(?:[ก-ฮ]|[ivx]{1,4}|\d+)\.\s/;
+
+// A heading's nesting depth, from its leading number: "1.1" is a top-level
+// subsection (depth 2), "1.1.1" is one level deeper — indent it under its
+// parent so the hierarchy reads visually, not just numerically.
+function headingIndent(text: string): number {
+  const m = /^(\d+(?:\.\d+)*)\s/.exec(text);
+  if (!m) return 0;
+  const depth = m[1].split('.').length;
+  return Math.max(0, depth - 2) * 14;
+}
+
 function LessonBody({ blocks }: { blocks: Block[] }) {
+  let inReferences = false;
+  let refIndex = 0;
   return (
     <div>
       {blocks.map((b, i) => {
@@ -304,6 +327,8 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
             return <CalloutBox key={i} title={title} body={body} />;
           }
           case 'h1':
+            inReferences = REFERENCES_HEADING_RE.test(b.text.trim());
+            refIndex = 0;
             return (
               <div
                 key={i}
@@ -329,12 +354,43 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
                   color: warm.ink,
                   marginTop: 12,
                   marginBottom: 6,
+                  paddingLeft: headingIndent(b.text),
                 }}
               >
                 {b.text}
               </div>
             );
           case 'li': {
+            // Citations under a References/เอกสารอ้างอิง heading are one
+            // atomic entry each — no bullet dot (they already start with a
+            // number), no dense-prose splitting (their periods are normal
+            // citation punctuation, not sentence breaks to bullet-ize), and
+            // renumbered sequentially so a source-extraction glitch in one
+            // entry's printed number can't desync the list.
+            if (inReferences) {
+              refIndex += 1;
+              const cleaned = b.text.replace(/^\s*\d+\.\s*/, '').replace(/^\s*\d+\.\s*/, '');
+              return (
+                <div
+                  key={i}
+                  style={{
+                    display: 'flex',
+                    gap: 8,
+                    background: i % 2 === 1 ? warm.paperDeep : 'transparent',
+                    borderRadius: 8,
+                    padding: '5px 8px',
+                    marginBottom: 3,
+                  }}
+                >
+                  <span aria-hidden style={{ color: warm.terra, fontWeight: 700, fontSize: 12.5, flexShrink: 0 }}>
+                    {refIndex}.
+                  </span>
+                  <span style={{ flex: 1, fontSize: 12.5, color: warm.ink2, lineHeight: 1.55, whiteSpace: 'pre-wrap' }}>
+                    {cleaned}
+                  </span>
+                </div>
+              );
+            }
             // Self-check questions are authored as a "Q:" bullet followed by a
             // "ตอบ:" paragraph — style the question as a distinct card so the
             // Q/A pair reads as a unit instead of blending into the list above it.
@@ -360,12 +416,13 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
                 </div>
               );
             }
-            // Plain bullet lists (references, evidence citations) get a light
+            // Plain bullet lists (evidence points, sub-items) get a light
             // zebra tint per item so a long run of lines doesn't read as one block.
             // A minority of bullets are themselves dense multi-clause text —
             // split those into a sub-list instead of one dense line.
             const parsed = splitNumberedList(b.text);
             const prose = parsed ? null : splitDenseProse(b.text);
+            const ownMarker = OWN_MARKER_RE.test(b.text);
             return (
               <div
                 key={i}
@@ -378,9 +435,11 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
                   marginBottom: 3,
                 }}
               >
-                <span aria-hidden style={{ color: warm.terra, fontSize: 12, lineHeight: 1.6 }}>
-                  ·
-                </span>
+                {!ownMarker && (
+                  <span aria-hidden style={{ color: warm.terra, fontSize: 12, lineHeight: 1.6 }}>
+                    ·
+                  </span>
+                )}
                 <div style={{ flex: 1, fontSize: 12.5, color: warm.ink2, lineHeight: 1.55 }}>
                   {parsed ? (
                     <>

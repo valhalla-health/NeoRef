@@ -94,4 +94,41 @@ describe('<LessonDetail />', () => {
     expect(screen.getByRole('button', { name: /Bookmark this lesson/i })).toBeInTheDocument();
     expect(isBookmarked('lesson-1')).toBe(false);
   });
+
+  it('renders a References list as one clean numbered entry per citation, without a bullet dot or dense-prose splitting', async () => {
+    const content = {
+      ...SAMPLE_CONTENT,
+      blocks: [
+        { type: 'h1', text: 'References' },
+        // A long, period-heavy citation that would previously trip the
+        // dense-prose splitter and fracture into several bullet fragments.
+        {
+          type: 'li',
+          text: '1. Delivery room resuscitation of the newborn. In: Fanaroff and Martin’s Neonatal-Perinatal Medicine: Diseases of the Fetus and Infant. 9th ed. Saunders, Philadelphia, 2010: 449-84.',
+        },
+        { type: 'li', text: '2. Kim Y, Busto R, Dietrich W, et al. Stroke 1996; 27: 2274-80.' },
+      ],
+    };
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve(content) }));
+
+    render(<LessonDetail day={1} />);
+    await waitFor(() => expect(screen.getByText('References')).toBeInTheDocument());
+
+    expect(screen.getByText(/Delivery room resuscitation of the newborn\./)).toBeInTheDocument();
+    expect(screen.getByText('1.')).toBeInTheDocument();
+    expect(screen.getByText('2.')).toBeInTheDocument();
+    expect(screen.queryByText('·')).not.toBeInTheDocument();
+  });
+
+  it('does not show a redundant bullet dot in front of a list item that already has its own marker (ก./i./1.)', async () => {
+    const content = {
+      ...SAMPLE_CONTENT,
+      blocks: [{ type: 'li', text: 'ก. ทางกระแสเลือด เชื้อผ่านรก' }],
+    };
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve(content) }));
+
+    render(<LessonDetail day={1} />);
+    await waitFor(() => expect(screen.getByText(/ก\. ทางกระแสเลือด/)).toBeInTheDocument());
+    expect(screen.queryByText('·')).not.toBeInTheDocument();
+  });
 });
