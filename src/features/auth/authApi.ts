@@ -45,3 +45,7 @@ export function changePassword(
 ): Promise<{ ok: true } | ErrorResponse> {
   return post({ action: 'changePassword', token, oldPassword, newPassword });
 }
+
+export function updateName(token: string, name: string): Promise<{ ok: true; name: string } | ErrorResponse> {
+  return post({ action: 'updateName', token, name });
+}

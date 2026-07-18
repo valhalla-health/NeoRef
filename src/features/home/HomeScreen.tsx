@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { warm, font } from '../../theme/tokens';
 import { DisclaimerBanner } from '../../components/Disclaimer';
 import { myCurriculumDay, CURRICULUM_LENGTH } from '../../lib/today';
@@ -6,6 +7,112 @@ import { lessonForDay } from '../../data/lessons';
 import { CALCS } from '../../data/calcs';
 import { useMyStats } from '../gamify/useMyStats';
 import { useAuth } from '../auth/AuthContext';
+
+function NameEditor() {
+  const { user, updateName } = useAuth();
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(user?.name ?? '');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  if (!user) return null;
+
+  if (!editing) {
+    return (
+      <button
+        type="button"
+        onClick={() => {
+          setDraft(user.name || '');
+          setError(null);
+          setEditing(true);
+        }}
+        title="Tap to edit your name"
+        style={{
+          border: 'none',
+          background: 'none',
+          cursor: 'pointer',
+          padding: 0,
+          fontFamily: font.head,
+          fontSize: 20,
+          fontWeight: 800,
+          letterSpacing: -0.4,
+          color: warm.terra,
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {user.name || user.email} <span style={{ fontSize: 13 }}>✏️</span>
+      </button>
+    );
+  }
+
+  async function save() {
+    const name = draft.trim();
+    if (!name) {
+      setError('กรุณากรอกชื่อ');
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    const err = await updateName(name);
+    setBusy(false);
+    if (err) setError(err);
+    else setEditing(false);
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+      <div style={{ display: 'flex', gap: 6 }}>
+        <input
+          autoFocus
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') void save();
+            if (e.key === 'Escape') setEditing(false);
+          }}
+          disabled={busy}
+          style={{
+            width: 130,
+            border: `1.5px solid ${warm.line}`,
+            borderRadius: 8,
+            padding: '4px 8px',
+            fontSize: 13,
+            fontFamily: font.ui,
+            background: warm.card,
+            color: warm.ink,
+          }}
+        />
+        <button
+          type="button"
+          onClick={() => void save()}
+          disabled={busy}
+          style={{
+            border: 'none',
+            borderRadius: 8,
+            background: warm.terra,
+            color: '#fff',
+            fontSize: 12,
+            fontWeight: 700,
+            padding: '4px 10px',
+            cursor: busy ? 'default' : 'pointer',
+            opacity: busy ? 0.7 : 1,
+          }}
+        >
+          {busy ? '…' : 'Save'}
+        </button>
+        <button
+          type="button"
+          onClick={() => setEditing(false)}
+          disabled={busy}
+          style={{ border: 'none', background: 'none', color: warm.muted, fontSize: 12, cursor: 'pointer' }}
+        >
+          Cancel
+        </button>
+      </div>
+      {error && <div style={{ fontSize: 11, color: warm.warn }}>{error}</div>}
+    </div>
+  );
+}
 
 export function HomeScreen({
   onOpenCalc,
@@ -24,7 +131,7 @@ export function HomeScreen({
   const lessonDone = Boolean(progress[String(lesson.day)]);
   const quickCalcs = CALCS.slice(0, 6);
   const stats = useMyStats();
-  const { user } = useAuth();
+  const { logout } = useAuth();
 
   return (
     <div style={{ width: '100%', height: '100%', background: warm.paper, overflowY: 'auto', overflowX: 'hidden' }}>
@@ -38,20 +145,28 @@ export function HomeScreen({
               KCMH · Thai CPG
             </div>
           </div>
-          {user && (
-            <div
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 4 }}>
+            <NameEditor />
+            <button
+              type="button"
+              onClick={() => {
+                if (window.confirm('ออกจากระบบ?')) logout();
+              }}
+              title="Log out"
+              aria-label="Log out"
               style={{
-                fontFamily: font.head,
-                fontSize: 20,
-                fontWeight: 800,
-                letterSpacing: -0.4,
-                color: warm.terra,
-                whiteSpace: 'nowrap',
+                border: 'none',
+                background: 'none',
+                cursor: 'pointer',
+                padding: 4,
+                fontSize: 17,
+                lineHeight: 1,
+                color: warm.muted,
               }}
             >
-              {user.name || user.email}
-            </div>
-          )}
+              🚪
+            </button>
+          </div>
         </div>
 
         {/* Today's lesson */}

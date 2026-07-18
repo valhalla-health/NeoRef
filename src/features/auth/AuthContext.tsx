@@ -18,6 +18,8 @@ interface AuthContextValue extends AuthState {
   logout: () => void;
   /** Called by any GAS API wrapper that gets back {error:"Unauthorized"}. */
   handleUnauthorized: () => void;
+  /** Returns an error message on failure, or null on success. */
+  updateName: (name: string) => Promise<string | null>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -73,9 +75,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setState({ status: 'signed-out', user: null });
   }, []);
 
+  const updateName = useCallback(async (name: string) => {
+    const session = getSession();
+    if (!session) return 'ต้องเข้าสู่ระบบก่อน';
+    try {
+      const resp = await authApi.updateName(session.token, name);
+      if ('error' in resp) return resp.error;
+      const updated: Session = { ...session, name: resp.name };
+      setSession(updated);
+      setState({ status: 'signed-in', user: updated });
+      return null;
+    } catch {
+      return 'ไม่สามารถเชื่อมต่อได้ — ตรวจสอบอินเทอร์เน็ต';
+    }
+  }, []);
+
   const value = useMemo<AuthContextValue>(
-    () => ({ ...state, loginWithGoogle, loginWithPassword, logout, handleUnauthorized }),
-    [state, loginWithGoogle, loginWithPassword, logout, handleUnauthorized],
+    () => ({ ...state, loginWithGoogle, loginWithPassword, logout, handleUnauthorized, updateName }),
+    [state, loginWithGoogle, loginWithPassword, logout, handleUnauthorized, updateName],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
