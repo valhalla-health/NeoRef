@@ -61,7 +61,9 @@ export function lessonImagePath(src: string): string {
 
 /** Display name for a lesson's source book. */
 export function bookLabel(book: string): string {
-  return book === 'NewbornLung' ? 'The Newborn Lung' : book;
+  if (book === 'NewbornLung') return 'The Newborn Lung';
+  if (book === 'Pimolrat') return 'คู่มือการดูแลทารกแรกเกิด';
+  return book;
 }
 
 /**
