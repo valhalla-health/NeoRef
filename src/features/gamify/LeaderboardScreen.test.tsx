@@ -2,7 +2,7 @@ import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { LeaderboardScreen } from './LeaderboardScreen';
-import { setSession } from '../../lib/session';
+import { setSession, onUnauthorized } from '../../lib/session';
 
 beforeEach(() => {
   localStorage.clear();
@@ -82,6 +82,18 @@ describe('<LeaderboardScreen />', () => {
     render(<LeaderboardScreen />);
     expect(screen.getByText('Offline Alice')).toBeInTheDocument();
     await waitFor(() => expect(screen.getByText(/\(cached\)/i)).toBeInTheDocument());
+  });
+
+  it('notifies the app to sign out on an Unauthorized response, instead of just showing a generic error', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ json: () => Promise.resolve({ error: 'Unauthorized' }) }),
+    );
+    const listener = vi.fn();
+    const off = onUnauthorized(listener);
+    render(<LeaderboardScreen />);
+    await waitFor(() => expect(listener).toHaveBeenCalledTimes(1));
+    off();
   });
 
   it('does not show a previous account\'s cached leaderboard snapshot (regression for AUDIT C-3/S-5)', () => {

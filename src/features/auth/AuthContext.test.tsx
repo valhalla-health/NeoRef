@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import { useState } from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AuthProvider, useAuth } from './AuthContext';
-import { setSession, getSession } from '../../lib/session';
+import { setSession, getSession, notifyUnauthorized } from '../../lib/session';
 
 function Probe() {
   const { status, user, loginWithGoogle, handleUnauthorized, updateName } = useAuth();
@@ -85,6 +85,19 @@ describe('<AuthProvider />', () => {
     );
     expect(screen.getByTestId('status').textContent).toBe('signed-in');
     await user.click(screen.getByText('unauthorized'));
+    expect(screen.getByTestId('status').textContent).toBe('signed-out');
+    expect(getSession()).toBeNull();
+  });
+
+  it('signs out when notified via the unauthorized event, for callers that are not hooks (e.g. progress.ts\'s outbox)', () => {
+    setSession({ email: 'a@b.com', name: 'A', role: 'user', token: 'tok-1', hasPassword: true });
+    render(
+      <AuthProvider>
+        <Probe />
+      </AuthProvider>,
+    );
+    expect(screen.getByTestId('status').textContent).toBe('signed-in');
+    act(() => notifyUnauthorized());
     expect(screen.getByTestId('status').textContent).toBe('signed-out');
     expect(getSession()).toBeNull();
   });

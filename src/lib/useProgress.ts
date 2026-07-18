@@ -14,6 +14,7 @@
 import { useEffect } from 'react';
 import { useSyncExternalStore } from 'react';
 import { getProgress, setProgress, subscribeProgress, type ProgressMap } from './storage';
+import { notifyUnauthorized } from './session';
 import * as gamifyApi from '../features/gamify/gamifyApi';
 
 export function useProgress(): ProgressMap {
@@ -24,7 +25,11 @@ export function useProgress(): ProgressMap {
     gamifyApi
       .getMyCompletions()
       .then((resp) => {
-        if (cancelled || gamifyApi.isErrorResponse(resp)) return;
+        if (cancelled) return;
+        if (gamifyApi.isErrorResponse(resp)) {
+          if (resp.error === 'Unauthorized') notifyUnauthorized();
+          return;
+        }
         const merged = { ...getProgress() };
         let changed = false;
         for (const row of resp.rows) {

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { notifyUnauthorized } from '../../lib/session';
 import { storageKey } from '../../lib/storage';
 import * as gamifyApi from './gamifyApi';
 import type { StatsResponse } from './gamifyApi';
@@ -35,7 +36,11 @@ export function useMyStats(): StatsResponse | null {
     gamifyApi
       .getMyStats()
       .then((resp) => {
-        if (cancelled || gamifyApi.isErrorResponse(resp)) return;
+        if (cancelled) return;
+        if (gamifyApi.isErrorResponse(resp)) {
+          if (resp.error === 'Unauthorized') notifyUnauthorized();
+          return;
+        }
         writeCache(resp);
         setStats(resp);
       })

@@ -7,6 +7,7 @@
 // leaderboard/streak.
 
 import { markLesson, storageKey, type ProgressMap } from './storage';
+import { notifyUnauthorized } from './session';
 import * as gamifyApi from '../features/gamify/gamifyApi';
 
 interface PendingEvent {
@@ -59,7 +60,10 @@ export async function flushGamifyOutbox(): Promise<void> {
     for (const event of pending) {
       try {
         const resp = await gamifyApi.logLessonDone(event.day, event.done);
-        if (gamifyApi.isErrorResponse(resp)) remaining.push(event);
+        if (gamifyApi.isErrorResponse(resp)) {
+          if (resp.error === 'Unauthorized') notifyUnauthorized();
+          remaining.push(event);
+        }
       } catch {
         remaining.push(event);
       }
@@ -82,6 +86,7 @@ export function setLessonDone(day: number, done: boolean): ProgressMap {
     try {
       const resp = await gamifyApi.logLessonDone(day, done);
       if (gamifyApi.isErrorResponse(resp)) {
+        if (resp.error === 'Unauthorized') notifyUnauthorized();
         enqueue({ day, done });
       } else {
         void flushGamifyOutbox(); // opportunistically drain any older backlog too

@@ -1,5 +1,5 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
-import { clearSession, getSession, setSession, type Session } from '../../lib/session';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { clearSession, getSession, onUnauthorized, setSession, type Session } from '../../lib/session';
 import * as authApi from './authApi';
 import { disableGoogleAutoSelect } from './googleIdentity';
 
@@ -84,6 +84,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     clearSession();
     setState({ status: 'signed-out', user: null });
   }, []);
+
+  // Non-hook callers (progress.ts's outbox flush) signal an expired/invalid
+  // token via this event rather than calling handleUnauthorized directly.
+  useEffect(() => onUnauthorized(handleUnauthorized), [handleUnauthorized]);
 
   const updateName = useCallback(
     async (name: string) => {

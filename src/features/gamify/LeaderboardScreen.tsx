@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { warm, font } from '../../theme/tokens';
+import { notifyUnauthorized } from '../../lib/session';
 import { storageKey } from '../../lib/storage';
 import * as gamifyApi from './gamifyApi';
 import type { LeaderboardResponse } from './gamifyApi';
@@ -38,6 +39,7 @@ export function LeaderboardScreen() {
       .then((resp) => {
         if (cancelled) return;
         if (gamifyApi.isErrorResponse(resp)) {
+          if (resp.error === 'Unauthorized') notifyUnauthorized();
           setStatus('error');
           return;
         }
