@@ -11,6 +11,8 @@ export interface Session {
   name: string;
   role: string;
   token: string;
+  /** False for Google-only accounts, which have no password_hash to change. */
+  hasPassword: boolean;
 }
 
 type Envelope<T> = { v: number; data: T };
@@ -22,7 +24,8 @@ function isSession(x: unknown): x is Session {
     typeof s.email === 'string' &&
     typeof s.name === 'string' &&
     typeof s.role === 'string' &&
-    typeof s.token === 'string'
+    typeof s.token === 'string' &&
+    typeof s.hasPassword === 'boolean'
   );
 }
 

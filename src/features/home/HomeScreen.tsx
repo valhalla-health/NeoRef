@@ -114,6 +114,203 @@ function NameEditor() {
   );
 }
 
+function PasswordChanger() {
+  const { user, changePassword } = useAuth();
+  const [open, setOpen] = useState(false);
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [done, setDone] = useState(false);
+
+  if (!user?.hasPassword) return null;
+
+  function reset() {
+    setOpen(false);
+    setOldPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
+    setError(null);
+    setDone(false);
+  }
+
+  async function save() {
+    if (newPassword.length < 6) {
+      setError('รหัสผ่านใหม่ต้องมีอย่างน้อย 6 ตัวอักษร');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setError('รหัสผ่านใหม่ทั้งสองช่องไม่ตรงกัน');
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    const err = await changePassword(oldPassword, newPassword);
+    setBusy(false);
+    if (err) setError(err);
+    else setDone(true);
+  }
+
+  return (
+    <div style={{ position: 'relative' }}>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        title="Change password"
+        aria-label="Change password"
+        style={{
+          border: 'none',
+          background: 'none',
+          cursor: 'pointer',
+          padding: 4,
+          fontSize: 15,
+          lineHeight: 1,
+          color: warm.muted,
+        }}
+      >
+        🔑
+      </button>
+      {open && <PasswordChangerPanel onClose={reset} onSave={save} state={{ oldPassword, newPassword, confirmPassword, busy, error, done }} setters={{ setOldPassword, setNewPassword, setConfirmPassword }} />}
+    </div>
+  );
+}
+
+function PasswordChangerPanel({
+  onClose,
+  onSave,
+  state,
+  setters,
+}: {
+  onClose: () => void;
+  onSave: () => void;
+  state: {
+    oldPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+    busy: boolean;
+    error: string | null;
+    done: boolean;
+  };
+  setters: {
+    setOldPassword: (v: string) => void;
+    setNewPassword: (v: string) => void;
+    setConfirmPassword: (v: string) => void;
+  };
+}) {
+  const { oldPassword, newPassword, confirmPassword, busy, error, done } = state;
+  const { setOldPassword, setNewPassword, setConfirmPassword } = setters;
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        top: '110%',
+        right: 0,
+        width: 240,
+        zIndex: 20,
+        background: warm.card,
+        border: `1.5px solid ${warm.line}`,
+        borderRadius: 12,
+        padding: 14,
+        boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+        fontFamily: font.ui,
+      }}
+    >
+      <div style={{ fontSize: 13, fontWeight: 700, color: warm.ink, marginBottom: 10 }}>เปลี่ยนรหัสผ่าน</div>
+      {done ? (
+        <>
+          <div style={{ fontSize: 12.5, color: warm.sage, marginBottom: 10 }}>เปลี่ยนรหัสผ่านเรียบร้อยแล้ว</div>
+          <button
+            type="button"
+            onClick={onClose}
+            style={{
+              border: 'none',
+              borderRadius: 8,
+              background: warm.terra,
+              color: '#fff',
+              fontSize: 12,
+              fontWeight: 700,
+              padding: '6px 12px',
+              cursor: 'pointer',
+            }}
+          >
+            ปิด
+          </button>
+        </>
+      ) : (
+        <>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 10 }}>
+            <input
+              type="password"
+              placeholder="รหัสผ่านเดิม"
+              value={oldPassword}
+              onChange={(e) => setOldPassword(e.target.value)}
+              disabled={busy}
+              style={inputStyle}
+            />
+            <input
+              type="password"
+              placeholder="รหัสผ่านใหม่ (อย่างน้อย 6 ตัวอักษร)"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              disabled={busy}
+              style={inputStyle}
+            />
+            <input
+              type="password"
+              placeholder="ยืนยันรหัสผ่านใหม่"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && void onSave()}
+              disabled={busy}
+              style={inputStyle}
+            />
+          </div>
+          {error && <div style={{ fontSize: 11, color: warm.warn, marginBottom: 10 }}>{error}</div>}
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              type="button"
+              onClick={() => void onSave()}
+              disabled={busy}
+              style={{
+                border: 'none',
+                borderRadius: 8,
+                background: warm.terra,
+                color: '#fff',
+                fontSize: 12,
+                fontWeight: 700,
+                padding: '6px 14px',
+                cursor: busy ? 'default' : 'pointer',
+                opacity: busy ? 0.7 : 1,
+              }}
+            >
+              {busy ? '…' : 'บันทึก'}
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={busy}
+              style={{ border: 'none', background: 'none', color: warm.muted, fontSize: 12, cursor: 'pointer' }}
+            >
+              ยกเลิก
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+const inputStyle = {
+  border: `1.5px solid ${warm.line}`,
+  borderRadius: 8,
+  padding: '8px 10px',
+  fontSize: 13,
+  fontFamily: font.ui,
+  background: warm.paper,
+  color: warm.ink,
+};
+
 export function HomeScreen({
   onOpenCalc,
   onOpenLearn,
@@ -147,6 +344,7 @@ export function HomeScreen({
           </div>
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: 4 }}>
             <NameEditor />
+            <PasswordChanger />
             <button
               type="button"
               onClick={() => {

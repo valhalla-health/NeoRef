@@ -11,7 +11,7 @@ import { setSession } from './lib/session';
 // fire-and-forget gamify call that would otherwise hit the network.
 beforeEach(() => {
   localStorage.clear();
-  setSession({ email: 'test@example.com', name: 'Test User', role: 'user', token: 'test-token' });
+  setSession({ email: 'test@example.com', name: 'Test User', role: 'user', token: 'test-token', hasPassword: true });
   vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('no network in tests')));
 });
 afterEach(() => vi.unstubAllGlobals());

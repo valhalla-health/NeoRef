@@ -18,7 +18,7 @@ const ported = CALCS.filter((c) => c.ported);
 // See App.test.tsx — the shell now requires a signed-in session.
 beforeEach(() => {
   localStorage.clear();
-  setSession({ email: 'test@example.com', name: 'Test User', role: 'user', token: 'test-token' });
+  setSession({ email: 'test@example.com', name: 'Test User', role: 'user', token: 'test-token', hasPassword: true });
   vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('no network in tests')));
 });
 afterEach(() => vi.unstubAllGlobals());

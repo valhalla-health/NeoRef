@@ -5,7 +5,7 @@ import { setSession } from '../../lib/session';
 
 beforeEach(() => {
   localStorage.clear();
-  setSession({ email: 'a@b.com', name: 'A', role: 'user', token: 'tok-1' });
+  setSession({ email: 'a@b.com', name: 'A', role: 'user', token: 'tok-1', hasPassword: true });
 });
 
 afterEach(() => {
