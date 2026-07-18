@@ -9,15 +9,27 @@ import { lessonBookmarkId } from '../../lib/bookmarkIds';
 import { resumeDay } from '../../lib/today';
 import { searchLessons } from '../../lib/lessonSearch';
 
+type BookFilter = Lesson['book'] | 'all';
+
+const BOOK_TABS: Array<{ id: BookFilter; label: string }> = [
+  { id: 'all', label: 'All' },
+  { id: 'Avery', label: bookLabel('Avery') },
+  { id: 'Fanaroff', label: bookLabel('Fanaroff') },
+  { id: 'NewbornLung', label: bookLabel('NewbornLung') },
+  { id: 'Pimolrat', label: bookLabel('Pimolrat') },
+];
+
 export function LearnScreen({ onOpenLesson }: { onOpenLesson: (day: number) => void }) {
   const progress = useProgress();
   const bookmarks = useBookmarks();
   const [query, setQuery] = useState('');
   const [savedOnly, setSavedOnly] = useState(false);
+  const [bookFilter, setBookFilter] = useState<BookFilter>('all');
   const today = resumeDay(progress);
 
   const searched: Lesson[] = useMemo(() => searchLessons(LESSONS, query), [query]);
-  const results = savedOnly ? searched.filter((l) => bookmarks[lessonBookmarkId(l.day)]) : searched;
+  const byBook = bookFilter === 'all' ? searched : searched.filter((l) => l.book === bookFilter);
+  const results = savedOnly ? byBook.filter((l) => bookmarks[lessonBookmarkId(l.day)]) : byBook;
 
   function toggleDone(day: number) {
     setLessonDone(day, !progress[String(day)]);
@@ -93,6 +105,45 @@ export function LearnScreen({ onOpenLesson }: { onOpenLesson: (day: number) => v
           )}
         </div>
 
+        <div
+          role="tablist"
+          aria-label="Filter by textbook"
+          style={{
+            display: 'flex',
+            gap: 6,
+            marginTop: 10,
+            overflowX: 'auto',
+          }}
+        >
+          {BOOK_TABS.map((tab) => {
+            const active = bookFilter === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => setBookFilter(tab.id)}
+                style={{
+                  flexShrink: 0,
+                  border: `1.5px solid ${active ? warm.terra : warm.line}`,
+                  background: active ? warm.terra : 'transparent',
+                  color: active ? '#fff' : warm.muted,
+                  fontSize: 11.5,
+                  fontWeight: 700,
+                  padding: '5px 10px',
+                  borderRadius: 999,
+                  cursor: 'pointer',
+                  fontFamily: font.ui,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+
         <button
           type="button"
           aria-pressed={savedOnly}
@@ -101,7 +152,7 @@ export function LearnScreen({ onOpenLesson }: { onOpenLesson: (day: number) => v
             display: 'inline-flex',
             alignItems: 'center',
             gap: 4,
-            marginTop: 10,
+            marginTop: 8,
             border: `1.5px solid ${savedOnly ? warm.ochre : warm.line}`,
             background: savedOnly ? '#FBEFE3' : 'transparent',
             color: savedOnly ? warm.ochre : warm.muted,
