@@ -5,13 +5,14 @@
 import { useEffect, useState } from 'react';
 import { warm, font, chipTone } from '../../theme/tokens';
 import { DisclaimerBanner } from '../../components/Disclaimer';
-import { lessonForDay, lessonPath, LESSON_SOURCE_FOLDER_URL, bookLabel, lessonSourceHint } from '../../data/lessons';
+import { lessonForDay, lessonPath, lessonImagePath, LESSON_SOURCE_FOLDER_URL, bookLabel, lessonSourceHint, hasSourceDoc } from '../../data/lessons';
 import { isLessonDone } from '../../lib/storage';
 import { setLessonDone } from '../../lib/progress';
 
 type Block =
   | { type: 'h1' | 'h2' | 'li' | 'p' | 'callout'; text: string }
-  | { type: 'table'; rows: string[][] };
+  | { type: 'table'; rows: string[][] }
+  | { type: 'image'; src: string };
 
 interface LessonContent {
   day: number;
@@ -135,28 +136,32 @@ export function LessonDetail({ day, onBack }: { day: number; onBack?: () => void
         {state.status === 'ready' && (
           <>
             <LessonBody blocks={state.content.blocks} />
-            <a
-              href={LESSON_SOURCE_FOLDER_URL}
-              target="_blank"
-              rel="noreferrer noopener"
-              style={{
-                display: 'block',
-                textAlign: 'center',
-                marginTop: 16,
-                padding: '11px 14px',
-                borderRadius: 10,
-                background: warm.terra,
-                color: '#fff',
-                fontWeight: 700,
-                fontSize: 13,
-                textDecoration: 'none',
-              }}
-            >
-              Open original lesson document →
-            </a>
-            <div style={{ fontSize: 10.5, color: warm.muted, marginTop: 8, lineHeight: 1.4, textAlign: 'center' }}>
-              Opens the shared OneDrive folder — look for &quot;{lessonSourceHint(meta)}&quot;.
-            </div>
+            {hasSourceDoc(state.content.book) && (
+              <>
+                <a
+                  href={LESSON_SOURCE_FOLDER_URL}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  style={{
+                    display: 'block',
+                    textAlign: 'center',
+                    marginTop: 16,
+                    padding: '11px 14px',
+                    borderRadius: 10,
+                    background: warm.terra,
+                    color: '#fff',
+                    fontWeight: 700,
+                    fontSize: 13,
+                    textDecoration: 'none',
+                  }}
+                >
+                  Open original lesson document →
+                </a>
+                <div style={{ fontSize: 10.5, color: warm.muted, marginTop: 8, lineHeight: 1.4, textAlign: 'center' }}>
+                  Opens the shared OneDrive folder — look for &quot;{lessonSourceHint(meta)}&quot;.
+                </div>
+              </>
+            )}
           </>
         )}
       </div>
@@ -266,6 +271,22 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
               </div>
             );
           }
+          case 'image':
+            return (
+              <div key={i} style={{ marginBottom: 12 }}>
+                <img
+                  src={lessonImagePath(b.src)}
+                  alt="Figure from the original textbook"
+                  loading="lazy"
+                  style={{
+                    width: '100%',
+                    borderRadius: 10,
+                    border: `1px solid ${warm.line}`,
+                    display: 'block',
+                  }}
+                />
+              </div>
+            );
           case 'table':
             return (
               <div key={i} style={{ overflowX: 'auto', marginBottom: 12 }}>

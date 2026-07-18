@@ -36,7 +36,7 @@ export function LearnScreen({ onOpenLesson }: { onOpenLesson: (day: number) => v
           Daily <span style={{ color: warm.terra }}>Lessons</span>
         </div>
         <div style={{ fontSize: 12.5, color: warm.muted, marginTop: 4, marginBottom: 10 }}>
-          Avery 11th ed. + Fanaroff 12th ed. + The Newborn Lung 3rd ed. · tap to read, checkmark to mark done
+          Avery 11th ed. + Fanaroff 12th ed. + The Newborn Lung 3rd ed. + Pimolrat Thaithumyanon's textbook · tap to read, checkmark to mark done
         </div>
         <input
           type="text"

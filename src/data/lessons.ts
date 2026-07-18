@@ -11,7 +11,7 @@ import lessonsIndexData from './lessons-index.json';
 
 export interface Lesson {
   day: number;
-  book: 'Avery' | 'Fanaroff' | 'NewbornLung';
+  book: 'Avery' | 'Fanaroff' | 'NewbornLung' | 'Pimolrat';
   chapter: number;
   title: string;
   authors: string;
@@ -34,9 +34,26 @@ export function lessonPath(day: number): string {
   return `${import.meta.env.BASE_URL}lessons/day-${String(day).padStart(3, '0')}.json`;
 }
 
+/** Resolves a lesson image block's relative src (e.g. "images/day-227-fig-1.png") to a fetchable URL. */
+export function lessonImagePath(src: string): string {
+  return `${import.meta.env.BASE_URL}lessons/${src}`;
+}
+
 /** Display name for a lesson's source book. */
 export function bookLabel(book: string): string {
   return book === 'NewbornLung' ? 'The Newborn Lung' : book;
+}
+
+/**
+ * Whether a lesson has a separate original source document worth linking to.
+ * Avery/Fanaroff/Newborn Lung lessons are shortnotes distilled from an
+ * external docx, so LessonDetail links back to it. Pimolrat lessons ARE the
+ * full source text (used with the author's permission) - there's no
+ * separate "original" to open, so no link is shown for them. Future
+ * shortnote-style additions should default to true here.
+ */
+export function hasSourceDoc(book: string): boolean {
+  return book !== 'Pimolrat';
 }
 
 /**
