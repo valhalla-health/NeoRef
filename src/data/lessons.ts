@@ -82,35 +82,3 @@ export function lessonAttribution(book: string): string {
   return 'สรุปย่อ (short note) จัดทำโดยทีม Valhalla Health · ไม่ใช่เนื้อหาต้นฉบับจากตำรา';
 }
 
-/**
- * Whether a lesson has a separate original source document worth linking to.
- * Avery/Fanaroff/Newborn Lung lessons are shortnotes distilled from an
- * external docx, so LessonDetail links back to it. Pimolrat lessons ARE the
- * full source text - there's no separate "original" to open, so no link is
- * shown for them. Future shortnote-style additions should default to true.
- */
-export function hasSourceDoc(book: string): boolean {
-  return book !== 'Pimolrat';
-}
-
-/**
- * Hint for finding a lesson's source file inside the OneDrive folder. The
- * Newborn Lung series uses its own "NL Day N" filename numbering (independent
- * of the unified app `day`, which continues past Fanaroff's Day 200), so its
- * hint must reference the chapter number rather than the app-internal day.
- */
-export function lessonSourceHint(l: { day: number; book: string; chapter: number }): string {
-  if (l.book === 'NewbornLung') {
-    return `NL Day ${l.chapter} · The Newborn Lung Ch ${l.chapter}`;
-  }
-  return `Day ${l.day} · ${l.book} Ch ${l.chapter}`;
-}
-
-/**
- * Shared OneDrive folder containing the original .docx for every lesson
- * (formatted source, richer than the in-app parsed view). This links to the
- * FOLDER, not the individual file — there's no per-file link available, so
- * readers browse to the matching "Day N ..." file themselves once inside.
- */
-export const LESSON_SOURCE_FOLDER_URL =
-  'https://1drv.ms/f/c/d6f3cdd93d71e377/IgDDaaB5TkxNTrydpwecYNL4AY1fG7n-D2ulYXhaJqUgib0';
