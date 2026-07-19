@@ -9,11 +9,8 @@ import {
   lessonForDay,
   lessonPath,
   lessonImagePath,
-  LESSON_SOURCE_FOLDER_URL,
   bookLabel,
-  lessonSourceHint,
   lessonAttribution,
-  hasSourceDoc,
   adjacentLessons,
 } from '../../data/lessons';
 import { useProgress } from '../../lib/useProgress';
@@ -268,32 +265,6 @@ export function LessonDetail({
         {state.status === 'ready' && (
           <>
             <LessonBody blocks={state.content.blocks} />
-            {hasSourceDoc(meta.book) && (
-              <>
-                <a
-                  href={LESSON_SOURCE_FOLDER_URL}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  style={{
-                    display: 'block',
-                    textAlign: 'center',
-                    marginTop: 16,
-                    padding: '11px 14px',
-                    borderRadius: 10,
-                    background: warm.terra,
-                    color: '#fff',
-                    fontWeight: 700,
-                    fontSize: 13,
-                    textDecoration: 'none',
-                  }}
-                >
-                  Open original lesson document →
-                </a>
-                <div style={{ fontSize: 10.5, color: warm.muted, marginTop: 8, lineHeight: 1.4, textAlign: 'center' }}>
-                  Opens the shared OneDrive folder — look for &quot;{lessonSourceHint(meta)}&quot;.
-                </div>
-              </>
-            )}
             <ChapterNav prev={prev} next={next} onOpenLesson={onOpenLesson} />
           </>
         )}
