@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { warm } from './theme/tokens';
 import { BottomNav, type Tab } from './components/BottomNav';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -76,7 +76,9 @@ export function App() {
             (() => {
               const Screen = calcId ? CALC_SCREENS[calcId] : undefined;
               return Screen ? (
-                <Screen onBack={() => setCalcId(null)} />
+                <Suspense fallback={<CalcScreenFallback />}>
+                  <Screen onBack={() => setCalcId(null)} />
+                </Suspense>
               ) : (
                 <CalcHub onSelect={selectCalc} />
               );
@@ -96,6 +98,26 @@ export function App() {
       </div>
 
       <BottomNav active={tab} onChange={switchTab} />
+    </div>
+  );
+}
+
+// Shown briefly while a calc screen's chunk loads (see registry.tsx) — each
+// screen is fetched on demand rather than bundled into the main chunk.
+function CalcScreenFallback() {
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: warm.muted,
+        fontSize: 13,
+      }}
+    >
+      Loading…
     </div>
   );
 }

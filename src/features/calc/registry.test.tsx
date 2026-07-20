@@ -38,7 +38,8 @@ describe('calc registry — every ported calculator renders via the real hub', (
     await user.click(screen.getByRole('button', { name: new RegExp(calc.label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) }));
 
     // Every ported screen shows the educational disclaimer somewhere.
-    expect(screen.getByText(/Educational reference only/i)).toBeInTheDocument();
+    // Lazy-loaded (see registry.tsx) — await the chunk resolving.
+    expect(await screen.findByText(/Educational reference only/i)).toBeInTheDocument();
 
     // Back button returns to the hub (Clinical Tools grid).
     const backButton = screen.getByRole('button', { name: /เครื่องมือ/ });
