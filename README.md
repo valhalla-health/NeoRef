@@ -74,7 +74,8 @@ calc screens); reconcile the 365-entry lesson dataset against the source curricu
 
 ## License & copyright
 
-**Code** is [MIT-licensed](LICENSE), © 2026 Valhalla Health.
+**Code** is proprietary, all rights reserved, © 2026 Valhalla Health. No license is
+granted to copy, modify, or distribute it.
 
 **Calculator / topic-card content** (`src/features/calc/**`) — drug doses, staging
 criteria, protocol summaries — is original educational material written by the team,

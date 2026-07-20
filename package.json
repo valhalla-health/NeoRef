@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Newborn · In-Hand Reference — neonatal educational reference (not for clinical decision-making)",
   "author": "Valhalla Health",
-  "license": "SEE LICENSE IN LICENSE",
+  "license": "UNLICENSED",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
