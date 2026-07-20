@@ -1,5 +1,4 @@
 import { warm, font, systemTheme } from '../../theme/tokens';
-import { Chip } from '../../components/ui';
 import { CALCS } from '../../data/calcs';
 
 // Fallback for fixtures/tests that don't set `system` — keeps the card from
@@ -29,7 +28,7 @@ export function CalcHub({ onSelect }: { onSelect: (id: string) => void }) {
                 type="button"
                 disabled={disabled}
                 onClick={() => !disabled && onSelect(c.id)}
-                aria-label={`${c.label} — ${sys.label} — ${c.kind === 'education' ? 'interactive education' : 'static reference'}`}
+                aria-label={`${c.label} — ${sys.label}`}
                 style={{
                   position: 'relative',
                   background: warm.card,
@@ -43,20 +42,6 @@ export function CalcHub({ onSelect }: { onSelect: (id: string) => void }) {
                   fontFamily: font.ui,
                 }}
               >
-                <div
-                  aria-hidden
-                  title={c.kind === 'education' ? 'interactive education' : 'static reference'}
-                  style={{
-                    position: 'absolute',
-                    top: 6,
-                    right: 6,
-                    width: 8,
-                    height: 8,
-                    borderRadius: '50%',
-                    border: `1.5px solid ${sys.color}`,
-                    background: c.kind === 'education' ? sys.color : 'transparent',
-                  }}
-                />
                 <div style={{ fontSize: 22, marginBottom: 5 }} aria-hidden>
                   {c.emoji}
                 </div>
@@ -91,10 +76,6 @@ export function CalcHub({ onSelect }: { onSelect: (id: string) => void }) {
               {s.label}
             </span>
           ))}
-        </div>
-        <div style={{ marginTop: 8, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-          <Chip tone="sage">● filled dot = interactive</Chip>
-          <Chip tone="ink">○ hollow dot = static reference</Chip>
         </div>
       </div>
     </div>
