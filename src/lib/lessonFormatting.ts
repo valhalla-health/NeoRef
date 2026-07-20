@@ -93,6 +93,25 @@ export function splitDenseProse(body: string): string[] | null {
   return null;
 }
 
+// A chunk of the corpus is mechanistic reasoning written as a single
+// "A → B → C → D" causal chain — not a list of separate points, but still
+// unreadable as one run-on line on a phone screen. splitDenseProse's other
+// separators rarely fire on these (no semicolons, few sentence boundaries
+// since it's grammatically one sentence, no em dashes), so give this its own
+// last-resort split: one line per link in the chain. Requires at least two
+// arrows (three links) so a single stray "→" in otherwise normal prose
+// doesn't get chopped up.
+const ARROW_SPLIT_RE = /\s*→\s*/;
+
+export function splitArrowChain(body: string): string[] | null {
+  if (body.includes('\n') || body.length <= 150) return null;
+  const steps = body
+    .split(ARROW_SPLIT_RE)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return steps.length >= 3 ? steps : null;
+}
+
 export interface DuplicateCaptionTable {
   caption: string;
   dataRows: string[][];

@@ -12,6 +12,7 @@ import {
   stripWhyIntro,
   splitNumberedList,
   splitDenseProse,
+  splitArrowChain,
   extractDuplicateCaption,
   classifySingleColumnTable,
 } from '../lib/lessonFormatting';
@@ -70,7 +71,7 @@ describe('lesson content rules (public/lessons/day-*.json)', () => {
         expect(() => {
           const body = b.type === 'callout' ? stripWhyIntro(b.text) : b.text;
           const parsed = splitNumberedList(body);
-          if (!parsed) splitDenseProse(body);
+          if (!parsed && !splitDenseProse(body)) splitArrowChain(body);
         }, `${file}: ${JSON.stringify(b.text.slice(0, 60))}`).not.toThrow();
       }
     }
@@ -85,7 +86,7 @@ describe('lesson content rules (public/lessons/day-*.json)', () => {
         const body = b.type === 'callout' ? stripWhyIntro(b.text) : b.text;
         if (body.includes('\n') || body.length <= 150) continue;
         dense++;
-        if (splitNumberedList(body) || splitDenseProse(body)) handled++;
+        if (splitNumberedList(body) || splitDenseProse(body) || splitArrowChain(body)) handled++;
       }
     }
     console.log(`[lesson content] dense blocks: ${dense}, auto-split: ${handled} (${

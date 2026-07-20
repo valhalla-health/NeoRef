@@ -25,6 +25,7 @@ import {
   stripWhyIntro,
   splitNumberedList,
   splitDenseProse,
+  splitArrowChain,
   extractDuplicateCaption,
   classifySingleColumnTable,
 } from '../../lib/lessonFormatting';
@@ -78,6 +79,25 @@ function PlainBulletItems({ items, accent, textColor }: { items: string[]; accen
   );
 }
 
+// A causal chain ("A → B → C") reads as one continuous flow, not separate
+// points — so the first step stands alone and every later step is prefixed
+// with the arrow that led to it, instead of a bullet dot or a number.
+function ArrowChainSteps({ steps, accent, textColor }: { steps: string[]; accent: string; textColor: string }) {
+  return (
+    <>
+      <div style={{ marginBottom: 5, whiteSpace: 'pre-wrap', color: textColor }}>{steps[0]}</div>
+      {steps.slice(1).map((step, idx) => (
+        <div key={idx} style={{ display: 'flex', gap: 6, marginBottom: idx === steps.length - 2 ? 0 : 5 }}>
+          <span aria-hidden style={{ color: accent, fontWeight: 700, lineHeight: 1.5, flexShrink: 0 }}>
+            →
+          </span>
+          <span style={{ flex: 1, whiteSpace: 'pre-wrap', color: textColor }}>{step}</span>
+        </div>
+      ))}
+    </>
+  );
+}
+
 // Shared box for anything shaped like "title line + body paragraph": real
 // `callout` blocks, but also `table` blocks that were authored the same way
 // (a 2-row single-column table, or a run of "Pearl" cards) — see the `table`
@@ -85,6 +105,7 @@ function PlainBulletItems({ items, accent, textColor }: { items: string[]; accen
 function CalloutBox({ title, body }: { title: string | null; body: string }) {
   const parsed = splitNumberedList(body);
   const prose = parsed ? null : splitDenseProse(body);
+  const chain = parsed || prose ? null : splitArrowChain(body);
   return (
     <div
       style={{
@@ -106,6 +127,8 @@ function CalloutBox({ title, body }: { title: string | null; body: string }) {
         </>
       ) : prose ? (
         <PlainBulletItems items={prose} accent={warm.ochre} textColor={warm.ink2} />
+      ) : chain ? (
+        <ArrowChainSteps steps={chain} accent={warm.ochre} textColor={warm.ink2} />
       ) : (
         <div style={{ whiteSpace: 'pre-wrap' }}>{body}</div>
       )}
@@ -367,6 +390,7 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
             // split those into a sub-list instead of one dense line.
             const parsed = splitNumberedList(b.text);
             const prose = parsed ? null : splitDenseProse(b.text);
+            const chain = parsed || prose ? null : splitArrowChain(b.text);
             return (
               <div
                 key={i}
@@ -390,6 +414,8 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
                     </>
                   ) : prose ? (
                     <PlainBulletItems items={prose} accent={warm.terra} textColor={warm.ink2} />
+                  ) : chain ? (
+                    <ArrowChainSteps steps={chain} accent={warm.terra} textColor={warm.ink2} />
                   ) : (
                     <span style={{ whiteSpace: 'pre-wrap' }}>{b.text}</span>
                   )}
@@ -486,6 +512,7 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
             const textColor = aMatch ? chipTone.sage.fg : warm.ink2;
             const parsed = splitNumberedList(body);
             const prose = parsed ? null : splitDenseProse(body);
+            const chain = parsed || prose ? null : splitArrowChain(body);
             const content = parsed ? (
               <>
                 {parsed.intro && <div style={{ whiteSpace: 'pre-wrap', marginBottom: 6 }}>{parsed.intro}</div>}
@@ -493,6 +520,8 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
               </>
             ) : prose ? (
               <PlainBulletItems items={prose} accent={accent} textColor={textColor} />
+            ) : chain ? (
+              <ArrowChainSteps steps={chain} accent={accent} textColor={textColor} />
             ) : (
               <span style={{ whiteSpace: 'pre-wrap' }}>{body}</span>
             );
