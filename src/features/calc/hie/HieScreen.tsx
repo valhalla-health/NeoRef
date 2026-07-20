@@ -214,6 +214,17 @@ function HieCooling() {
         ]}
       />
 
+      <Pearl tone="terra">
+        <strong>2026 update</strong> — AAP Clinical Report (Zanelli et al, Pediatrics 2026;157(2):e2025073627)
+        reaffirms ≥36 0/7 wk as the only formal indication and adds a systems-of-care mandate: every
+        birth center needs an action plan for prompt HIE recognition + cooling initiation or transfer;
+        cooling centers must run outreach/education with referring hospitals, since most HIE infants are
+        born outborn. Off-label 35 wk cooling is rising in practice — US National Inpatient Sample
+        2016–2022 (n=1.4M; Aly et al, J Perinatol 2026): 19.8% vs 22.4% treated at 36 wk (p&lt;0.001), no
+        difference in <em>adjusted</em> in-hospital mortality (unadjusted mortality/coagulopathy were
+        higher at 35 wk) — not yet a formal indication, prospective trials pending.
+      </Pearl>
+
       <SectionLabel>PROTOCOL · TOBY / NICHD</SectionLabel>
       <div style={{ display: 'grid', gap: 6, marginBottom: 14 }}>
         <AlgoStep n={1} title="Target temp 33.5°C ± 0.5°C" body="Rectal or esophageal probe · servo-controlled blanket" highlight />
@@ -280,7 +291,8 @@ function HieOutcomes() {
       </Pearl>
 
       <div style={{ fontSize: 10.5, color: warm.muted, marginTop: 12, lineHeight: 1.4, fontFamily: font.mono }}>
-        อ้างอิง: Sarnat 1976 · CoolCap 2005 · NICHD 2005 · TOBY 2009 · Cochrane 2013
+        อ้างอิง: Sarnat 1976 · CoolCap 2005 · NICHD 2005 · TOBY 2009 · Cochrane 2013 · AAP Clinical
+        Report 2026 (Pediatrics 157:e2025073627) · Aly J Perinatol 2026
       </div>
     </Fragment>
   );
