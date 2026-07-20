@@ -14,7 +14,7 @@ describe('KcmhScreen', () => {
       'href',
       './kcmh/neonatal-jaundice-flow-ipd.pdf',
     );
-    expect(screen.getByRole('link', { name: /^EOS/ })).toHaveAttribute('href', './kcmh/eos-flow-cu.jpg');
+    expect(screen.getByRole('link', { name: /^EOS/ })).toHaveAttribute('href', './kcmh/eos-flow-cu.pdf');
     expect(screen.getByRole('link', { name: /Practical points for newborn nurture/ })).toHaveAttribute(
       'href',
       './kcmh/practical-points-newborn-nurture-2025.pdf',

@@ -1,8 +1,14 @@
-// KCMH guideline/lecture document browser — links out to static PDFs/images
+// KCMH guideline/lecture document browser — links out to static PDFs
 // under public/kcmh/ instead of rendering inline reference cards like the
-// other topic screens. The browser's native PDF/image viewer handles
-// rendering; same-origin top-level navigation isn't affected by the app's
-// CSP (frame-src/object-src 'none' only govern nested browsing contexts).
+// other topic screens. The browser's native PDF viewer handles rendering;
+// same-origin top-level navigation isn't affected by the app's CSP
+// (frame-src/object-src 'none' only govern nested browsing contexts).
+//
+// All docs are PDFs (the EOS guideline was originally a JPG, converted to
+// PDF here) — a raw image opened via target="_blank" leaves the SPA for a
+// fresh, history-less browsing context, and on Android/PWA that makes the
+// hardware back button close the context (and exit the app) instead of
+// returning here. The browser's native PDF viewer doesn't have that problem.
 
 import { DisclaimerBanner } from '../../../components/Disclaimer';
 import { warm, font } from '../../../theme/tokens';
@@ -25,7 +31,7 @@ const KCMH_DOCS = [
     id: 'eos',
     title: 'EOS',
     caption: 'Early Onset Sepsis guideline (CU)',
-    file: 'eos-flow-cu.jpg',
+    file: 'eos-flow-cu.pdf',
   },
   {
     id: 'practical-points',
