@@ -96,6 +96,19 @@ describe('<LeaderboardScreen />', () => {
     off();
   });
 
+  it('renders a back button that calls onBack when provided, and omits it otherwise', () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ json: () => Promise.resolve({ rows: [], asOf: new Date().toISOString() }) }),
+    );
+    const onBack = vi.fn();
+    const { rerender } = render(<LeaderboardScreen onBack={onBack} />);
+    expect(screen.getByRole('button', { name: /progress/i })).toBeInTheDocument();
+
+    rerender(<LeaderboardScreen />);
+    expect(screen.queryByRole('button', { name: /progress/i })).not.toBeInTheDocument();
+  });
+
   it('does not show a previous account\'s cached leaderboard snapshot (regression for AUDIT C-3/S-5)', () => {
     localStorage.setItem(
       'neoref:a@b.com:leaderboard-cache',

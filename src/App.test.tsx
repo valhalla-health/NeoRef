@@ -101,6 +101,22 @@ describe('<App /> — end-to-end shell', () => {
     expect(screen.getByText(/Achievements ·/)).toBeInTheDocument();
   });
 
+  it('drills into the full leaderboard from Progress via "Show more", with no separate Ranks tab', async () => {
+    const user = userEvent.setup();
+    renderApp();
+
+    const nav = screen.getByRole('navigation', { name: /primary/i });
+    expect(within(nav).queryByText('Ranks')).not.toBeInTheDocument();
+
+    await user.click(within(nav).getByText('Progress'));
+    await user.click(screen.getByRole('button', { name: /show more/i }));
+    expect(screen.getByText('Leaderboard')).toBeInTheDocument();
+
+    // Hardware/browser back returns to the Progress tab, not out of the app.
+    history.back();
+    await screen.findByText(/Achievements ·/);
+  });
+
   it('awards tool-usage XP the first time a calculator is opened', async () => {
     const user = userEvent.setup();
     renderApp();

@@ -4,13 +4,14 @@ import userEvent from '@testing-library/user-event';
 import { BottomNav } from './BottomNav';
 
 describe('<BottomNav />', () => {
-  it('renders all 6 tabs including KCMH and the leaderboard tab', () => {
+  it('renders all 5 tabs including KCMH, with no separate Ranks tab', () => {
     render(<BottomNav active="home" onChange={() => {}} />);
     expect(screen.getByText('Home')).toBeInTheDocument();
     expect(screen.getByText('Tools')).toBeInTheDocument();
     expect(screen.getByText('KCMH')).toBeInTheDocument();
     expect(screen.getByText('Learn')).toBeInTheDocument();
-    expect(screen.getByText('Ranks')).toBeInTheDocument();
+    expect(screen.getByText('Progress')).toBeInTheDocument();
+    expect(screen.queryByText('Ranks')).not.toBeInTheDocument();
   });
 
   it('fires onChange with "kcmh" when the KCMH tab is clicked, placed right after Tools', async () => {
@@ -23,11 +24,11 @@ describe('<BottomNav />', () => {
     expect(onChange).toHaveBeenCalledWith('kcmh');
   });
 
-  it('fires onChange with "leaderboard" when the Ranks tab is clicked', async () => {
+  it('fires onChange with "progress" when the Progress tab is clicked', async () => {
     const onChange = vi.fn();
     const user = userEvent.setup();
     render(<BottomNav active="home" onChange={onChange} />);
-    await user.click(screen.getByText('Ranks'));
-    expect(onChange).toHaveBeenCalledWith('leaderboard');
+    await user.click(screen.getByText('Progress'));
+    expect(onChange).toHaveBeenCalledWith('progress');
   });
 });
