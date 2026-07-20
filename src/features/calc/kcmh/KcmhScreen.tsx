@@ -30,7 +30,7 @@ const KCMH_DOCS = [
   {
     id: 'practical-points',
     title: 'Practical points for newborn nurture',
-    caption: 'Newborn Nurture 2025',
+    caption: 'Anongnart Sirisabya, M.D.',
     file: 'practical-points-newborn-nurture-2025.pdf',
   },
 ] as const;
