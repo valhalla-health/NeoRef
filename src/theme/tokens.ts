@@ -36,3 +36,27 @@ export const chipTone = {
 } as const;
 
 export type ChipTone = keyof typeof chipTone;
+
+// Organ-system color theme for the Clinical Tools cards. Single source of
+// truth: {system -> {color, label}} so cards map into it instead of
+// hardcoding a color per topic (see CalcHub.tsx / HomeScreen.tsx).
+export type OrganSystem =
+  | 'infection'
+  | 'neuro'
+  | 'respiratory'
+  | 'cardiac'
+  | 'gi'
+  | 'growth'
+  | 'ophtho'
+  | 'imaging';
+
+export const systemTheme: Record<OrganSystem, { color: string; label: string }> = {
+  infection: { color: '#C4463A', label: 'Infection / Sepsis' },
+  neuro: { color: '#7C5CA0', label: 'Neuro' },
+  respiratory: { color: '#3E7EA6', label: 'Respiratory' },
+  cardiac: { color: '#C15B87', label: 'Cardiac' },
+  gi: { color: '#C97A34', label: 'GI' },
+  growth: { color: '#5B8A4A', label: 'Growth / Metabolic' },
+  ophtho: { color: '#3E8F82', label: 'Ophthalmology' },
+  imaging: { color: '#5C6B7A', label: 'Imaging' },
+};
