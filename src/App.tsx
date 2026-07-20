@@ -14,7 +14,7 @@ import { useAuth } from './features/auth/AuthContext';
 import { LoginScreen } from './features/auth/LoginScreen';
 import { recordToolOpen, recordActivity } from './lib/storage';
 
-type NavState = { tab: Tab; calcId: string | null; lessonDay: number | null };
+type NavState = { tab: Tab; calcId: string | null; lessonDay: number | null; kcmhDoc: string | null };
 
 // Simple state-based navigation (no router needed for a 5-tab PWA).
 // Sub-navigation within the Tools tab is a single `calcId` (null = hub);
@@ -30,11 +30,15 @@ export function App() {
   const [tab, setTab] = useState<Tab>('home');
   const [calcId, setCalcId] = useState<string | null>(null);
   const [lessonDay, setLessonDay] = useState<number | null>(null);
+  const [kcmhDoc, setKcmhDoc] = useState<string | null>(null);
   const restoringFromHistory = useRef(false);
   const isFirstRender = useRef(true);
 
   useEffect(() => {
-    window.history.replaceState({ tab: 'home', calcId: null, lessonDay: null } satisfies NavState, '');
+    window.history.replaceState(
+      { tab: 'home', calcId: null, lessonDay: null, kcmhDoc: null } satisfies NavState,
+      '',
+    );
 
     function onPopState(event: PopStateEvent) {
       const state = event.state as NavState | null;
@@ -43,6 +47,7 @@ export function App() {
       setTab(state.tab);
       setCalcId(state.calcId);
       setLessonDay(state.lessonDay);
+      setKcmhDoc(state.kcmhDoc);
     }
 
     window.addEventListener('popstate', onPopState);
@@ -58,13 +63,14 @@ export function App() {
       restoringFromHistory.current = false;
       return;
     }
-    window.history.pushState({ tab, calcId, lessonDay } satisfies NavState, '');
-  }, [tab, calcId, lessonDay]);
+    window.history.pushState({ tab, calcId, lessonDay, kcmhDoc } satisfies NavState, '');
+  }, [tab, calcId, lessonDay, kcmhDoc]);
 
   function switchTab(t: Tab) {
     setTab(t);
     setCalcId(null); // reset sub-nav on tab switch
     setLessonDay(null);
+    setKcmhDoc(null);
   }
 
   function openCalc(id: string) {
@@ -125,7 +131,9 @@ export function App() {
               );
             })()}
 
-          {tab === 'kcmh' && <KcmhScreen />}
+          {tab === 'kcmh' && (
+            <KcmhScreen openDocId={kcmhDoc} onOpenDoc={setKcmhDoc} onBack={goBack} />
+          )}
 
           {tab === 'learn' &&
             (lessonDay !== null ? (

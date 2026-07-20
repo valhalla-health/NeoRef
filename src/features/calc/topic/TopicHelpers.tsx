@@ -470,9 +470,11 @@ export function DrugCard({
 /** Shared full-screen shell for a static topic: nav + hero + tabs + scrollable body. */
 export function TopicScreenShell({
   onBack,
+  backLabel,
   children,
 }: {
   onBack?: () => void;
+  backLabel?: string;
   children: ReactNode;
 }) {
   const style: CSSProperties = {
@@ -487,7 +489,7 @@ export function TopicScreenShell({
   };
   return (
     <div style={style}>
-      {onBack && <TopicNav onBack={onBack} />}
+      {onBack && <TopicNav onBack={onBack} label={backLabel} />}
       {children}
     </div>
   );
