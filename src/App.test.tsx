@@ -43,9 +43,10 @@ describe('<App /> — end-to-end shell', () => {
     await user.click(within(nav).getByText('Tools'));
     expect(screen.getByText(/Clinical/)).toBeInTheDocument();
 
-    // EOS is the one ported, interactive tool.
+    // EOS is the one ported, interactive tool. Lazy-loaded (see registry.tsx)
+    // — await the chunk resolving.
     await user.click(screen.getByRole('button', { name: /EOS factors/i }));
-    expect(screen.getByText(/How each factor moves risk/i)).toBeInTheDocument();
+    expect(await screen.findByText(/How each factor moves risk/i)).toBeInTheDocument();
 
     const root = screen.getByText(/How each factor moves risk/i).closest('div')!;
     expect(root.textContent ?? '').not.toMatch(/\/1000|Ampicillin|Gentamicin/i);
