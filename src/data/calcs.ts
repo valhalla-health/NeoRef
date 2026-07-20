@@ -29,5 +29,4 @@ export const CALCS: CalcMeta[] = [
   { id: 'rop', label: 'ROP', emoji: '👁️', kind: 'reference', ported: true },
   { id: 'seizures', label: 'Seizures', emoji: '⚡', kind: 'reference', ported: true },
   { id: 'pocus', label: 'POCUS', emoji: '🔊', kind: 'reference', ported: true },
-  { id: 'kcmh', label: 'KCMH', emoji: '📄', kind: 'reference', ported: true },
 ];

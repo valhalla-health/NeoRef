@@ -60,6 +60,17 @@ describe('<App /> — end-to-end shell', () => {
     expect(screen.getByText(/Neonatal and Perinatal Epidemiology/i)).toBeInTheDocument();
   });
 
+  it('navigates to the KCMH tab, placed right after Tools, and lists guideline documents', async () => {
+    const user = userEvent.setup();
+    renderApp();
+    const nav = screen.getByRole('navigation', { name: /primary/i });
+    await user.click(within(nav).getByText('KCMH'));
+    expect(screen.getByRole('link', { name: /Hypoglycemia/ })).toHaveAttribute(
+      'href',
+      './kcmh/neonatal-hypoglycemia-flow-cu.pdf',
+    );
+  });
+
   it('navigates to the Progress tab and shows gamification state', async () => {
     const user = userEvent.setup();
     renderApp();
