@@ -65,15 +65,14 @@ export function LeaderboardPreview({ onShowMore }: { onShowMore: () => void }) {
         type="button"
         onClick={onShowMore}
         style={{
-          width: '100%',
-          marginTop: 8,
-          border: `1.5px solid ${warm.line}`,
-          background: warm.card,
+          display: 'block',
+          margin: '6px auto 0',
+          border: 'none',
+          background: 'none',
           color: warm.terra,
           fontWeight: 700,
-          fontSize: 12.5,
-          borderRadius: 10,
-          padding: '9px 0',
+          fontSize: 11.5,
+          padding: 0,
           cursor: 'pointer',
           fontFamily: font.ui,
         }}
