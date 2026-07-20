@@ -55,6 +55,14 @@ export default defineConfig({
               expiration: { maxEntries: 50 },
             },
           },
+          {
+            urlPattern: /\/kcmh\/.+\.(?:pdf|png|jpe?g)$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'kcmh-docs',
+              expiration: { maxEntries: 20 },
+            },
+          },
         ],
       },
     }),
