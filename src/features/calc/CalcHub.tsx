@@ -1,6 +1,9 @@
-import { warm, font, chipTone } from '../../theme/tokens';
-import { Chip } from '../../components/ui';
+import { warm, font, systemTheme } from '../../theme/tokens';
 import { CALCS } from '../../data/calcs';
+
+// Fallback for fixtures/tests that don't set `system` — keeps the card from
+// throwing rather than asserting every caller supplies it.
+const FALLBACK_SYSTEM = { color: warm.line, label: '' };
 
 export function CalcHub({ onSelect }: { onSelect: (id: string) => void }) {
   return (
@@ -18,17 +21,19 @@ export function CalcHub({ onSelect }: { onSelect: (id: string) => void }) {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
           {CALCS.map((c) => {
             const disabled = !c.ported;
+            const sys = systemTheme[c.system] ?? FALLBACK_SYSTEM;
             return (
               <button
                 key={c.id}
                 type="button"
                 disabled={disabled}
                 onClick={() => !disabled && onSelect(c.id)}
-                aria-label={`${c.label} — ${c.kind === 'education' ? 'interactive education' : 'static reference'}`}
+                aria-label={`${c.label} — ${sys.label}`}
                 style={{
                   position: 'relative',
                   background: warm.card,
                   border: `1.5px solid ${warm.line}`,
+                  borderLeft: `3px solid ${sys.color}`,
                   borderRadius: 12,
                   padding: '12px 8px',
                   textAlign: 'center',
@@ -37,18 +42,6 @@ export function CalcHub({ onSelect }: { onSelect: (id: string) => void }) {
                   fontFamily: font.ui,
                 }}
               >
-                <div
-                  aria-hidden
-                  style={{
-                    position: 'absolute',
-                    top: 6,
-                    right: 6,
-                    width: 8,
-                    height: 8,
-                    borderRadius: '50%',
-                    background: c.kind === 'education' ? chipTone.sage.fg : chipTone.ink.fg,
-                  }}
-                />
                 <div style={{ fontSize: 22, marginBottom: 5 }} aria-hidden>
                   {c.emoji}
                 </div>
@@ -66,8 +59,23 @@ export function CalcHub({ onSelect }: { onSelect: (id: string) => void }) {
         </div>
 
         <div style={{ marginTop: 16, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-          <Chip tone="sage">education = interactive</Chip>
-          <Chip tone="ink">reference = static card</Chip>
+          {(Object.entries(systemTheme) as [string, { color: string; label: string }][]).map(([key, s]) => (
+            <span
+              key={key}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 5,
+                fontSize: 10.5,
+                fontWeight: 600,
+                color: warm.ink2,
+                fontFamily: font.ui,
+              }}
+            >
+              <span aria-hidden style={{ width: 7, height: 7, borderRadius: '50%', background: s.color, flexShrink: 0 }} />
+              {s.label}
+            </span>
+          ))}
         </div>
       </div>
     </div>

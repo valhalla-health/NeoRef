@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { warm, font } from '../../theme/tokens';
+import { warm, font, systemTheme } from '../../theme/tokens';
 import { DisclaimerBanner } from '../../components/Disclaimer';
 import { resumeDay, CURRICULUM_LENGTH } from '../../lib/today';
 import { useProgress } from '../../lib/useProgress';
@@ -155,6 +155,7 @@ export function HomeScreen({
                 style={{
                   background: warm.card,
                   border: `1.5px solid ${warm.line}`,
+                  borderLeft: `3px solid ${systemTheme[c.system]?.color ?? warm.line}`,
                   borderRadius: 12,
                   padding: '10px 8px',
                   textAlign: 'center',
