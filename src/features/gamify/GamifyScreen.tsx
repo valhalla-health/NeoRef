@@ -3,8 +3,9 @@ import { Chip } from '../../components/ui';
 import { getGamifyState, type Badge } from '../../lib/gamify';
 import { CURRICULUM_LENGTH } from '../../lib/today';
 import { LevelCard } from './LevelCard';
+import { LeaderboardPreview } from './LeaderboardPreview';
 
-export function GamifyScreen() {
+export function GamifyScreen({ onShowLeaderboard }: { onShowLeaderboard?: () => void }) {
   const state = getGamifyState();
   const earnedCount = state.badges.filter((b) => b.earned).length;
 
@@ -27,6 +28,8 @@ export function GamifyScreen() {
           <StatTile label="Tools tried" value={`${state.toolsUsed}/${state.totalTools}`} />
           <StatTile label="Best streak" value={`${state.streak.longest}d`} />
         </div>
+
+        <LeaderboardPreview onShowMore={onShowLeaderboard ?? (() => {})} />
 
         <div
           style={{

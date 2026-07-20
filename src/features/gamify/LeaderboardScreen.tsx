@@ -1,72 +1,43 @@
-import { useEffect, useState } from 'react';
 import { warm, font } from '../../theme/tokens';
-import { notifyUnauthorized } from '../../lib/session';
-import { storageKey } from '../../lib/storage';
-import * as gamifyApi from './gamifyApi';
-import type { LeaderboardResponse } from './gamifyApi';
+import { useLeaderboard } from './useLeaderboard';
+import { LeaderboardRow } from './LeaderboardRow';
 
-// Namespaced per signed-in account (storageKey, see storage.ts / AUDIT C-3/S-5)
-// so a second account signing in on the same device doesn't briefly render
-// the previous account's cached `isMe` row as its own while the real fetch
-// is in flight.
-function readCache(): LeaderboardResponse | null {
-  try {
-    const raw = localStorage.getItem(storageKey('leaderboard-cache'));
-    return raw ? (JSON.parse(raw) as LeaderboardResponse) : null;
-  } catch {
-    return null;
-  }
-}
-
-function writeCache(data: LeaderboardResponse): void {
-  try {
-    localStorage.setItem(storageKey('leaderboard-cache'), JSON.stringify(data));
-  } catch {
-    // ignore
-  }
-}
-
-export function LeaderboardScreen() {
-  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
-  const [data, setData] = useState<LeaderboardResponse | null>(() => readCache());
-  const [refreshToken, setRefreshToken] = useState(0);
-
-  useEffect(() => {
-    let cancelled = false;
-    setStatus((s) => (s === 'error' ? 'loading' : s));
-    gamifyApi
-      .getLeaderboard()
-      .then((resp) => {
-        if (cancelled) return;
-        if (gamifyApi.isErrorResponse(resp)) {
-          if (resp.error === 'Unauthorized') notifyUnauthorized();
-          setStatus('error');
-          return;
-        }
-        writeCache(resp);
-        setData(resp);
-        setStatus('ready');
-      })
-      .catch(() => {
-        if (!cancelled) setStatus('error');
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [refreshToken]);
+// Full leaderboard. No longer a bottom-nav tab — reached via "Show more" on
+// the top-3 preview in the Progress tab, so it takes an `onBack` to return
+// there instead of switching tabs itself.
+export function LeaderboardScreen({ onBack }: { onBack?: () => void }) {
+  const { status, data, refresh } = useLeaderboard();
 
   const showingCached = status !== 'ready' && data !== null;
 
   return (
     <div style={{ width: '100%', height: '100%', background: warm.paper, display: 'flex', flexDirection: 'column' }}>
       <div style={{ padding: '16px 20px 12px', borderBottom: `1px solid ${warm.line}` }}>
+        {onBack && (
+          <button
+            type="button"
+            onClick={onBack}
+            style={{
+              border: 'none',
+              background: 'none',
+              color: warm.terra,
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: 'pointer',
+              padding: 0,
+              marginBottom: 8,
+            }}
+          >
+            ‹ Progress
+          </button>
+        )}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ fontFamily: font.head, fontSize: 22, fontWeight: 800, letterSpacing: -0.4, color: warm.ink }}>
             <span style={{ color: warm.terra }}>Leaderboard</span>
           </div>
           <button
             type="button"
-            onClick={() => setRefreshToken((t) => t + 1)}
+            onClick={refresh}
             disabled={status === 'loading'}
             aria-label="Refresh leaderboard"
             style={{
@@ -103,7 +74,7 @@ export function LeaderboardScreen() {
             </div>
             <button
               type="button"
-              onClick={() => setRefreshToken((t) => t + 1)}
+              onClick={refresh}
               style={{
                 border: `1.5px solid ${warm.terra}`,
                 background: 'none',
@@ -127,31 +98,7 @@ export function LeaderboardScreen() {
         )}
 
         {data?.rows.map((row, i) => (
-          <div
-            key={`${row.name}-${i}`}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 10,
-              background: row.isMe ? '#EBF5E6' : warm.card,
-              border: `1.5px solid ${row.isMe ? warm.sage : warm.line}`,
-              borderRadius: 12,
-              padding: '10px 14px',
-              marginBottom: 8,
-            }}
-          >
-            <span style={{ fontFamily: font.mono, fontSize: 13, fontWeight: 700, color: warm.muted, width: 24 }}>
-              {i + 1}
-            </span>
-            <span style={{ flex: 1, fontSize: 13.5, fontWeight: 700, color: warm.ink }}>
-              {row.name}
-              {row.isMe && <span style={{ color: warm.sage }}> (you)</span>}
-            </span>
-            <span style={{ fontSize: 11, color: warm.muted, fontFamily: font.mono }}>🔥 {row.streak}</span>
-            <span style={{ fontSize: 13, fontWeight: 700, color: warm.terra, fontFamily: font.mono }}>
-              {row.points} pts
-            </span>
-          </div>
+          <LeaderboardRow key={`${row.name}-${i}`} row={row} rank={i + 1} />
         ))}
       </div>
     </div>
