@@ -40,16 +40,33 @@ export function LeaderboardPreview({ onShowMore }: { onShowMore: () => void }) {
         </div>
       )}
 
-      {rows.map((row, i) => (
-        <LeaderboardRow key={`${row.name}-${i}`} row={row} rank={i + 1} />
-      ))}
+      {rows.length > 0 && (
+        <div
+          style={{
+            border: `1px solid ${warm.line}`,
+            borderRadius: 12,
+            overflow: 'hidden',
+            background: warm.card,
+          }}
+        >
+          {rows.map((row, i) => (
+            <LeaderboardRow
+              key={`${row.name}-${i}`}
+              row={row}
+              rank={i + 1}
+              compact
+              isLast={i === rows.length - 1}
+            />
+          ))}
+        </div>
+      )}
 
       <button
         type="button"
         onClick={onShowMore}
         style={{
           width: '100%',
-          marginTop: 2,
+          marginTop: 8,
           border: `1.5px solid ${warm.line}`,
           background: warm.card,
           color: warm.terra,

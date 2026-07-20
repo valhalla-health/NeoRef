@@ -1,18 +1,27 @@
 import { warm, font } from '../../theme/tokens';
 import type { LeaderboardRow as Row } from './gamifyApi';
 
-export function LeaderboardRow({ row, rank }: { row: Row; rank: number }) {
+interface LeaderboardRowProps {
+  row: Row;
+  rank: number;
+  /** Table-row styling (no own border/radius/margin) for the compact Progress-tab
+   * preview, which renders all rows inside one shared bordered container instead
+   * of a boxed card per row. */
+  compact?: boolean;
+  isLast?: boolean;
+}
+
+export function LeaderboardRow({ row, rank, compact, isLast }: LeaderboardRowProps) {
   return (
     <div
       style={{
         display: 'flex',
         alignItems: 'center',
         gap: 10,
-        background: row.isMe ? '#EBF5E6' : warm.card,
-        border: `1.5px solid ${row.isMe ? warm.sage : warm.line}`,
-        borderRadius: 12,
-        padding: '10px 14px',
-        marginBottom: 8,
+        background: row.isMe ? '#EBF5E6' : compact ? 'transparent' : warm.card,
+        ...(compact
+          ? { borderBottom: isLast ? 'none' : `1px solid ${warm.line}`, padding: '8px 12px' }
+          : { border: `1.5px solid ${row.isMe ? warm.sage : warm.line}`, borderRadius: 12, padding: '10px 14px', marginBottom: 8 }),
       }}
     >
       <span style={{ fontFamily: font.mono, fontSize: 13, fontWeight: 700, color: warm.muted, width: 24 }}>
