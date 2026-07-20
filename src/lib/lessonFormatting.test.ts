@@ -3,6 +3,7 @@ import {
   stripWhyIntro,
   splitNumberedList,
   splitDenseProse,
+  splitArrowChain,
   extractDuplicateCaption,
   classifySingleColumnTable,
 } from './lessonFormatting';
@@ -36,6 +37,17 @@ describe('splitNumberedList', () => {
 
   it('does not split text that already has real line breaks', () => {
     expect(splitNumberedList('(1) first\n(2) second')).toBeNull();
+  });
+
+  it('splits an inline list with sentence-ending period separators', () => {
+    const result = splitNumberedList(
+      '(1) Definition กำหนดว่าใครเป็น BPD. (2) NIH 2001 criteria คือ gold standard. (3) Incidence ขึ้นกับ definition อย่างมาก.',
+    );
+    expect(result?.items).toEqual([
+      'Definition กำหนดว่าใครเป็น BPD',
+      'NIH 2001 criteria คือ gold standard',
+      'Incidence ขึ้นกับ definition อย่างมาก.',
+    ]);
   });
 });
 
@@ -76,6 +88,44 @@ describe('splitDenseProse', () => {
     const result = splitDenseProse(body);
     expect(result).not.toBeNull();
     expect(result!.length).toBe(2);
+  });
+});
+
+describe('splitArrowChain', () => {
+  it('splits a long causal chain into one step per arrow link', () => {
+    const body =
+      'Normoxia/hyperoxia → prolyl hydroxylase active → HIF-1α hydroxylated → ubiquitinated → proteosomal degradation → ↓ VEGF → disrupted vascular development';
+    const result = splitArrowChain(body);
+    expect(result).toEqual([
+      'Normoxia/hyperoxia',
+      'prolyl hydroxylase active',
+      'HIF-1α hydroxylated',
+      'ubiquitinated',
+      'proteosomal degradation',
+      '↓ VEGF',
+      'disrupted vascular development',
+    ]);
+  });
+
+  it('returns null for short text', () => {
+    expect(splitArrowChain('A → B → C')).toBeNull();
+  });
+
+  it('returns null when there are fewer than two arrows', () => {
+    const body =
+      'A single long sentence with just one arrow in it padded out to cross the length threshold for consideration → like this';
+    expect(splitArrowChain(body)).toBeNull();
+  });
+
+  it('returns null for text with no arrows at all, however long', () => {
+    const body =
+      'A long sentence with no arrows in it at all, padded out with extra words to cross the length threshold for splitting consideration here.';
+    expect(splitArrowChain(body)).toBeNull();
+  });
+
+  it('does not split text that already has real line breaks', () => {
+    const body = 'First long enough line padded with extra words to cross the threshold here\n→ second line';
+    expect(splitArrowChain(body)).toBeNull();
   });
 });
 

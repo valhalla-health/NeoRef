@@ -32,9 +32,15 @@ export function splitNumberedList(body: string): NumberedList | null {
   const firstMarker = body.indexOf('(1)');
   if (firstMarker < 0) return null;
   const intro = body.slice(0, firstMarker).trim();
+  // Most lists in this corpus use ";" or "," between points, but a good
+  // number use a sentence-ending "." instead (e.g. "...เดียวกัน. (2) NIH
+  // 2001..."), which used to fall through to splitDenseProse and stay
+  // crammed into one paragraph because its sentence-boundary check requires
+  // an uppercase/Thai letter right after the period — never the case when
+  // "(" comes next.
   const items = body
     .slice(firstMarker)
-    .split(/[;,]\s*(?=\(\d+\)\s)/)
+    .split(/[;,.]\s*(?=\(\d+\)\s)/)
     .map((s) => s.replace(/^\(\d+\)\s*/, '').trim())
     .filter(Boolean);
   return items.length >= 2 ? { intro, items } : null;
@@ -85,6 +91,25 @@ export function splitDenseProse(body: string): string[] | null {
     .filter(Boolean);
   if (byDash.length >= 2) return byDash;
   return null;
+}
+
+// A chunk of the corpus is mechanistic reasoning written as a single
+// "A → B → C → D" causal chain — not a list of separate points, but still
+// unreadable as one run-on line on a phone screen. splitDenseProse's other
+// separators rarely fire on these (no semicolons, few sentence boundaries
+// since it's grammatically one sentence, no em dashes), so give this its own
+// last-resort split: one line per link in the chain. Requires at least two
+// arrows (three links) so a single stray "→" in otherwise normal prose
+// doesn't get chopped up.
+const ARROW_SPLIT_RE = /\s*→\s*/;
+
+export function splitArrowChain(body: string): string[] | null {
+  if (body.includes('\n') || body.length <= 150) return null;
+  const steps = body
+    .split(ARROW_SPLIT_RE)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return steps.length >= 3 ? steps : null;
 }
 
 export interface DuplicateCaptionTable {
