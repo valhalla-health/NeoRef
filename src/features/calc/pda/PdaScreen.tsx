@@ -28,7 +28,8 @@ export function PdaScreen({ onBack }: { onBack?: () => void }) {
       <TopicHero
         chips={[
           { tone: 'terra', label: 'AHA 2024' },
-          { tone: 'ochre', label: 'BabyOSCAR' },
+          { tone: 'ochre', label: 'SMART-PDA 2026' },
+          { tone: 'sage', label: 'CNN CER 2026' },
           { tone: 'ink', label: 'Piccolo device' },
         ]}
         title="Patent Ductus"
@@ -179,7 +180,7 @@ function PDATreat() {
         <AlgoStep n={3} title="Surgical / transcatheter" body="ถ้า medical failure + ongoing hsPDA · Piccolo device preferred ในศูนย์ experienced" />
       </div>
 
-      <SectionLabel>TIMING DEBATE</SectionLabel>
+      <SectionLabel>TIMING &amp; SELECTION · evidence timeline</SectionLabel>
       <div
         style={{
           background: warm.card,
@@ -188,16 +189,51 @@ function PDATreat() {
           padding: '10px 12px',
           fontSize: 12,
           color: warm.ink2,
-          lineHeight: 1.5,
-          marginBottom: 14,
+          lineHeight: 1.6,
+          marginBottom: 12,
         }}
       >
-        <strong style={{ color: warm.ink }}>BabyOSCAR (2024):</strong> Early ibuprofen ไม่ปรับ
-        outcome ใน &lt;29 wk vs expectant.
+        <strong style={{ color: warm.ink }}>BeNeDuctus (2022) / BabyOSCAR (2024):</strong> Early
+        routine ibuprofen ไม่ปรับ outcome ใน &lt;28–29 wk vs expectant management → shift ไปทาง
+        watchful waiting.
         <br />
-        Modern approach: <strong style={{ color: warm.terra }}>watchful waiting</strong> ใน DOL
-        1–7 · intervene เฉพาะ hsPDA ที่มี clinical impact.
+        <br />
+        <strong style={{ color: warm.terra }}>
+          SMART-PDA pilot RCT (2026, Mitra et al. · 7 NICU · n=104, &lt;26 wk GA):
+        </strong>{' '}
+        ทดสอบ echo-based <em>selective</em> treatment ภายใน watchful-waiting framework — screen
+        echo ใน 72 ชม.แรก แล้วรักษาเฉพาะ moderate–severe shunt ใน DOL 1–7 (median onset DOL 2). 24%
+        ของ SMART arm ไม่ต้องรักษาเลย. Win ratio 1.34 (85% probability of benefit) แต่ 95% CrI
+        0.73–2.5 — feasibility signal, ยังไม่ powered พอสำหรับ efficacy.
+        <br />
+        <br />
+        <strong style={{ color: warm.terra }}>
+          CNN comparative-effectiveness cohort (2026 · 19 NICU · n=1356):
+        </strong>{' '}
+        ไม่ว่าเลือก regimen ใด primary pharmacotherapy failure ~42% เท่า ๆ กัน — คำถาม “which drug”
+        อาจสำคัญน้อยกว่า “who/when to treat” · สนับสนุนแนวทาง SMART-PDA มากกว่าการเลือกยา.
       </div>
+
+      <SectionLabel>SMART-PDA 2026 · pilot RCT snapshot</SectionLabel>
+      <Criteria
+        rows={[
+          { l: 'Eligible infants enrolled', v: '63%', t: '95% CI 56–70%' },
+          { l: 'Randomized (mean GA · BW)', v: '24.3 wk · 714 g', t: 'n=104' },
+          { l: 'SMART arm never treated', v: '24%', t: 'shunt not mod-severe' },
+          { l: 'Median tx onset', v: 'DOL 2', t: 'IQR 1–2.5 d' },
+          { l: 'Win ratio vs control', v: '1.34', t: '85% prob. benefit' },
+        ]}
+      />
+      <Pearl tone="warn">
+        SMART-PDA is a <strong>feasibility pilot</strong>, not powered for efficacy — the win
+        ratio&apos;s 95% credible interval (0.73–2.5) crosses 1. Hypothesis-generating, not yet
+        practice-changing.
+      </Pearl>
+      <Pearl tone="terra">
+        Bottom line: default ยังเป็น watchful waiting DOL 1–7. ถ้า intervene, เลือกผู้ป่วยจาก echo
+        shunt-severity grading (SMART-PDA framework) มากกว่าการเลือก drug regimen — CNN CER พบว่า
+        4 regimens ล้มเหลวพอ ๆ กัน (~42%).
+      </Pearl>
 
       <SectionLabel>TRANSCATHETER CLOSURE · Piccolo</SectionLabel>
       <Criteria
@@ -266,6 +302,14 @@ function PDADrugs() {
         <br />
         ▸ Duct-dependent CHD (always rule out!)
       </div>
+
+      <Pearl tone="terra">
+        <strong>CNN CER (2026, n=1356):</strong> Standard-dose ibuprofen, adjustable-dose
+        ibuprofen, indomethacin &amp; paracetamol had statistically similar failure rates —
+        ~42.3% ต้อง rescue therapy ไม่ว่าจะเลือก regimen ไหน. Treated vs untreated: lower
+        mortality (aOR 0.35) but higher BPD (aOR 1.91) &amp; NEC (aOR 2.15) — authors flag
+        confounding by indication/survival bias, ไม่ใช่ causal signal against treatment.
+      </Pearl>
 
       <Pearl tone="sage">
         Always exclude <strong>duct-dependent lesions</strong> (HLHS, IAA, critical CoA) on echo
