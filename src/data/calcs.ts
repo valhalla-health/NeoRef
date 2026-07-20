@@ -20,17 +20,20 @@ export interface CalcMeta {
   ported: boolean;
 }
 
+// Ordered by organ system so same-system cards land next to each other in
+// the grid (CalcHub / HomeScreen quick tools both render CALCS in this
+// order) — infection, neuro, respiratory, cardiac, gi, growth, ophtho, imaging.
 export const CALCS: CalcMeta[] = [
   { id: 'eos', label: 'EOS factors', emoji: '🦠', kind: 'education', system: 'infection', ported: true },
-  { id: 'fenton', label: 'Fenton', emoji: '📈', kind: 'education', system: 'growth', ported: true },
-  { id: 'hie', label: 'HIE / TH', emoji: '🧠', kind: 'reference', system: 'neuro', ported: true },
-  { id: 'bpd', label: 'BPD', emoji: '🫁', kind: 'reference', system: 'respiratory', ported: true },
-  { id: 'nec', label: 'NEC', emoji: '🩹', kind: 'reference', system: 'gi', ported: true },
-  { id: 'pda', label: 'PDA', emoji: '❤️', kind: 'reference', system: 'cardiac', ported: true },
-  { id: 'rds', label: 'RDS', emoji: '🌬️', kind: 'reference', system: 'respiratory', ported: true },
-  { id: 'ivh', label: 'IVH', emoji: '🩸', kind: 'reference', system: 'neuro', ported: true },
   { id: 'los', label: 'LOS', emoji: '💉', kind: 'reference', system: 'infection', ported: true },
-  { id: 'rop', label: 'ROP', emoji: '👁️', kind: 'reference', system: 'ophtho', ported: true },
+  { id: 'hie', label: 'HIE / TH', emoji: '🧠', kind: 'reference', system: 'neuro', ported: true },
+  { id: 'ivh', label: 'IVH', emoji: '🩸', kind: 'reference', system: 'neuro', ported: true },
   { id: 'seizures', label: 'Seizures', emoji: '⚡', kind: 'reference', system: 'neuro', ported: true },
+  { id: 'bpd', label: 'BPD', emoji: '🫁', kind: 'reference', system: 'respiratory', ported: true },
+  { id: 'rds', label: 'RDS', emoji: '🌬️', kind: 'reference', system: 'respiratory', ported: true },
+  { id: 'pda', label: 'PDA', emoji: '❤️', kind: 'reference', system: 'cardiac', ported: true },
+  { id: 'nec', label: 'NEC', emoji: '🩹', kind: 'reference', system: 'gi', ported: true },
+  { id: 'fenton', label: 'Fenton', emoji: '📈', kind: 'education', system: 'growth', ported: true },
+  { id: 'rop', label: 'ROP', emoji: '👁️', kind: 'reference', system: 'ophtho', ported: true },
   { id: 'pocus', label: 'POCUS', emoji: '🩻', kind: 'reference', system: 'imaging', ported: true },
 ];
