@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { warm } from './theme/tokens';
 import { BottomNav, type Tab } from './components/BottomNav';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -14,14 +14,52 @@ import { useAuth } from './features/auth/AuthContext';
 import { LoginScreen } from './features/auth/LoginScreen';
 import { recordToolOpen, recordActivity } from './lib/storage';
 
+type NavState = { tab: Tab; calcId: string | null; lessonDay: number | null };
+
 // Simple state-based navigation (no router needed for a 5-tab PWA).
 // Sub-navigation within the Tools tab is a single `calcId` (null = hub);
 // within the Learn tab it's a single `lessonDay` (null = list).
+//
+// Every state change here also pushes a browser history entry, and the
+// on-screen "back" affordances call history.back() instead of setting state
+// directly. Without this, the app has no history for the Android/PWA
+// hardware back button to pop, so it closes the app straight from the first
+// press instead of stepping back through screens.
 export function App() {
   const { status } = useAuth();
   const [tab, setTab] = useState<Tab>('home');
   const [calcId, setCalcId] = useState<string | null>(null);
   const [lessonDay, setLessonDay] = useState<number | null>(null);
+  const restoringFromHistory = useRef(false);
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    window.history.replaceState({ tab: 'home', calcId: null, lessonDay: null } satisfies NavState, '');
+
+    function onPopState(event: PopStateEvent) {
+      const state = event.state as NavState | null;
+      if (!state) return; // nothing left to restore — let the platform close the app
+      restoringFromHistory.current = true;
+      setTab(state.tab);
+      setCalcId(state.calcId);
+      setLessonDay(state.lessonDay);
+    }
+
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    if (restoringFromHistory.current) {
+      restoringFromHistory.current = false;
+      return;
+    }
+    window.history.pushState({ tab, calcId, lessonDay } satisfies NavState, '');
+  }, [tab, calcId, lessonDay]);
 
   function switchTab(t: Tab) {
     setTab(t);
@@ -45,6 +83,10 @@ export function App() {
   function openLesson(day: number) {
     setTab('learn');
     setLessonDay(day);
+  }
+
+  function goBack() {
+    window.history.back();
   }
 
   if (status === 'signed-out') {
@@ -77,7 +119,7 @@ export function App() {
             (() => {
               const Screen = calcId ? CALC_SCREENS[calcId] : undefined;
               return Screen ? (
-                <Screen onBack={() => setCalcId(null)} />
+                <Screen onBack={goBack} />
               ) : (
                 <CalcHub onSelect={selectCalc} />
               );
@@ -87,7 +129,7 @@ export function App() {
 
           {tab === 'learn' &&
             (lessonDay !== null ? (
-              <LessonDetail day={lessonDay} onBack={() => setLessonDay(null)} />
+              <LessonDetail day={lessonDay} onBack={goBack} />
             ) : (
               <LearnScreen onOpenLesson={setLessonDay} />
             ))}

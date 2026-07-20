@@ -51,6 +51,27 @@ describe('<App /> — end-to-end shell', () => {
     expect(root.textContent ?? '').not.toMatch(/\/1000|Ampicillin|Gentamicin/i);
   });
 
+  it('steps back through screens on browser/hardware back instead of exiting immediately', async () => {
+    const user = userEvent.setup();
+    renderApp();
+
+    const nav = screen.getByRole('navigation', { name: /primary/i });
+    await user.click(within(nav).getByText('Tools'));
+    await user.click(screen.getByRole('button', { name: /EOS factors/i }));
+    expect(screen.getByText(/How each factor moves risk/i)).toBeInTheDocument();
+
+    // Simulate the Android/PWA hardware back button (fires a popstate, same
+    // as history.back()) — it should step back to the Tools hub, not close
+    // the app.
+    history.back();
+    await screen.findByRole('button', { name: /EOS factors/i });
+    expect(screen.queryByText(/How each factor moves risk/i)).not.toBeInTheDocument();
+
+    // One more back press returns to Home.
+    history.back();
+    await screen.findByText(/(Today|Latest lesson) · Day \d+/);
+  });
+
   it('navigates to the Learn tab and lists daily lessons', async () => {
     const user = userEvent.setup();
     renderApp();
