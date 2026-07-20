@@ -38,6 +38,11 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,png,woff,woff2}'],
         cleanupOutdatedCaches: true,
         navigateFallback: 'index.html',
+        // Without this, the SPA fallback intercepts top-level navigations to
+        // /kcmh/*.pdf (opened via target="_blank") and serves index.html at
+        // that nested path instead — its relative asset URLs then 404 and the
+        // tab renders blank. Exclude any path that looks like a real file.
+        navigateFallbackDenylist: [/\/kcmh\//],
         runtimeCaching: [
           {
             urlPattern: /\/lessons\/day-\d+\.json$/,

@@ -5,6 +5,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { HomeScreen } from './features/home/HomeScreen';
 import { CalcHub } from './features/calc/CalcHub';
 import { CALC_SCREENS } from './features/calc/registry';
+import { KcmhScreen } from './features/calc/kcmh/KcmhScreen';
 import { LearnScreen } from './features/learn/LearnScreen';
 import { LessonDetail } from './features/learn/LessonDetail';
 import { LeaderboardScreen } from './features/gamify/LeaderboardScreen';
@@ -81,6 +82,8 @@ export function App() {
                 <CalcHub onSelect={selectCalc} />
               );
             })()}
+
+          {tab === 'kcmh' && <KcmhScreen />}
 
           {tab === 'learn' &&
             (lessonDay !== null ? (

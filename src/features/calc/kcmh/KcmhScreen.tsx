@@ -35,9 +35,9 @@ const KCMH_DOCS = [
   },
 ] as const;
 
-export function KcmhScreen({ onBack }: { onBack?: () => void }) {
+export function KcmhScreen() {
   return (
-    <TopicScreenShell onBack={onBack}>
+    <TopicScreenShell>
       <TopicHero
         chips={[{ tone: 'terra', label: 'KCMH' }]}
         title="KCMH"

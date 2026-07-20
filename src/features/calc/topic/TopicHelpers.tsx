@@ -487,7 +487,7 @@ export function TopicScreenShell({
   };
   return (
     <div style={style}>
-      <TopicNav onBack={onBack} />
+      {onBack && <TopicNav onBack={onBack} />}
       {children}
     </div>
   );

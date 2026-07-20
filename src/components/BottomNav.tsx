@@ -1,10 +1,11 @@
 import { warm, font } from '../theme/tokens';
 
-export type Tab = 'home' | 'calc' | 'learn' | 'progress' | 'leaderboard';
+export type Tab = 'home' | 'calc' | 'kcmh' | 'learn' | 'progress' | 'leaderboard';
 
 const TABS: { id: Tab; label: string; emoji: string }[] = [
   { id: 'home', label: 'Home', emoji: '🏠' },
   { id: 'calc', label: 'Tools', emoji: '🧮' },
+  { id: 'kcmh', label: 'KCMH', emoji: '📄' },
   { id: 'learn', label: 'Learn', emoji: '📚' },
   { id: 'progress', label: 'Progress', emoji: '🏆' },
   { id: 'leaderboard', label: 'Ranks', emoji: '🥇' },

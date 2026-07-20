@@ -14,7 +14,6 @@ import { LosScreen } from './los/LosScreen';
 import { RopScreen } from './rop/RopScreen';
 import { SeizuresScreen } from './seizures/SeizuresScreen';
 import { PocusScreen } from './pocus/PocusScreen';
-import { KcmhScreen } from './kcmh/KcmhScreen';
 
 export const CALC_SCREENS: Record<string, ComponentType<{ onBack?: () => void }>> = {
   eos: EosEducation,
@@ -29,5 +28,4 @@ export const CALC_SCREENS: Record<string, ComponentType<{ onBack?: () => void }>
   rop: RopScreen,
   seizures: SeizuresScreen,
   pocus: PocusScreen,
-  kcmh: KcmhScreen,
 };
