@@ -18,7 +18,8 @@ import {
 import { useProgress } from '../../lib/useProgress';
 import { setLessonDone } from '../../lib/progress';
 import { useBookmarks } from '../../lib/useBookmarks';
-import { toggleBookmark, recordActivity } from '../../lib/storage';
+import { recordActivity } from '../../lib/storage';
+import { setBookmark } from '../../lib/bookmarks';
 import { lessonBookmarkId } from '../../lib/bookmarkIds';
 import {
   stripWhyIntro,
@@ -174,7 +175,7 @@ export function LessonDetail({ day, onBack }: { day: number; onBack?: () => void
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <button
             type="button"
-            onClick={() => toggleBookmark(bookmarkId)}
+            onClick={() => setBookmark(bookmarkId, !bookmarked)}
             aria-pressed={bookmarked}
             aria-label={bookmarked ? 'Remove bookmark' : 'Bookmark this lesson'}
             style={{

@@ -190,13 +190,26 @@ export function getBookmarks(): BookmarkMap {
   return read<BookmarkMap>('bookmarks', {}, isProgressMap);
 }
 
-export function toggleBookmark(id: string, now: Date = new Date()): boolean {
+// Bulk overwrite — used to land a server-pulled merge (see bookmarks.ts),
+// same role as setProgress() above.
+export function setBookmarks(map: BookmarkMap): void {
+  write('bookmarks', map);
+  notifyBookmarksChanged();
+}
+
+export function setBookmarkState(id: string, bookmarked: boolean, now: Date = new Date()): BookmarkMap {
   const b = { ...getBookmarks() };
-  if (b[id]) delete b[id];
-  else b[id] = now.toISOString();
+  if (bookmarked) b[id] = now.toISOString();
+  else delete b[id];
   write('bookmarks', b);
   notifyBookmarksChanged();
-  return Boolean(b[id]);
+  return b;
+}
+
+export function toggleBookmark(id: string, now: Date = new Date()): boolean {
+  const bookmarked = !isBookmarked(id);
+  setBookmarkState(id, bookmarked, now);
+  return bookmarked;
 }
 
 export function isBookmarked(id: string): boolean {
