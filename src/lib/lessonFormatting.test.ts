@@ -37,6 +37,17 @@ describe('splitNumberedList', () => {
   it('does not split text that already has real line breaks', () => {
     expect(splitNumberedList('(1) first\n(2) second')).toBeNull();
   });
+
+  it('splits an inline list with sentence-ending period separators', () => {
+    const result = splitNumberedList(
+      '(1) Definition กำหนดว่าใครเป็น BPD. (2) NIH 2001 criteria คือ gold standard. (3) Incidence ขึ้นกับ definition อย่างมาก.',
+    );
+    expect(result?.items).toEqual([
+      'Definition กำหนดว่าใครเป็น BPD',
+      'NIH 2001 criteria คือ gold standard',
+      'Incidence ขึ้นกับ definition อย่างมาก.',
+    ]);
+  });
 });
 
 describe('splitDenseProse', () => {

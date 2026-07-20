@@ -32,9 +32,15 @@ export function splitNumberedList(body: string): NumberedList | null {
   const firstMarker = body.indexOf('(1)');
   if (firstMarker < 0) return null;
   const intro = body.slice(0, firstMarker).trim();
+  // Most lists in this corpus use ";" or "," between points, but a good
+  // number use a sentence-ending "." instead (e.g. "...เดียวกัน. (2) NIH
+  // 2001..."), which used to fall through to splitDenseProse and stay
+  // crammed into one paragraph because its sentence-boundary check requires
+  // an uppercase/Thai letter right after the period — never the case when
+  // "(" comes next.
   const items = body
     .slice(firstMarker)
-    .split(/[;,]\s*(?=\(\d+\)\s)/)
+    .split(/[;,.]\s*(?=\(\d+\)\s)/)
     .map((s) => s.replace(/^\(\d+\)\s*/, '').trim())
     .filter(Boolean);
   return items.length >= 2 ? { intro, items } : null;
