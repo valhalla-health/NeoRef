@@ -1,4 +1,4 @@
-import { warm, font } from '../../theme/tokens';
+import { warm, font, chipTone } from '../../theme/tokens';
 import { Chip } from '../../components/ui';
 import { CALCS } from '../../data/calcs';
 
@@ -24,6 +24,7 @@ export function CalcHub({ onSelect }: { onSelect: (id: string) => void }) {
                 type="button"
                 disabled={disabled}
                 onClick={() => !disabled && onSelect(c.id)}
+                aria-label={`${c.label} — ${c.kind === 'education' ? 'interactive education' : 'static reference'}`}
                 style={{
                   position: 'relative',
                   background: warm.card,
@@ -36,6 +37,18 @@ export function CalcHub({ onSelect }: { onSelect: (id: string) => void }) {
                   fontFamily: font.ui,
                 }}
               >
+                <div
+                  aria-hidden
+                  style={{
+                    position: 'absolute',
+                    top: 6,
+                    right: 6,
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    background: c.kind === 'education' ? chipTone.sage.fg : chipTone.ink.fg,
+                  }}
+                />
                 <div style={{ fontSize: 22, marginBottom: 5 }} aria-hidden>
                   {c.emoji}
                 </div>
