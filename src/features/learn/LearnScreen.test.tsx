@@ -74,6 +74,21 @@ describe('LearnScreen', () => {
     expect(screen.getByText(LESSONS[0].title)).toBeInTheDocument();
   });
 
+  it('filters to a single book when its chip is selected, and back to all via "All"', async () => {
+    const user = userEvent.setup();
+    render(<LearnScreen onOpenLesson={vi.fn()} />);
+    const pimolratLesson = LESSONS.find((l) => l.book === 'Pimolrat')!;
+    const averyLesson = LESSONS.find((l) => l.book === 'Avery')!;
+
+    await user.click(screen.getByRole('button', { name: 'คู่มือการดูแลทารกแรกเกิด' }));
+    expect(screen.getByText(pimolratLesson.title)).toBeInTheDocument();
+    expect(screen.queryByText(averyLesson.title)).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'All' }));
+    expect(screen.getByText(averyLesson.title)).toBeInTheDocument();
+    expect(screen.getByText(pimolratLesson.title)).toBeInTheDocument();
+  });
+
   it('shows a clear button while searching that resets the query', async () => {
     const user = userEvent.setup();
     render(<LearnScreen onOpenLesson={vi.fn()} />);
