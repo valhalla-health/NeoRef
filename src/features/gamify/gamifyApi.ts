@@ -25,6 +25,9 @@ export interface LeaderboardResponse {
 export interface CompletionsResponse {
   rows: { day: number; done: boolean; firstCompletedAt: string }[];
 }
+export interface BookmarksResponse {
+  rows: { id: string; bookmarked: boolean; firstBookmarkedAt: string }[];
+}
 export interface ErrorResponse {
   error: string;
 }
@@ -50,6 +53,14 @@ export function getMyStats(): Promise<StatsResponse | ErrorResponse> {
 
 export function getMyCompletions(): Promise<CompletionsResponse | ErrorResponse> {
   return post({ action: 'getMyCompletions' });
+}
+
+export function logBookmark(id: string, bookmarked: boolean): Promise<{ ok: true } | ErrorResponse> {
+  return post({ action: 'logBookmark', id, bookmarked });
+}
+
+export function getMyBookmarks(): Promise<BookmarksResponse | ErrorResponse> {
+  return post({ action: 'getMyBookmarks' });
 }
 
 export function getLeaderboard(): Promise<LeaderboardResponse | ErrorResponse> {

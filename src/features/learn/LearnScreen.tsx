@@ -4,7 +4,7 @@ import { LESSONS, bookLabel, type Lesson } from '../../data/lessons';
 import { useProgress } from '../../lib/useProgress';
 import { setLessonDone } from '../../lib/progress';
 import { useBookmarks } from '../../lib/useBookmarks';
-import { toggleBookmark } from '../../lib/storage';
+import { setBookmark } from '../../lib/bookmarks';
 import { lessonBookmarkId } from '../../lib/bookmarkIds';
 import { resumeDay } from '../../lib/today';
 import { searchLessons } from '../../lib/lessonSearch';
@@ -217,7 +217,7 @@ export function LearnScreen({ onOpenLesson }: { onOpenLesson: (day: number) => v
                 type="button"
                 aria-pressed={bookmarked}
                 aria-label={bookmarked ? `Remove bookmark for day ${l.day}` : `Bookmark day ${l.day}`}
-                onClick={() => toggleBookmark(bookmarkId)}
+                onClick={() => setBookmark(bookmarkId, !bookmarked)}
                 style={{
                   position: 'absolute',
                   top: 8,
