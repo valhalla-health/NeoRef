@@ -2,7 +2,7 @@ import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { LessonDetail } from './LessonDetail';
-import { isBookmarked } from '../../lib/storage';
+import { isBookmarked, getFontScale } from '../../lib/storage';
 
 beforeEach(() => localStorage.clear());
 
@@ -93,5 +93,36 @@ describe('<LessonDetail />', () => {
     await user.click(screen.getByRole('button', { name: /Remove bookmark/i }));
     expect(screen.getByRole('button', { name: /Bookmark this lesson/i })).toBeInTheDocument();
     expect(isBookmarked('lesson-1')).toBe(false);
+  });
+
+  it('cycles the text-size zoom through 2x/3x/4x back to normal and persists it', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve(SAMPLE_CONTENT) }),
+    );
+    const user = userEvent.setup();
+    render(<LessonDetail day={1} />);
+    await screen.findByText('Key Definitions');
+
+    const zoomButton = screen.getByRole('button', { name: /Text size 1×/i });
+    const bulletText = screen.getByText('A bullet point');
+    const baseFontSize = getComputedStyle(bulletText.parentElement!).fontSize;
+
+    await user.click(zoomButton);
+    expect(screen.getByRole('button', { name: /Text size 2×/i })).toBeInTheDocument();
+    expect(getFontScale()).toBe(2);
+    expect(getComputedStyle(bulletText.parentElement!).fontSize).not.toBe(baseFontSize);
+
+    await user.click(screen.getByRole('button', { name: /Text size 2×/i }));
+    expect(screen.getByRole('button', { name: /Text size 3×/i })).toBeInTheDocument();
+    expect(getFontScale()).toBe(3);
+
+    await user.click(screen.getByRole('button', { name: /Text size 3×/i }));
+    expect(screen.getByRole('button', { name: /Text size 4×/i })).toBeInTheDocument();
+    expect(getFontScale()).toBe(4);
+
+    await user.click(screen.getByRole('button', { name: /Text size 4×/i }));
+    expect(screen.getByRole('button', { name: /Text size 1×/i })).toBeInTheDocument();
+    expect(getFontScale()).toBe(1);
   });
 });

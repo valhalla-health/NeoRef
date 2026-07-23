@@ -18,7 +18,7 @@ import {
 import { useProgress } from '../../lib/useProgress';
 import { setLessonDone } from '../../lib/progress';
 import { useBookmarks } from '../../lib/useBookmarks';
-import { recordActivity } from '../../lib/storage';
+import { recordActivity, getFontScale, setFontScale, type FontScale } from '../../lib/storage';
 import { setBookmark } from '../../lib/bookmarks';
 import { lessonBookmarkId } from '../../lib/bookmarkIds';
 import {
@@ -102,7 +102,7 @@ function ArrowChainSteps({ steps, accent, textColor }: { steps: string[]; accent
 // `callout` blocks, but also `table` blocks that were authored the same way
 // (a 2-row single-column table, or a run of "Pearl" cards) — see the `table`
 // case below.
-function CalloutBox({ title, body }: { title: string | null; body: string }) {
+function CalloutBox({ title, body, scale }: { title: string | null; body: string; scale: number }) {
   const parsed = splitNumberedList(body);
   const prose = parsed ? null : splitDenseProse(body);
   const chain = parsed || prose ? null : splitArrowChain(body);
@@ -114,7 +114,7 @@ function CalloutBox({ title, body }: { title: string | null; body: string }) {
         borderRadius: 10,
         padding: '10px 12px',
         marginBottom: 12,
-        fontSize: 12.5,
+        fontSize: 12.5 * scale,
         color: warm.ink2,
         lineHeight: 1.55,
       }}
@@ -145,6 +145,13 @@ export function LessonDetail({ day, onBack }: { day: number; onBack?: () => void
   const bookmarks = useBookmarks();
   const bookmarkId = lessonBookmarkId(day);
   const bookmarked = Boolean(bookmarks[bookmarkId]);
+  const [fontScale, setFontScaleState] = useState<FontScale>(() => getFontScale());
+
+  function cycleFontScale() {
+    const next = (fontScale === 4 ? 1 : ((fontScale + 1) as FontScale));
+    setFontScaleState(next);
+    setFontScale(next);
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -196,6 +203,33 @@ export function LessonDetail({ day, onBack }: { day: number; onBack?: () => void
           ‹ Lessons
         </button>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <button
+            type="button"
+            onClick={cycleFontScale}
+            aria-label={`Text size ${fontScale}×. Tap to change.`}
+            title="Change text size"
+            style={{
+              border: `1px solid ${fontScale > 1 ? warm.terra : warm.line}`,
+              background: fontScale > 1 ? '#F4DDD0' : 'transparent',
+              color: fontScale > 1 ? warm.terraDeep : warm.muted,
+              fontSize: 11,
+              fontWeight: 700,
+              minWidth: 28,
+              height: 28,
+              borderRadius: 999,
+              cursor: 'pointer',
+              padding: '0 8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 2,
+            }}
+          >
+            <span aria-hidden style={{ fontSize: 13 }}>
+              Aa
+            </span>
+            {fontScale > 1 && <span aria-hidden>{fontScale}×</span>}
+          </button>
           <button
             type="button"
             onClick={() => setBookmark(bookmarkId, !bookmarked)}
@@ -281,7 +315,7 @@ export function LessonDetail({ day, onBack }: { day: number; onBack?: () => void
 
         {state.status === 'ready' && (
           <>
-            <LessonBody blocks={state.content.blocks} />
+            <LessonBody blocks={state.content.blocks} scale={fontScale} />
             {hasSourceDoc(meta.book) && (
               <>
                 <a
@@ -315,7 +349,7 @@ export function LessonDetail({ day, onBack }: { day: number; onBack?: () => void
   );
 }
 
-function LessonBody({ blocks }: { blocks: Block[] }) {
+function LessonBody({ blocks, scale }: { blocks: Block[]; scale: number }) {
   return (
     <div>
       {blocks.map((b, i) => {
@@ -325,7 +359,7 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
             const nlIndex = stripped.indexOf('\n');
             const title = nlIndex >= 0 ? stripped.slice(0, nlIndex) : null;
             const body = nlIndex >= 0 ? stripped.slice(nlIndex + 1) : stripped;
-            return <CalloutBox key={i} title={title} body={body} />;
+            return <CalloutBox key={i} title={title} body={body} scale={scale} />;
           }
           case 'h1':
             return (
@@ -333,7 +367,7 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
                 key={i}
                 style={{
                   fontFamily: font.head,
-                  fontSize: 16,
+                  fontSize: 16 * scale,
                   fontWeight: 800,
                   color: warm.terra,
                   marginTop: i === 0 ? 0 : 20,
@@ -348,7 +382,7 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
               <div
                 key={i}
                 style={{
-                  fontSize: 13,
+                  fontSize: 13 * scale,
                   fontWeight: 700,
                   color: warm.ink,
                   marginTop: 12,
@@ -377,8 +411,8 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
                     marginBottom: 2,
                   }}
                 >
-                  <span style={{ fontWeight: 800, color: chipTone.terra.fg, fontSize: 11.5 }}>Q</span>
-                  <span style={{ flex: 1, fontSize: 12.5, fontWeight: 700, color: chipTone.terra.fg, lineHeight: 1.5 }}>
+                  <span style={{ fontWeight: 800, color: chipTone.terra.fg, fontSize: 11.5 * scale }}>Q</span>
+                  <span style={{ flex: 1, fontSize: 12.5 * scale, fontWeight: 700, color: chipTone.terra.fg, lineHeight: 1.5 }}>
                     {b.text.slice(qMatch[0].length)}
                   </span>
                 </div>
@@ -403,10 +437,10 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
                   marginBottom: 3,
                 }}
               >
-                <span aria-hidden style={{ color: warm.terra, fontSize: 12, lineHeight: 1.6 }}>
+                <span aria-hidden style={{ color: warm.terra, fontSize: 12 * scale, lineHeight: 1.6 }}>
                   ·
                 </span>
-                <div style={{ flex: 1, fontSize: 12.5, color: warm.ink2, lineHeight: 1.55 }}>
+                <div style={{ flex: 1, fontSize: 12.5 * scale, color: warm.ink2, lineHeight: 1.55 }}>
                   {parsed ? (
                     <>
                       {parsed.intro && <div style={{ whiteSpace: 'pre-wrap', marginBottom: 4 }}>{parsed.intro}</div>}
@@ -458,7 +492,7 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
                 return (
                   <div key={i}>
                     {shape.cards.map((c, ci) => (
-                      <CalloutBox key={ci} title={c.title} body={c.body} />
+                      <CalloutBox key={ci} title={c.title} body={c.body} scale={scale} />
                     ))}
                   </div>
                 );
@@ -466,15 +500,15 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
               // A single title + body pair authored as a 2-row table — same
               // shape as a callout block, so render it identically.
               if (shape?.kind === 'titleBody') {
-                return <CalloutBox key={i} title={shape.title} body={shape.body} />;
+                return <CalloutBox key={i} title={shape.title} body={shape.body} scale={scale} />;
               }
             }
 
             return (
               <div key={i} style={{ marginBottom: 12 }}>
-                {dup && <CalloutBox title={null} body={dup.caption} />}
+                {dup && <CalloutBox title={null} body={dup.caption} scale={scale} />}
                 <div style={{ overflowX: 'auto' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11.5 }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11.5 * scale }}>
                     <tbody>
                       {dataRows.map((row, ri) => (
                         <tr key={ri} style={{ borderBottom: `1px solid ${warm.line}` }}>
@@ -535,7 +569,7 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
                     borderRadius: 10,
                     padding: '8px 10px',
                     marginBottom: 12,
-                    fontSize: 12.5,
+                    fontSize: 12.5 * scale,
                     color: chipTone.sage.fg,
                     lineHeight: 1.6,
                   }}
@@ -546,7 +580,7 @@ function LessonBody({ blocks }: { blocks: Block[] }) {
               );
             }
             return (
-              <div key={i} style={{ fontSize: 12.5, color: warm.ink2, lineHeight: 1.6, marginBottom: 8 }}>
+              <div key={i} style={{ fontSize: 12.5 * scale, color: warm.ink2, lineHeight: 1.6, marginBottom: 8 }}>
                 {content}
               </div>
             );

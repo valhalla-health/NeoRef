@@ -216,6 +216,21 @@ export function isBookmarked(id: string): boolean {
   return Boolean(getBookmarks()[id]);
 }
 
+// ─── Lesson font scale: 1 (normal) | 2 | 3 | 4 — reading zoom level ────────
+export type FontScale = 1 | 2 | 3 | 4;
+
+function isFontScale(x: unknown): x is FontScale {
+  return x === 1 || x === 2 || x === 3 || x === 4;
+}
+
+export function getFontScale(): FontScale {
+  return read<FontScale>('lesson-font-scale', 1, isFontScale);
+}
+
+export function setFontScale(scale: FontScale): void {
+  write('lesson-font-scale', scale);
+}
+
 // ─── Tool usage: { [calcId: string]: ISO timestamp of first open } ────────
 export type ToolUsageMap = Record<string, string>;
 
