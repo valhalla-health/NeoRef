@@ -34,6 +34,12 @@ const KCMH_DOCS = [
     file: 'eos-flow-cu.pdf',
   },
   {
+    id: 'eos-antibiotic-overuse',
+    title: 'Antibiotic overuse in neonatal EOS',
+    caption: 'Peeraporn Pongsupamongkol, M.D. — CUPA 2026',
+    file: 'eos-antibiotic-overuse-cupa-2026.pdf',
+  },
+  {
     id: 'practical-points',
     title: 'Practical points for newborn nurture',
     caption: 'Anongnart Sirisabya, M.D.',

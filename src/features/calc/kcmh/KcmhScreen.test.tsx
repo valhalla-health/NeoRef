@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { KcmhScreen } from './KcmhScreen';
 
 describe('KcmhScreen', () => {
-  it('lists all 4 documents linking to their static files', () => {
+  it('lists all 5 documents linking to their static files', () => {
     render(<KcmhScreen />);
 
     expect(screen.getByRole('link', { name: /Hypoglycemia/ })).toHaveAttribute(
@@ -15,6 +15,10 @@ describe('KcmhScreen', () => {
       './kcmh/neonatal-jaundice-flow-ipd.pdf',
     );
     expect(screen.getByRole('link', { name: /^EOS/ })).toHaveAttribute('href', './kcmh/eos-flow-cu.pdf');
+    expect(screen.getByRole('link', { name: /Antibiotic overuse in neonatal EOS/ })).toHaveAttribute(
+      'href',
+      './kcmh/eos-antibiotic-overuse-cupa-2026.pdf',
+    );
     expect(screen.getByRole('link', { name: /Practical points for newborn nurture/ })).toHaveAttribute(
       'href',
       './kcmh/practical-points-newborn-nurture-2025.pdf',
