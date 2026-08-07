@@ -168,7 +168,7 @@ function PDAEcho() {
 function PDATreat() {
   return (
     <Fragment>
-      <SectionLabel>TREATMENT STRATEGY · 2024 paradigm</SectionLabel>
+      <SectionLabel>TREATMENT STRATEGY · 2026 paradigm</SectionLabel>
       <div style={{ display: 'grid', gap: 6, marginBottom: 14 }}>
         <AlgoStep
           n={1}
@@ -176,7 +176,11 @@ function PDATreat() {
           body="Fluid restriction (120–140 mL/kg/d) · diuretics PRN · permissive hypercapnia · optimize ventilator"
           highlight
         />
-        <AlgoStep n={2} title="Pharmacologic closure" body="พิจารณาในกรณี hsPDA + clinical deterioration · ดู Drugs tab" />
+        <AlgoStep
+          n={2}
+          title="Selective pharmacologic closure"
+          body="ไม่ใช่ทุก hsPDA ต้อง treat — grade severity (clinical + echo) ก่อน · treat เฉพาะ moderate–severe shunt · ดู Drugs tab"
+        />
         <AlgoStep n={3} title="Surgical / transcatheter" body="ถ้า medical failure + ongoing hsPDA · Piccolo device preferred ในศูนย์ experienced" />
       </div>
 
@@ -224,6 +228,28 @@ function PDATreat() {
           { l: 'Win ratio vs control', v: '1.34', t: '85% prob. benefit' },
         ]}
       />
+
+      <SectionLabel>SMART-PDA SHUNT GRADE · selective algorithm</SectionLabel>
+      <Criteria
+        rows={[
+          { l: 'Mild', v: 'PDA <1.5 mm · LA:Ao <1.5', t: 'observe' },
+          { l: 'Moderate', v: 'PDA 1.5–2.5 mm · LA:Ao 1.5–2.0', t: 'treat if mod+mod' },
+          { l: 'Severe', v: 'PDA >2.5 mm · LA:Ao >2.0', t: 'treat ทุก clinical stage' },
+        ]}
+      />
+      <div
+        style={{
+          fontSize: 11,
+          color: warm.ink2,
+          lineHeight: 1.5,
+          marginTop: -4,
+          marginBottom: 12,
+        }}
+      >
+        หมายเหตุ: grading นี้ใช้ PDA diameter <strong>absolute (mm)</strong> ต่างจาก hsPDA
+        criteria ใน Echo tab ที่ index ตามน้ำหนัก (&gt;1.5 mm/kg) — คนละ scoring system อย่าสลับกัน.
+      </div>
+
       <Pearl tone="warn">
         SMART-PDA is a <strong>feasibility pilot</strong>, not powered for efficacy — the win
         ratio&apos;s 95% credible interval (0.73–2.5) crosses 1. Hypothesis-generating, not yet
