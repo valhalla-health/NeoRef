@@ -45,6 +45,12 @@ const KCMH_DOCS = [
     caption: 'Anongnart Sirisabya, M.D.',
     file: 'practical-points-newborn-nurture-2025.pdf',
   },
+  {
+    id: 'preterm-feeding',
+    title: 'Preterm feeding',
+    caption: 'Peeraporn Pongsupamongkol, M.D.',
+    file: 'preterm-feeding-2025.pdf',
+  },
 ] as const;
 
 export function KcmhScreen() {
