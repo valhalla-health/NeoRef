@@ -139,7 +139,7 @@ export function LessonDetail({ day, onBack }: { day: number; onBack?: () => void
   const [fontScale, setFontScaleState] = useState<FontScale>(() => getFontScale());
 
   function cycleFontScale() {
-    const next = (fontScale === 4 ? 1 : ((fontScale + 1) as FontScale));
+    const next = (fontScale === 2.5 ? 1 : ((fontScale + 0.5) as FontScale));
     setFontScaleState(next);
     setFontScale(next);
   }

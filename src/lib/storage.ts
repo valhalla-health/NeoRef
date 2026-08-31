@@ -216,11 +216,11 @@ export function isBookmarked(id: string): boolean {
   return Boolean(getBookmarks()[id]);
 }
 
-// ─── Lesson font scale: 1 (normal) | 2 | 3 | 4 — reading zoom level ────────
-export type FontScale = 1 | 2 | 3 | 4;
+// ─── Lesson font scale: 1 (normal) | 1.5 | 2 | 2.5 — reading zoom level ────
+export type FontScale = 1 | 1.5 | 2 | 2.5;
 
 function isFontScale(x: unknown): x is FontScale {
-  return x === 1 || x === 2 || x === 3 || x === 4;
+  return x === 1 || x === 1.5 || x === 2 || x === 2.5;
 }
 
 export function getFontScale(): FontScale {

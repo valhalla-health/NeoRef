@@ -95,7 +95,7 @@ describe('<LessonDetail />', () => {
     expect(isBookmarked('lesson-1')).toBe(false);
   });
 
-  it('cycles the text-size zoom through 2x/3x/4x back to normal and persists it', async () => {
+  it('cycles the text-size zoom through 1.5x/2x/2.5x back to normal and persists it', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve(SAMPLE_CONTENT) }),
@@ -109,19 +109,19 @@ describe('<LessonDetail />', () => {
     const baseFontSize = getComputedStyle(bulletText.parentElement!).fontSize;
 
     await user.click(zoomButton);
-    expect(screen.getByRole('button', { name: /Text size 2×/i })).toBeInTheDocument();
-    expect(getFontScale()).toBe(2);
+    expect(screen.getByRole('button', { name: /Text size 1.5×/i })).toBeInTheDocument();
+    expect(getFontScale()).toBe(1.5);
     expect(getComputedStyle(bulletText.parentElement!).fontSize).not.toBe(baseFontSize);
 
+    await user.click(screen.getByRole('button', { name: /Text size 1.5×/i }));
+    expect(screen.getByRole('button', { name: /Text size 2×/i })).toBeInTheDocument();
+    expect(getFontScale()).toBe(2);
+
     await user.click(screen.getByRole('button', { name: /Text size 2×/i }));
-    expect(screen.getByRole('button', { name: /Text size 3×/i })).toBeInTheDocument();
-    expect(getFontScale()).toBe(3);
+    expect(screen.getByRole('button', { name: /Text size 2.5×/i })).toBeInTheDocument();
+    expect(getFontScale()).toBe(2.5);
 
-    await user.click(screen.getByRole('button', { name: /Text size 3×/i }));
-    expect(screen.getByRole('button', { name: /Text size 4×/i })).toBeInTheDocument();
-    expect(getFontScale()).toBe(4);
-
-    await user.click(screen.getByRole('button', { name: /Text size 4×/i }));
+    await user.click(screen.getByRole('button', { name: /Text size 2.5×/i }));
     expect(screen.getByRole('button', { name: /Text size 1×/i })).toBeInTheDocument();
     expect(getFontScale()).toBe(1);
   });
