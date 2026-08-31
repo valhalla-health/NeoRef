@@ -5,16 +5,7 @@
 import { useEffect, useState } from 'react';
 import { warm, font, chipTone } from '../../theme/tokens';
 import { DisclaimerBanner } from '../../components/Disclaimer';
-import {
-  lessonForDay,
-  lessonPath,
-  lessonImagePath,
-  LESSON_SOURCE_FOLDER_URL,
-  bookLabel,
-  lessonSourceHint,
-  lessonAttribution,
-  hasSourceDoc,
-} from '../../data/lessons';
+import { lessonForDay, lessonPath, lessonImagePath, bookLabel, lessonAttribution } from '../../data/lessons';
 import { useProgress } from '../../lib/useProgress';
 import { setLessonDone } from '../../lib/progress';
 import { useBookmarks } from '../../lib/useBookmarks';
@@ -313,37 +304,7 @@ export function LessonDetail({ day, onBack }: { day: number; onBack?: () => void
           </div>
         )}
 
-        {state.status === 'ready' && (
-          <>
-            <LessonBody blocks={state.content.blocks} scale={fontScale} />
-            {hasSourceDoc(meta.book) && (
-              <>
-                <a
-                  href={LESSON_SOURCE_FOLDER_URL}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  style={{
-                    display: 'block',
-                    textAlign: 'center',
-                    marginTop: 16,
-                    padding: '11px 14px',
-                    borderRadius: 10,
-                    background: warm.terra,
-                    color: '#fff',
-                    fontWeight: 700,
-                    fontSize: 13,
-                    textDecoration: 'none',
-                  }}
-                >
-                  Open original lesson document →
-                </a>
-                <div style={{ fontSize: 10.5, color: warm.muted, marginTop: 8, lineHeight: 1.4, textAlign: 'center' }}>
-                  Opens the shared OneDrive folder — look for &quot;{lessonSourceHint(meta)}&quot;.
-                </div>
-              </>
-            )}
-          </>
-        )}
+        {state.status === 'ready' && <LessonBody blocks={state.content.blocks} scale={fontScale} />}
       </div>
     </div>
   );
