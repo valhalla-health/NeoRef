@@ -28,6 +28,12 @@ interface AuthContextValue extends AuthState {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+/** Email addresses are case-insensitive in practice, and Google's own login
+ *  path supplies them lowercased — so normalise the typed one to match. */
+function normalizeEmail(email: string): string {
+  return email.trim().toLowerCase();
+}
+
 function initialState(): AuthState {
   const session = getSession();
   return session ? { status: 'signed-in', user: session } : { status: 'signed-out', user: null };
@@ -64,7 +70,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loginWithPassword = useCallback(
     async (email: string, password: string) => {
       try {
-        return applyLoginResponse(await authApi.loginWithPassword(email, password));
+        // Mobile keyboards routinely hand us a trailing space (swipe/autocomplete)
+        // or a capitalised first letter, which an exact-match lookup on the
+        // backend rejects as a wrong address. The Google path never sees this —
+        // Google returns the address already normalised — so without this the
+        // same account signs in on the Google button but not with a password.
+        return applyLoginResponse(await authApi.loginWithPassword(normalizeEmail(email), password));
       } catch {
         return 'ไม่สามารถเชื่อมต่อได้ — ตรวจสอบอินเทอร์เน็ต';
       }

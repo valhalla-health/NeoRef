@@ -21,17 +21,25 @@ export function LoginScreen() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [googleUnavailable, setGoogleUnavailable] = useState(false);
   const buttonRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (mode !== 'google' || !buttonRef.current) return;
-    return initGoogleSignIn(buttonRef.current, async (jwt) => {
-      setBusy(true);
-      setError(null);
-      const err = await loginWithGoogle(jwt);
-      if (err) setError(err);
-      setBusy(false);
-    });
+    setGoogleUnavailable(false);
+    return initGoogleSignIn(
+      buttonRef.current,
+      async (jwt) => {
+        setBusy(true);
+        setError(null);
+        const err = await loginWithGoogle(jwt);
+        if (err) setError(err);
+        setBusy(false);
+      },
+      // Offline, blocked, or a connection too slow to deliver the GIS script —
+      // without this the user just sees an empty gap where the button belongs.
+      () => setGoogleUnavailable(true),
+    );
   }, [mode, loginWithGoogle]);
 
   async function submitPassword(e: FormEvent) {
@@ -113,6 +121,20 @@ export function LoginScreen() {
               pointerEvents: busy ? 'none' : 'auto',
             }}
           />
+          {googleUnavailable && (
+            <div
+              role="status"
+              style={{
+                color: warm.muted,
+                fontSize: 12,
+                lineHeight: 1.5,
+                textAlign: 'center',
+                marginTop: 12,
+              }}
+            >
+              ไม่สามารถโหลด Google Sign-In ได้ — ตรวจสอบอินเทอร์เน็ต หรือเข้าสู่ระบบด้วยอีเมลและรหัสผ่าน
+            </div>
+          )}
           <button
             type="button"
             onClick={() => {
@@ -138,6 +160,13 @@ export function LoginScreen() {
             type="email"
             required
             placeholder="Email"
+            // Lets iOS/Android password managers offer the saved credential, and
+            // stops mobile keyboards autocapitalising/autocorrecting the address.
+            autoComplete="username"
+            inputMode="email"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={busy}
@@ -147,6 +176,7 @@ export function LoginScreen() {
             type="password"
             required
             placeholder="Password"
+            autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={busy}
