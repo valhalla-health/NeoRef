@@ -16,17 +16,25 @@ worth checking by hand.
 this priority order:
 
 1. **Explicit numbering** — `"(1) foo; (2) bar; (3) baz"` → one line per item.
-2. **Semicolon clauses** — `"foo; Bar; Baz"` (semicolon + letter, not a
+2. **Middle dots** — `"foo · Bar · Baz"` (spaces both sides) → one line per
+   clause. This is the separator the Sep-2026 rewrite of the series uses
+   throughout, so it is tried before the semicolon/period tiers below.
+3. **Semicolon clauses** — `"foo; Bar; Baz"` (semicolon + letter, not a
    citation like `"Pediatrics 2010;126:585"`) → one line per clause.
-3. **Sentence boundaries** — `"Foo. Bar. Baz."` (guards decimals like `0.5 mL`
+4. **Sentence boundaries** — `"Foo. Bar. Baz."` (guards decimals like `0.5 mL`
    and `et al.` citations) → one line per sentence.
-4. **Em dashes** — `"Foo — Bar"` → one line per clause.
+5. **Em dashes** — `"Foo — Bar"` → one line per clause.
 
 It also normalizes two table shapes so they render as proper cards instead of
 a one-column table where only the first row looked styled:
 
 - A **2-row, single-column table** (title + body) → rendered exactly like a
   `callout` block.
+- A **single-column table of 3+ single-line rows** (a boxed list: heading row,
+  then one criterion per row — "Box 11.2 — ...", "Causes of hypovolemia
+  (Box 33.1)") → one callout whose rows are its bullets. A single-column table
+  that *mixes* line-broken and single-line rows matches neither shape and is
+  reported by the test below, on purpose.
 - A **run of 3+ single-column rows, each containing a real line break**
   (e.g. "5 Bedside Pearls", each row `"PEARL 1 — ...\nBody text"`) → each row
   rendered as its own callout card.
@@ -51,12 +59,12 @@ bullets. You don't need to manually add `(1)(2)(3)` markers.
    - any block throws while being split (a malformed/pathological string).
    It also prints a coverage line — `dense blocks: N, auto-split: M (X%)` —
    so you can see at a glance whether the new content is behaving like the
-   rest of the corpus (currently ~90%). A sudden drop for a new lesson usually
-   means it's written with a delimiter style the four tiers above don't
+   rest of the corpus (currently ~81%). A sudden drop for a new lesson usually
+   means it's written with a delimiter style the five tiers above don't
    recognize (e.g. bullet characters baked into the text itself, or a
    language/script mix the regexes don't cover) — open the rendered lesson and
    look at what's left as one paragraph before deciding whether to add a
-   fifth tier or leave it (short single-clause citations are expected to stay
+   another tier or leave it (short single-clause citations are expected to stay
    as one line — that's fine).
 2. If you regenerate JSON via `scripts/extract_lessons.py` from updated source
    `.docx` files, skim any table with a caption/note row spanning multiple
@@ -64,7 +72,7 @@ bullets. You don't need to manually add `(1)(2)(3)` markers.
 3. Actually open the lesson in the app (`npm run dev`) and scroll through it
    once. The automated checks catch structural regressions, not "does this
    read well" — that's still a human judgment call, especially for content
-   the four splitting tiers correctly leave alone (short prose, single
+   the splitting tiers correctly leave alone (short prose, single
    citations) but that might still be awkward for other reasons (e.g. a
    genuinely too-long single sentence with no natural break point at all).
 

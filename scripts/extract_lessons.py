@@ -22,38 +22,39 @@ from docx.oxml.ns import qn
 
 from lesson_keywords import candidate_counts, top_keywords
 
+# Source files are named per book and chapter ("Avery Ch01 - Title.docx"), each
+# book's chapters living flat in the source dir. Older Day-numbered filenames
+# ("Day 01 - Avery Ch01 Title.docx") were retired in Sep 2026 when the series
+# was renumbered by chapter; any left in the source dir are superseded copies
+# and are deliberately not matched here (they show up in the skipped list).
 FILENAME_RE = re.compile(
-    r"^Day\s+(\d+)\s*[-–]?\s*(Avery|Fanaroff)\s+Ch(\d+)\s+(.+)$"
+    r"^(Avery|Fanaroff|Newborn Lung)\s+Ch0*(\d+)\s*[-–]\s*(.+)$"
 )
 
-# "The Newborn Lung" series is numbered independently (NL Day 01-22) in its own
-# subfolder. It continues the unified curriculum day count after Fanaroff ends
-# at Day 200, so NL Day NN maps to app day 200+NN (22 chapters -> Days 201-222).
-NL_FILENAME_RE = re.compile(
-    r"^NL Day\s+(\d+)\s*[-–]?\s*The Newborn Lung\s+Ch(\d+)\s+(.+)$"
-)
+BOOK_KEY = {"Avery": "Avery", "Fanaroff": "Fanaroff", "Newborn Lung": "NewbornLung"}
+
+# The app lays the three series end to end on one curriculum day counter, so a
+# book's chapter number is offset by however many days the books before it
+# occupy: Avery Ch1-97 -> Days 1-97, Fanaroff Ch1-103 -> Days 98-200, The
+# Newborn Lung Ch1-22 -> Days 201-222. (Pimolrat Ch1-24 -> Days 223-246 is
+# appended afterwards by extract_pimolrat.py.) Keep these offsets stable —
+# readers' progress and bookmarks are stored by day number.
+BOOK_DAY_OFFSET = {"Avery": 0, "Fanaroff": 97, "NewbornLung": 200}
 
 
 def parse_filename(stem):
     m = FILENAME_RE.match(stem)
-    if m:
-        day, book, chapter, title = m.groups()
-        return {
-            "day": int(day),
-            "book": book,
-            "chapter": int(chapter),
-            "titleFromFilename": title.strip(),
-        }
-    m = NL_FILENAME_RE.match(stem)
-    if m:
-        nl_day, chapter, title = m.groups()
-        return {
-            "day": 200 + int(nl_day),
-            "book": "NewbornLung",
-            "chapter": int(chapter),
-            "titleFromFilename": title.strip(),
-        }
-    return None
+    if m is None:
+        return None
+    book_name, chapter, title = m.groups()
+    book = BOOK_KEY[book_name]
+    chapter = int(chapter)
+    return {
+        "day": BOOK_DAY_OFFSET[book] + chapter,
+        "book": book,
+        "chapter": chapter,
+        "titleFromFilename": title.strip(),
+    }
 
 
 def cell_text(cell):
@@ -136,10 +137,10 @@ def main():
     index = []
     skipped = []
 
-    nl_dir = src_dir / "Newborn Lung Lessons"
-    docx_paths = sorted(src_dir.glob("*.docx")) + (
-        sorted(nl_dir.glob("*.docx")) if nl_dir.is_dir() else []
-    )
+    # Top level only: the source dir also holds archive/superseded subfolders
+    # ("Avery Lessons", "_archive (old Day-numbered)", ...) whose contents must
+    # not be picked up.
+    docx_paths = sorted(src_dir.glob("*.docx"))
 
     for path in docx_paths:
         if path.name.startswith("~$"):
