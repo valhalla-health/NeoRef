@@ -25,6 +25,49 @@ afterEach(() => {
 });
 
 describe('<LessonDetail />', () => {
+  it('renders a boxed-list table as one callout with a bullet per row, and splits middle-dot prose', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            ...SAMPLE_CONTENT,
+            blocks: [
+              {
+                type: 'table',
+                rows: [
+                  ['Causes of hypovolemia (Box 33.1)'],
+                  ['Decreased blood return from the placenta'],
+                  ['Hemorrhage from the fetal side of the placenta'],
+                  ['Incision through the placenta at cesarean delivery'],
+                ],
+              },
+              {
+                type: 'p',
+                text:
+                  'Perinatal period: long lead clause describing the definition in use here · WHO (2004) moved the start to 22 weeks of gestation · this chapter uses the second half of pregnancy',
+              },
+            ],
+          }),
+      }),
+    );
+
+    render(<LessonDetail day={1} />);
+
+    // Boxed list: the heading row becomes the callout's title, the rest bullets -
+    // not a one-column table where only the first row looked styled.
+    await waitFor(() =>
+      expect(screen.getByText('Causes of hypovolemia (Box 33.1)')).toBeInTheDocument(),
+    );
+    expect(screen.getByText('Decreased blood return from the placenta')).toBeInTheDocument();
+    expect(screen.getByText('Incision through the placenta at cesarean delivery')).toBeInTheDocument();
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+
+    // Middle-dot prose is split into one line per clause.
+    expect(screen.getByText('WHO (2004) moved the start to 22 weeks of gestation')).toBeInTheDocument();
+  });
+
   it('shows a loading state, then renders fetched lesson content', async () => {
     vi.stubGlobal(
       'fetch',

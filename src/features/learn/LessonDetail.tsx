@@ -93,9 +93,21 @@ function ArrowChainSteps({ steps, accent, textColor }: { steps: string[]; accent
 // `callout` blocks, but also `table` blocks that were authored the same way
 // (a 2-row single-column table, or a run of "Pearl" cards) — see the `table`
 // case below.
-function CalloutBox({ title, body, scale }: { title: string | null; body: string; scale: number }) {
-  const parsed = splitNumberedList(body);
-  const prose = parsed ? null : splitDenseProse(body);
+// `items` carries rows that are already one bullet each (a boxed-list table);
+// `body` is prose the splitters below try to break into bullets themselves.
+function CalloutBox({
+  title,
+  body = '',
+  items,
+  scale,
+}: {
+  title: string | null;
+  body?: string;
+  items?: string[];
+  scale: number;
+}) {
+  const parsed = items ? null : splitNumberedList(body);
+  const prose = items ?? (parsed ? null : splitDenseProse(body));
   const chain = parsed || prose ? null : splitArrowChain(body);
   return (
     <div
@@ -462,6 +474,14 @@ function LessonBody({ blocks, scale }: { blocks: Block[]; scale: number }) {
               // shape as a callout block, so render it identically.
               if (shape?.kind === 'titleBody') {
                 return <CalloutBox key={i} title={shape.title} body={shape.body} scale={scale} />;
+              }
+              // A heading row followed by one short criterion per row (the
+              // textbooks' boxed lists) — the rows are the bullets, so skip the
+              // dense-text splitters and render them as given.
+              if (shape?.kind === 'titleList') {
+                return (
+                  <CalloutBox key={i} title={shape.title} items={shape.items} scale={scale} />
+                );
               }
             }
 

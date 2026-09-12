@@ -48,15 +48,22 @@ export function splitNumberedList(body: string): NumberedList | null {
 
 // Most dense text has no explicit "(1)...(2)..." numbering at all — it's just
 // several clauses/sentences run together. Fall back through progressively
-// looser separators (semicolons, then sentence-ending periods, then em dashes)
-// to still break it into scannable lines. Each guard below exists because it
-// caught a real false-positive in the lesson corpus:
+// looser separators (middle dots, then semicolons, then sentence-ending
+// periods, then em dashes) to still break it into scannable lines. Each guard
+// below exists because it caught a real false-positive in the lesson corpus:
 //  - a semicolon immediately followed by a digit is a citation ("Pediatrics
 //    2010;126:585"), not a list separator, so it requires a following letter.
 //  - a period immediately touching a digit on either side is a decimal/dose
 //    ("0.5 mL"), not a sentence end.
 //  - "et al." is the single biggest source of false sentence breaks (citations
 //    like "Anand KJ et al. Lancet 2004") — explicitly excluded.
+// The Sep-2026 rewrite of the series separates clauses with a spaced middle
+// dot ("Perinatal period: เดิม 28 wk · WHO (2004) เลื่อนเริ่มเป็น 22 wk · ...")
+// rather than the semicolons/periods the earlier drafts used, so it gets its
+// own tier — tried first, because where a block has both, the dot is the
+// author's top-level separator and the semicolons sit inside its clauses.
+// Spaces on both sides are required so a dot used inside a term is left alone.
+const MIDDOT_SPLIT_RE = /\s+·\s+/;
 const SEMI_SPLIT_RE = /;\s+(?=[A-Za-zก-๙])/;
 const SENTENCE_BOUNDARY_RE = /(?<!\d)\.(?!\d)\s+(?=[A-Zก-๙])/g;
 const DASH_SPLIT_RE = /\s+—\s+/;
@@ -78,6 +85,11 @@ function splitOnSentences(body: string): string[] {
 
 export function splitDenseProse(body: string): string[] | null {
   if (body.includes('\n') || body.length <= 150) return null;
+  const byMiddot = body
+    .split(MIDDOT_SPLIT_RE)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (byMiddot.length >= 2) return byMiddot;
   const bySemi = body
     .split(SEMI_SPLIT_RE)
     .map((s) => s.trim())
@@ -131,12 +143,15 @@ export function extractDuplicateCaption(rows: string[][]): DuplicateCaptionTable
 
 export type SingleColumnTableShape =
   | { kind: 'pearlCards'; cards: { title: string; body: string }[] }
-  | { kind: 'titleBody'; title: string; body: string };
+  | { kind: 'titleBody'; title: string; body: string }
+  | { kind: 'titleList'; title: string; items: string[] };
 
-// Single-column tables in this corpus are always one of two shapes: a run of
-// self-contained "title\nbody" rows (e.g. "5 Bedside Pearls" cards) or a lone
-// title + body pair authored as a 2-row table instead of a `callout` block.
-// Both render identically to a callout box.
+// Single-column tables in this corpus are one of three shapes: a run of
+// self-contained "title\nbody" rows (e.g. "5 Bedside Pearls" cards), a lone
+// title + body pair authored as a 2-row table instead of a `callout` block,
+// or a heading row followed by one short criterion per row (the textbooks'
+// boxed lists: "Box 11.2 ...", "Causes of hypovolemia (Box 33.1)"). All
+// three render as a callout box; the last gets its rows as bullets.
 export function classifySingleColumnTable(cells: string[]): SingleColumnTableShape | null {
   if (cells.length >= 3 && cells.every((c) => c.includes('\n'))) {
     return {
@@ -149,6 +164,12 @@ export function classifySingleColumnTable(cells: string[]): SingleColumnTableSha
   }
   if (cells.length === 2) {
     return { kind: 'titleBody', title: cells[0], body: cells[1] };
+  }
+  // Every row a single self-contained line: a boxed list. A table that mixes
+  // line-broken and single-line rows is neither shape and stays unclassified,
+  // so lessonContentRules.test.ts still flags it for a look.
+  if (cells.length >= 3 && cells.every((c) => !c.includes('\n'))) {
+    return { kind: 'titleList', title: cells[0], items: cells.slice(1) };
   }
   return null;
 }

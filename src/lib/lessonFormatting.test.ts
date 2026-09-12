@@ -56,6 +56,23 @@ describe('splitDenseProse', () => {
     expect(splitDenseProse('Too short to bother splitting.')).toBeNull();
   });
 
+  it('splits on spaced middle dots, the separator the current series uses', () => {
+    const body =
+      'Perinatal period: long lead clause describing the definition in use here · WHO (2004) moved the start to 22 weeks of gestation · this chapter uses the second half of pregnancy through the first month';
+    const result = splitDenseProse(body);
+    expect(result).not.toBeNull();
+    expect(result!.length).toBe(3);
+    expect(result![1]).toBe('WHO (2004) moved the start to 22 weeks of gestation');
+  });
+
+  it('prefers middle dots over semicolons sitting inside a clause', () => {
+    const body =
+      'First top-level clause with an inner aside; which is only part of it · second top-level clause carrying the rest of the point across the length threshold';
+    const result = splitDenseProse(body);
+    expect(result!.length).toBe(2);
+    expect(result![0]).toContain('inner aside; which is only part of it');
+  });
+
   it('splits on semicolons followed by a letter, not citation-style semicolons', () => {
     const body =
       'Long lead sentence describing something clinically relevant in detail; second clause with more detail added here; third clause wrapping up the point with extra padding text.';
@@ -183,8 +200,28 @@ describe('classifySingleColumnTable', () => {
     }
   });
 
+  it('recognizes a heading row followed by one criterion per row', () => {
+    const shape = classifySingleColumnTable([
+      'Causes of hypovolemia (Box 33.1)',
+      'Decreased blood return from the placenta',
+      'Hemorrhage from the fetal side of the placenta',
+      'Incision through the placenta at cesarean delivery',
+    ]);
+    expect(shape?.kind).toBe('titleList');
+    if (shape?.kind === 'titleList') {
+      expect(shape.title).toBe('Causes of hypovolemia (Box 33.1)');
+      expect(shape.items).toEqual([
+        'Decreased blood return from the placenta',
+        'Hemorrhage from the fetal side of the placenta',
+        'Incision through the placenta at cesarean delivery',
+      ]);
+    }
+  });
+
   it('returns null for unrecognized shapes', () => {
     expect(classifySingleColumnTable(['Only one cell'])).toBeNull();
-    expect(classifySingleColumnTable(['a', 'b', 'c', 'd'])).toBeNull();
+    // Mixed: some rows line-broken, some not — neither a pearl-card run nor
+    // a boxed list, so it stays unclassified for a human to look at.
+    expect(classifySingleColumnTable(['a\nbody', 'b', 'c'])).toBeNull();
   });
 });
