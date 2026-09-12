@@ -98,7 +98,7 @@
   "day": 6,
   "book": "Avery",
   "chapter": 6,
-  "title": "Prematurity and Stillbirth",
+  "title": "Prematurity and Stillbirth: Causes and Prevention",
   "authors": "Julia Johnson & Maneesh Batra",
   "keywords": [
    "SES",
@@ -193,7 +193,7 @@
   "day": 11,
   "book": "Avery",
   "chapter": 11,
-  "title": "Intrauterine Drug Exposure Fetal and Postnatal Effects",
+  "title": "Intrauterine Drug Exposure: Fetal and Postnatal Effects",
   "authors": "Gerri R. Baer, Rachana Singh & Jonathan M. Davis",
   "keywords": [
    "NAS",
@@ -212,7 +212,7 @@
   "day": 12,
   "book": "Avery",
   "chapter": 12,
-  "title": "Assessment of Fetal Well Being",
+  "title": "Assessment of Fetal Well-Being",
   "authors": "Christian M. Pettker & Katherine H. Campbell",
   "keywords": [
    "BPP",
@@ -269,7 +269,7 @@
   "day": 15,
   "book": "Avery",
   "chapter": 15,
-  "title": "Perinatal Transition and Resuscitation",
+  "title": "Perinatal Transition and Newborn Resuscitation",
   "authors": "Noorjahan Ali & Taylor Sawyer",
   "keywords": [
    "LMA",
@@ -364,7 +364,7 @@
   "day": 20,
   "book": "Avery",
   "chapter": 20,
-  "title": "Fluid, Electrolyte, and Acid Base Balance",
+  "title": "Fluid, Electrolyte, and Acid-Base Balance",
   "authors": "Clyde J. Wright, Michael A. Posencheg & Istvan Seri",
   "keywords": [
    "ECF",
@@ -573,7 +573,7 @@
   "day": 31,
   "book": "Avery",
   "chapter": 31,
-  "title": "Congenital Disorders of Glycosylation, Peroxisomal Disorders, and Smith Lemli Opitz Syndrome",
+  "title": "Congenital Disorders of Glycosylation, Peroxisomal Disorders, and Smith-Lemli-Opitz Syndrome",
   "authors": "Janet A. Thomas & Christina Lam",
   "keywords": [
    "CDG",
@@ -611,7 +611,7 @@
   "day": 33,
   "book": "Avery",
   "chapter": 33,
-  "title": "Bacterial Sepsis and Meningitis",
+  "title": "Neonatal Bacterial Sepsis and Meningitis",
   "authors": "Gregory C. Valentine & Linda D. Wallen",
   "keywords": [
    "EOS",
@@ -1257,7 +1257,7 @@
   "day": 67,
   "book": "Avery",
   "chapter": 67,
-  "title": "Bleeding and Thrombotic Disorders",
+  "title": "Neonatal Bleeding and Thrombotic Disorders",
   "authors": "Matthew A. Saxonhouse & Ashley P. Hinson",
   "keywords": [
    "APTT",
@@ -1352,7 +1352,7 @@
   "day": 72,
   "book": "Avery",
   "chapter": 72,
-  "title": "Hyperbilirubinemia",
+  "title": "Neonatal Hyperbilirubinemia and Kernicterus",
   "authors": "W. Christopher Golden & Jon F. Watchko",
   "keywords": [
    "TSB",
@@ -1884,7 +1884,7 @@
   "day": 100,
   "book": "Fanaroff",
   "chapter": 3,
-  "title": "What We Can Learn From Neonatal Database Research",
+  "title": "Big Data for the Smallest Patients—What We Can Learn From Neonatal Database Research",
   "authors": "Veeral Nalin Tolia, Reese H. Clark, Karna Murthy",
   "keywords": [
    "SIP",
@@ -1922,7 +1922,7 @@
   "day": 102,
   "book": "Fanaroff",
   "chapter": 5,
-  "title": "Improving the Quality Safety and Equity of Neonatal Intensive Care",
+  "title": "Improving the Quality, Safety, and Equity of Neonatal Intensive Care for Infants and Families",
   "authors": "Jochen Profit, Jeffrey B. Gould, Michelle-Marie Peña, Kimberly Novod, Linda S. Franck, Danielle E.Y. Ehret, Jeffrey D. Horbar",
   "keywords": [
    "QI",
@@ -2207,7 +2207,7 @@
   "day": 117,
   "book": "Fanaroff",
   "chapter": 20,
-  "title": "Multiple Gestation",
+  "title": "Multiple Gestation — Fetal and Maternal Considerations",
   "authors": "Noa Ofek Shlomai, Smadar Eventov Friedman, Yuval Gielchinsky",
   "keywords": [
    "MC",
@@ -2397,7 +2397,7 @@
   "day": 127,
   "book": "Fanaroff",
   "chapter": 30,
-  "title": "Delivery Room Resuscitation",
+  "title": "Overview and Initial Management of Delivery Room Resuscitation",
   "authors": "Jay P. Goldsmith",
   "keywords": [
    "NRP",
@@ -2454,7 +2454,7 @@
   "day": 130,
   "book": "Fanaroff",
   "chapter": 33,
-  "title": "Chest Compression Medications and Special Problems in Neonatal Resuscitation",
+  "title": "Chest Compression, Medications, and Special Problems in Neonatal Resuscitation",
   "authors": "Vishal Kapadia, Myra H. Wyckoff",
   "keywords": [
    "ROSC",
@@ -2587,7 +2587,7 @@
   "day": 137,
   "book": "Fanaroff",
   "chapter": 40,
-  "title": "Care of Periviable Micropreemies The Japanese Perspective",
+  "title": "Care of Periviable Micropreemies: The Japanese Perspective",
   "authors": "Satoshi Kusuda, Kenichi Masumoto, Hidehiko Nakanishi",
   "keywords": [
    "LVEF",
@@ -3005,7 +3005,7 @@
   "day": 159,
   "book": "Fanaroff",
   "chapter": 62,
-  "title": "Early Childhood Neurodevelopmental Outcomes of High Risk Neonates",
+  "title": "Early Childhood Neurodevelopmental Outcomes of High-Risk Neonates",
   "authors": "Deanne E. Wilson-Costello, Allison H. Payne",
   "keywords": [
    "ADHD",
@@ -3119,7 +3119,7 @@
   "day": 165,
   "book": "Fanaroff",
   "chapter": 68,
-  "title": "Apnea Bradycardia Hypoxemia and the Foundation of Respiratory Control",
+  "title": "Apnea, Bradycardia, Hypoxemia, and the Foundation of Respiratory Control",
   "authors": "Mary Elaine Patrinos",
   "keywords": [
    "AOP",
@@ -3556,7 +3556,7 @@
   "day": 188,
   "book": "Fanaroff",
   "chapter": 91,
-  "title": "Disorders of Calcium, Phosphorus, and Magnesium Metabolism",
+  "title": "Disorders of Calcium, Phosphorus, and Magnesium Metabolism in the Neonate",
   "authors": "Steven A. Abrams & Dov Tiosano",
   "keywords": [
    "PTH",
@@ -3689,7 +3689,7 @@
   "day": 195,
   "book": "Fanaroff",
   "chapter": 98,
-  "title": "Skin of the Neonate",
+  "title": "The Skin of the Neonate",
   "authors": "Vivek Narendran",
   "keywords": [
    "EB",
@@ -3860,7 +3860,7 @@
   "day": 204,
   "book": "NewbornLung",
   "chapter": 4,
-  "title": "The -Omics- of the New Bronchopulmonary Dysplasia",
+  "title": "The “-Omics” of the New Bronchopulmonary Dysplasia",
   "authors": "Charitharth Vivek Lal, Namasivayam Ambalavanan & Vineet Bhandari",
   "keywords": [
    "SPOCK2",
@@ -3898,7 +3898,7 @@
   "day": 206,
   "book": "NewbornLung",
   "chapter": 6,
-  "title": "Definitions and Diagnostic Criteria of Bronchopulmonary Dysplasia",
+  "title": "Definitions and Diagnostic Criteria of Bronchopulmonary Dysplasia: Clinical and Research Implications",
   "authors": "Eduardo Bancalari, Nelson Claure, Alan H. Jobe & Matthew M. Laughon",
   "keywords": [
    "NC",
@@ -3917,7 +3917,7 @@
   "day": 207,
   "book": "NewbornLung",
   "chapter": 7,
-  "title": "Patent Ductus Arteriosus and the Lung",
+  "title": "Patent Ductus Arteriosus and the Lung: Acute Effects and Long-Term Consequences",
   "authors": "Martin Kluckow, Eduardo Bancalari, Ilene R.S. Sosenko & Nelson Claure",
   "keywords": [
    "PEEP",
@@ -3993,7 +3993,7 @@
   "day": 211,
   "book": "NewbornLung",
   "chapter": 11,
-  "title": "Noninvasive Ventilation of Preterm Infants",
+  "title": "Noninvasive Ventilation of Preterm Infants: An Alternative to Mechanical Ventilation",
   "authors": "Brett J. Manley, Bradley A. Yoder & Peter G. Davis",
   "keywords": [
    "NIPPV",
@@ -4202,7 +4202,7 @@
   "day": 222,
   "book": "NewbornLung",
   "chapter": 22,
-  "title": "A Physiology-Based Approach to the Respiratory Care of Children With Severe BPD",
+  "title": "A Physiology-Based Approach to the Respiratory Care of Children With Severe Bronchopulmonary Dysplasia",
   "authors": "Leif D. Nelin, Steven H. Abman & Howard B. Panitch",
   "keywords": [
    "PEEP",

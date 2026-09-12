@@ -153,18 +153,28 @@ def main():
         doc = docx.Document(str(path))
         title_lines, blocks = extract_body(doc)
 
-        # title_lines pattern (consistent across the series): [0]="DAILY
-        # NEONATOLOGY — DAY N", [1]="<Book>'s ... (Year)", [2]=chapter title,
-        # [3]=byline, sometimes suffixed with "— Avery 11th ed. 2024".
+        # title_lines pattern (consistent across the series): [0]="AVERY · CH 01",
+        # [1]="Avery's Diseases of the Newborn, 11th ed. · Chapter 1",
+        # [2]=chapter title, [3]=byline, sometimes suffixed with "— Avery 11th ed. 2024".
         authors = ""
         if len(title_lines) > 3:
             authors = title_lines[3].split("—")[0].strip()
+
+        # Prefer the title the document itself carries over the one in its
+        # filename: a Windows filename cannot contain a colon, so 15 of the
+        # source files shorten the book's real title ("Patent Ductus Arteriosus
+        # and the Lung" for "...: Acute Effects and Long-Term Consequences",
+        # "Hyperbilirubinemia" for "Neonatal Hyperbilirubinemia and
+        # Kernicterus"). Fall back to the filename if a document ever arrives
+        # without its title block.
+        in_doc_title = title_lines[2].strip() if len(title_lines) > 2 else ""
+        title = in_doc_title or meta["titleFromFilename"]
 
         lesson = {
             "day": meta["day"],
             "book": meta["book"],
             "chapter": meta["chapter"],
-            "title": meta["titleFromFilename"],
+            "title": title,
             "authors": authors,
             "blocks": blocks,
         }
@@ -177,7 +187,7 @@ def main():
                 "day": meta["day"],
                 "book": meta["book"],
                 "chapter": meta["chapter"],
-                "title": meta["titleFromFilename"],
+                "title": title,
                 "authors": authors,
                 "_blocks": blocks,  # used below to derive keywords, stripped before writing
             }
