@@ -17,6 +17,7 @@ import {
   splitNumberedList,
   splitDenseProse,
   splitArrowChain,
+  splitBodyLines,
   extractDuplicateCaption,
   classifySingleColumnTable,
 } from '../../lib/lessonFormatting';
@@ -89,6 +90,47 @@ function ArrowChainSteps({ steps, accent, textColor }: { steps: string[]; accent
   );
 }
 
+// One bullet per already-authored line (see splitBodyLines) — the shape of
+// every lesson's opening "Key points" callout, which extract_lessons.py
+// writes as one point per line rather than as dense single-paragraph prose.
+// A line can itself be dense (several "·"-joined clauses), so each one gets
+// the same numbered/prose/chain treatment a single dense body would, instead
+// of rendering as one long unbroken line.
+function DenseLines({ lines, accent, textColor }: { lines: string[]; accent: string; textColor: string }) {
+  return (
+    <>
+      {lines.map((line, idx) => {
+        const parsed = splitNumberedList(line);
+        const prose = parsed ? null : splitDenseProse(line);
+        const chain = parsed || prose ? null : splitArrowChain(line);
+        return (
+          <div key={idx} style={{ display: 'flex', gap: 6, marginBottom: idx === lines.length - 1 ? 0 : 6 }}>
+            <span aria-hidden style={{ color: accent, lineHeight: 1.6, flexShrink: 0 }}>
+              ·
+            </span>
+            <div style={{ flex: 1 }}>
+              {parsed ? (
+                <>
+                  {parsed.intro && (
+                    <div style={{ whiteSpace: 'pre-wrap', marginBottom: 4, color: textColor }}>{parsed.intro}</div>
+                  )}
+                  <NumberedItems items={parsed.items} accent={accent} textColor={textColor} />
+                </>
+              ) : prose ? (
+                <PlainBulletItems items={prose} accent={accent} textColor={textColor} />
+              ) : chain ? (
+                <ArrowChainSteps steps={chain} accent={accent} textColor={textColor} />
+              ) : (
+                <span style={{ whiteSpace: 'pre-wrap', color: textColor }}>{line}</span>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </>
+  );
+}
+
 // Shared box for anything shaped like "title line + body paragraph": real
 // `callout` blocks, but also `table` blocks that were authored the same way
 // (a 2-row single-column table, or a run of "Pearl" cards) — see the `table`
@@ -106,9 +148,14 @@ function CalloutBox({
   items?: string[];
   scale: number;
 }) {
-  const parsed = items ? null : splitNumberedList(body);
-  const prose = items ?? (parsed ? null : splitDenseProse(body));
-  const chain = parsed || prose ? null : splitArrowChain(body);
+  // A body with real line breaks (the common shape: one Key point per line)
+  // is split into lines *before* the single-paragraph splitters below ever
+  // see it — they all bail out on "\n" so a multi-line body would otherwise
+  // render as one unbroken block. See splitBodyLines.
+  const lines = items ? null : splitBodyLines(body);
+  const parsed = items || lines ? null : splitNumberedList(body);
+  const prose = items || lines || parsed ? null : splitDenseProse(body);
+  const chain = items || lines || parsed || prose ? null : splitArrowChain(body);
   return (
     <div
       style={{
@@ -123,7 +170,11 @@ function CalloutBox({
       }}
     >
       {title && <div style={{ whiteSpace: 'pre-wrap', marginBottom: 4 }}>{title}</div>}
-      {parsed ? (
+      {items ? (
+        <PlainBulletItems items={items} accent={warm.ochre} textColor={warm.ink2} />
+      ) : lines ? (
+        <DenseLines lines={lines} accent={warm.ochre} textColor={warm.ink2} />
+      ) : parsed ? (
         <>
           {parsed.intro && <div style={{ whiteSpace: 'pre-wrap', marginBottom: 6 }}>{parsed.intro}</div>}
           <NumberedItems items={parsed.items} accent={warm.ochre} textColor={warm.ink2} />

@@ -4,6 +4,7 @@ import {
   splitNumberedList,
   splitDenseProse,
   splitArrowChain,
+  splitBodyLines,
   extractDuplicateCaption,
   classifySingleColumnTable,
 } from './lessonFormatting';
@@ -143,6 +144,33 @@ describe('splitArrowChain', () => {
   it('does not split text that already has real line breaks', () => {
     const body = 'First long enough line padded with extra words to cross the threshold here\n→ second line';
     expect(splitArrowChain(body)).toBeNull();
+  });
+});
+
+describe('splitBodyLines', () => {
+  it('splits a Key points-style body into one line per point', () => {
+    const body =
+      'Infant mortality = neonatal + postneonatal · ratio per 100,000\n' +
+      '20th century: neonatal mortality fell 90% from 1915 to 2000\n' +
+      'NICU era 1950-1975: mortality drop driven by birthweight-specific survival';
+    const result = splitBodyLines(body);
+    expect(result).toEqual([
+      'Infant mortality = neonatal + postneonatal · ratio per 100,000',
+      '20th century: neonatal mortality fell 90% from 1915 to 2000',
+      'NICU era 1950-1975: mortality drop driven by birthweight-specific survival',
+    ]);
+  });
+
+  it('drops blank lines (e.g. a trailing newline)', () => {
+    expect(splitBodyLines('First line\nSecond line\n')).toEqual(['First line', 'Second line']);
+  });
+
+  it('returns null for single-line text', () => {
+    expect(splitBodyLines('Just one line, however long it might otherwise be.')).toBeNull();
+  });
+
+  it('returns null when only one non-blank line remains', () => {
+    expect(splitBodyLines('\nOnly one real line\n\n')).toBeNull();
   });
 });
 

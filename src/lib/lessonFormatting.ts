@@ -124,6 +124,26 @@ export function splitArrowChain(body: string): string[] | null {
   return steps.length >= 3 ? steps : null;
 }
 
+// Every lesson's opening callout ("Key points") is authored as one point per
+// line — extract_lessons.py already delimits them with real newlines — but
+// splitDenseProse/splitNumberedList/splitArrowChain all bail out as soon as a
+// body contains "\n" (that guard exists so they don't re-split text a human
+// already broke into lines on purpose). The net effect: a 5-6 line Key
+// points summary rendered as one undifferentiated wall of text instead of a
+// bullet per point. Pull the lines out first, before those single-paragraph
+// splitters ever see the body, so each authored line becomes its own bullet;
+// each bullet is then free to be split further if it's itself dense (see
+// LessonDetail's CalloutBox/DenseLines, which re-run the other splitters
+// per line).
+export function splitBodyLines(body: string): string[] | null {
+  if (!body.includes('\n')) return null;
+  const lines = body
+    .split('\n')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return lines.length >= 2 ? lines : null;
+}
+
 export interface DuplicateCaptionTable {
   caption: string;
   dataRows: string[][];
