@@ -68,6 +68,45 @@ describe('<LessonDetail />', () => {
     expect(screen.getByText('WHO (2004) moved the start to 22 weeks of gestation')).toBeInTheDocument();
   });
 
+  it('renders a multi-line "Key points" callout as one bullet per line, not one block', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            ...SAMPLE_CONTENT,
+            blocks: [
+              {
+                type: 'callout',
+                text:
+                  'Key points\n' +
+                  'First key point on its own line\n' +
+                  'Second point opens with a long lead clause padded out with extra words so it alone crosses the dense-prose length threshold for splitting · plus a second middle-dot clause of its own\n' +
+                  'Third key point, short and simple',
+              },
+            ],
+          }),
+      }),
+    );
+
+    render(<LessonDetail day={1} />);
+
+    await waitFor(() => expect(screen.getByText('Key points')).toBeInTheDocument());
+    // Each authored line is its own bullet...
+    expect(screen.getByText('First key point on its own line')).toBeInTheDocument();
+    expect(screen.getByText('Third key point, short and simple')).toBeInTheDocument();
+    // ...and a line that's itself dense (has a middle dot) is split further.
+    expect(
+      screen.getByText(
+        'Second point opens with a long lead clause padded out with extra words so it alone crosses the dense-prose length threshold for splitting',
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByText('plus a second middle-dot clause of its own')).toBeInTheDocument();
+    // The whole un-split body (the old, buggy rendering) must not appear.
+    expect(screen.queryByText(/First key point on its own line\s*Second point/)).not.toBeInTheDocument();
+  });
+
   it('shows a loading state, then renders fetched lesson content', async () => {
     vi.stubGlobal(
       'fetch',
