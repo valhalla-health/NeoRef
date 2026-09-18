@@ -199,3 +199,58 @@ describe('pages-stub/sw.js', () => {
     expect(worker.windows[1].navigate).toHaveBeenCalledOnce();
   });
 });
+
+describe('pages-stub/index.html', () => {
+  const html = readStub('index.html');
+
+  it('sends people to the new address and loads nothing from anywhere else', () => {
+    const urls = [...html.matchAll(/(?:src|href)="([^"]+)"/g)].map((match) => match[1]);
+    expect(urls).toEqual(['cleanup.js', 'https://neoref.valhalla-health.workers.dev/']);
+  });
+
+  it('stays out of search results', () => {
+    expect(html).toContain('<meta name="robots" content="noindex" />');
+  });
+
+  it("clears NeoRef's storage, caches and service worker, and nothing else", async () => {
+    const inline = /<script>([\s\S]*?)<\/script>/.exec(html)?.[1];
+    if (!inline) throw new Error('index.html has no inline clean-up script');
+    localStorage.setItem('neoref:session', '{"v":1}');
+    localStorage.setItem('neofeed_session', 'x');
+    const caches = fakeCacheStorage([...NEOREF_CACHES, ...OTHER_CACHES]);
+    const neoref = { scope: NEOREF_SCOPE, unregister: vi.fn(async () => true) };
+    const neoredact = { scope: 'https://valhalla-health.github.io/NeoRedact/', unregister: vi.fn(async () => true) };
+    const context = vm.createContext({
+      localStorage,
+      caches,
+      navigator: { serviceWorker: { getRegistrations: async () => [neoref, neoredact] } },
+    });
+    context.self = context;
+
+    vm.runInContext(readStub('cleanup.js'), context);
+    vm.runInContext(inline, context);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(storageKeys()).toEqual(['neofeed_session']);
+    expect(sorted(caches.remaining)).toEqual(sorted(OTHER_CACHES));
+    expect(neoref.unregister).toHaveBeenCalledOnce();
+    expect(neoredact.unregister).not.toHaveBeenCalled();
+  });
+
+  it('still renders when cleanup.js did not load', () => {
+    const inline = /<script>([\s\S]*?)<\/script>/.exec(html)?.[1] ?? '';
+    const context = vm.createContext({ localStorage });
+    context.self = context;
+    expect(() => vm.runInContext(inline, context)).not.toThrow();
+  });
+});
+
+describe('.github/workflows/deploy.yml', () => {
+  const workflow = read('.github/workflows/deploy.yml');
+
+  it('publishes pages-stub/ as it is — never a build of the app', () => {
+    expect(workflow).toMatch(/^\s+path: pages-stub\s*$/m);
+    expect(workflow).not.toMatch(/npm (ci|run build)/);
+    expect(workflow).not.toMatch(/path: dist/);
+  });
+});

@@ -1,8 +1,15 @@
-name: Deploy to GitHub Pages
+name: Deploy moved page to GitHub Pages
 
+# NeoRef itself is hosted on Cloudflare: Workers Builds deploys every merge
+# into main (wrangler.jsonc, STATUS.md). The old GitHub Pages address only
+# serves pages-stub/ — a "moved" page, plus a service worker that retires the
+# old offline copy on installed phones. This publishes that folder unchanged.
 on:
   push:
     branches: [main]
+    paths:
+      - 'pages-stub/**'
+      - '.github/workflows/deploy.yml'
   workflow_dispatch:
 
 permissions:
@@ -10,36 +17,21 @@ permissions:
   pages: write
   id-token: write
 
-# Allow one concurrent deployment; don't cancel an in-progress production deploy.
+# Allow one concurrent deployment; don't cancel an in-progress one.
 concurrency:
   group: pages
   cancel-in-progress: false
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: package-lock.json
-      - run: npm ci
-      - run: npm run build
-        env:
-          VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
-          VITE_GAS_URL: ${{ secrets.VITE_GAS_URL }}
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
-
   deploy:
-    needs: build
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - uses: actions/checkout@v4
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: pages-stub
       - id: deployment
         uses: actions/deploy-pages@v4
