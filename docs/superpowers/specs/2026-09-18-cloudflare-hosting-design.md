@@ -154,9 +154,10 @@ Manual, before merge, on the new host after a first `wrangler deploy` from this 
 
 Manual, after merge:
 
-- Agent: the Workers build for the merge commit succeeded and the served `index.html` matches a
-  local build of that commit. The old address serves the moved page and the new `sw.js`, and the
-  other `valhalla-health.github.io` apps are unaffected.
+- Agent: the Workers build of the merge commit succeeded and is the live deployment: the served
+  lesson files are byte-identical to that commit. A local build can't be byte-compared, because
+  this PC checks files out with CRLF. The old address serves the moved page and the new `sw.js`,
+  and the other `valhalla-health.github.io` apps are unaffected.
 - Praew: opening the old home-screen icon on one phone ends on the moved page.
 
 ## 4 · Docs, in the same PR
