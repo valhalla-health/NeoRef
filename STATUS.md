@@ -15,7 +15,7 @@ described in [README.md](README.md).
 | Google Sign-In | OAuth client `VITE_GOOGLE_CLIENT_ID`. Its Authorized JavaScript origins must list the Cloudflare address |
 | CI | [`ci.yml`](.github/workflows/ci.yml): lint, typecheck, coverage and build on every push and PR |
 
-## Move from GitHub Pages to Cloudflare — 2026-09-18
+## Move from GitHub Pages to Cloudflare — 2026-09-18 — merged into `main` on Praew's instruction
 
 Design: [spec](docs/superpowers/specs/2026-09-18-cloudflare-hosting-design.md). Plan:
 [plan](docs/superpowers/plans/2026-09-18-cloudflare-hosting.md).
