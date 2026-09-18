@@ -75,16 +75,9 @@ export function App() {
     setLeaderboardOpen(false);
   }
 
-  function openCalc(id: string) {
+  function selectCalc(id: string) {
     recordToolOpen(id); // first open per tool counts toward gamification XP/badges
     recordActivity(); // using a tool keeps the streak alive, even without a lesson done today
-    setTab('calc');
-    setCalcId(id);
-  }
-
-  function selectCalc(id: string) {
-    recordToolOpen(id);
-    recordActivity();
     setCalcId(id);
   }
 
@@ -115,11 +108,9 @@ export function App() {
         <ErrorBoundary>
           {tab === 'home' && (
             <HomeScreen
-              onOpenCalc={openCalc}
               onOpenLearn={() => switchTab('learn')}
               onOpenLesson={openLesson}
               onOpenProgress={() => switchTab('progress')}
-              onOpenTools={() => switchTab('calc')}
             />
           )}
 

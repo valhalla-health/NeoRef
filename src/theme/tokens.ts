@@ -39,7 +39,7 @@ export type ChipTone = keyof typeof chipTone;
 
 // Organ-system color theme for the Clinical Tools cards. Single source of
 // truth: {system -> {color, label}} so cards map into it instead of
-// hardcoding a color per topic (see CalcHub.tsx / HomeScreen.tsx).
+// hardcoding a color per topic (see CalcHub.tsx).
 export type OrganSystem =
   | 'infection'
   | 'neuro'
