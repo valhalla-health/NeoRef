@@ -45,7 +45,11 @@ With the app on Cloudflare, this repository can go private later without taking 
   stylesheet (`style-src`). Those are a separate follow-up.
 - [x] The Cloudflare address is added to the OAuth client's Authorized JavaScript origins (Praew) —
   2026-09-18. The GitHub Pages origin stays listed until the repo goes private.
-- [ ] Workers Builds is connected: production branch `main`, both build variables set (Praew).
+- [x] Workers Builds is connected: production branch `main`, both build variables set (Praew) —
+  2026-09-18. The first build from GitHub, `Workers Builds: neoref` on this branch's `4e2fdb1`,
+  succeeded (build `0bdd9cf7`) and uploaded version `11978549` **without deploying it**:
+  `wrangler deployments list` still shows only `7aed5800`, the upload from Praew's PC. So the
+  connection and both build variables work, and only `main` deploys.
 - [x] Google sign-in and email sign-in work at the new address (Praew) — 2026-09-18, both
   confirmed by Praew.
 
