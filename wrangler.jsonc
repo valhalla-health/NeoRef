@@ -1,0 +1,18 @@
+{
+  // NeoRef's host: a static-assets-only Worker. There is no `main` entrypoint,
+  // so no Worker code runs and Cloudflare serves the files in dist/ directly.
+  // Cloudflare Workers Builds runs `npm run build` and then
+  // `npx wrangler deploy` on every merge into main — see STATUS.md. Response
+  // headers come from public/_headers, which Vite copies into dist/.
+  //
+  // preview_urls is off so builds of unmerged branches never get a public
+  // URL. Unknown paths return 404: NeoRef has no URL routing (navigation is
+  // history.pushState with state only).
+  "name": "neoref",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./dist"
+  },
+  "workers_dev": true,
+  "preview_urls": false
+}

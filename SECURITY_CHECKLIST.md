@@ -59,4 +59,4 @@ live backend:
 
 - `VITE_GOOGLE_CLIENT_ID` and `VITE_GAS_URL` appearing in `dist/` is **expected**: both must be known to the browser for the app to function (OAuth client ID and a fetch target are not secrets in the traditional sense — the security boundary is server-side token validation, not endpoint secrecy).
 - `public/lessons/*.json` ships full Avery/textbook-derived lesson content to the browser by design (it's the product) — the IP/copyright angle on that content is tracked separately in `AUDIT.md` (S-1), not a "logic leak."
-- CSP in `index.html` already restricts `script-src`/`connect-src` to `'self'` + the two required Google origins — don't loosen it without updating this checklist.
+- CSP in `index.html` already restricts `script-src`/`connect-src` to `'self'` + the two required Google origins — don't loosen it without updating this checklist. On Cloudflare, `public/_headers` adds only what a `<meta>` policy can't carry (`frame-ancestors`, `X-Frame-Options`, `noindex`, …); keep the CSP rules themselves in `index.html`, in one place.

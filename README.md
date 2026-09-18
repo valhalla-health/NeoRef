@@ -39,9 +39,19 @@ CI (`.github/workflows/ci.yml`) runs all four on every push/PR.
 
 ## Deploy
 
-`.github/workflows/deploy.yml` builds and publishes `dist/` to GitHub Pages on push
-to `main`. `base` is `'./'`, so the build is portable across user/project Pages sites.
-Enable Pages → "GitHub Actions" in repo settings.
+NeoRef runs on **Cloudflare Workers** as static files only, at
+**https://neoref.valhalla-health.workers.dev**. Cloudflare Workers Builds is
+connected to this repo, and **merging into `main` deploys**: it runs
+`npm run build` (with the build variables `VITE_GOOGLE_CLIENT_ID` and
+`VITE_GAS_URL`), then `npx wrangler deploy`, which uploads `dist/` as set in
+[`wrangler.jsonc`](wrangler.jsonc). Response headers come from
+[`public/_headers`](public/_headers); the CSP itself stays in `index.html`.
+Hosts, verification and rollback are in [`STATUS.md`](STATUS.md).
+
+The old address, `valhalla-health.github.io/NeoRef/`, serves only
+[`pages-stub/`](pages-stub/): a "moved" page, and a service worker that retires
+the old offline copy on installed phones. `.github/workflows/deploy.yml`
+publishes it whenever `pages-stub/` changes.
 
 ## Migration status (audit + foundation pass)
 

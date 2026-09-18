@@ -22,8 +22,10 @@
       Content-Security-Policy: everything is bundled and self-hosted except two
       deliberate exceptions for Google Sign-In (script + iframe) and the GAS
       backend (fetch target) — see AuthContext/authApi/gamifyApi. Every other
-      origin stays locked down. GitHub Pages cannot set HTTP headers, so this
-      meta CSP is the enforcement point.
+      origin stays locked down. These rules live here and only here. On
+      Cloudflare, public/_headers adds, as an HTTP header, the one directive a
+      meta CSP cannot enforce (frame-ancestors). Browsers apply both policies,
+      so the header can only restrict further.
     -->
     <meta
       http-equiv="Content-Security-Policy"

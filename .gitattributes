@@ -1,0 +1,4 @@
+# Cloudflare reads public/_headers line by line. Keep it LF even on Windows
+# checkouts (core.autocrlf=true), so a build made on a Windows PC never ships
+# header values that end in a carriage return.
+public/_headers text eol=lf
