@@ -43,9 +43,11 @@ With the app on Cloudflare, this repository can go private later without taking 
   violation from the new headers. It does show two blocks that already happen on GitHub Pages,
   from the unchanged `<meta>` CSP: a small `data:` font (`font-src 'self'`) and Google Sign-In's
   stylesheet (`style-src`). Those are a separate follow-up.
-- [ ] The Cloudflare address is added to the OAuth client's Authorized JavaScript origins (Praew).
+- [x] The Cloudflare address is added to the OAuth client's Authorized JavaScript origins (Praew) —
+  2026-09-18. The GitHub Pages origin stays listed until the repo goes private.
 - [ ] Workers Builds is connected: production branch `main`, both build variables set (Praew).
-- [ ] Google sign-in and email sign-in work at the new address (Praew).
+- [x] Google sign-in and email sign-in work at the new address (Praew) — 2026-09-18, both
+  confirmed by Praew.
 
 **After merge**, to be reported in the PR conversation:
 
