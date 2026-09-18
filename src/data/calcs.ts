@@ -21,8 +21,8 @@ export interface CalcMeta {
 }
 
 // Ordered by organ system so same-system cards land next to each other in
-// the grid (CalcHub / HomeScreen quick tools both render CALCS in this
-// order) — infection, neuro, respiratory, cardiac, gi, growth, ophtho, imaging.
+// the grid (CalcHub renders CALCS in this order) — infection, neuro,
+// respiratory, cardiac, gi, growth, ophtho, imaging.
 export const CALCS: CalcMeta[] = [
   { id: 'eos', label: 'EOS factors', emoji: '🦠', kind: 'education', system: 'infection', ported: true },
   { id: 'los', label: 'LOS', emoji: '💉', kind: 'reference', system: 'infection', ported: true },

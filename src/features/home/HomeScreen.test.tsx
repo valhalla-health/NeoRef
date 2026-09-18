@@ -16,28 +16,10 @@ beforeEach(() => {
 });
 afterEach(() => vi.unstubAllGlobals());
 
-// CALCS currently has every entry `ported: true`, so the disabled/"not yet
-// ported" quick-tool branch (HomeScreen.tsx onClick guard) is otherwise
-// unreachable through real data. Mock a fixture with one unported entry so
-// that branch is actually exercised.
-vi.mock('../../data/calcs', () => ({
-  CALCS: [
-    { id: 'eos', label: 'EOS factors', emoji: '🦠', kind: 'education', ported: true },
-    { id: 'stub', label: 'Stub Calc', emoji: '🧪', kind: 'reference', ported: false },
-  ],
-}));
-
 function renderHome(overrides: Partial<Parameters<typeof HomeScreen>[0]> = {}) {
   return render(
     <AuthProvider>
-      <HomeScreen
-        onOpenCalc={vi.fn()}
-        onOpenLearn={vi.fn()}
-        onOpenLesson={vi.fn()}
-        onOpenProgress={vi.fn()}
-        onOpenTools={vi.fn()}
-        {...overrides}
-      />
+      <HomeScreen onOpenLearn={vi.fn()} onOpenLesson={vi.fn()} onOpenProgress={vi.fn()} {...overrides} />
     </AuthProvider>,
   );
 }
@@ -77,30 +59,20 @@ describe('HomeScreen', () => {
     expect(onOpenLearn).toHaveBeenCalledTimes(1);
   });
 
-  it('opens a ported quick tool via onOpenCalc with its id', async () => {
-    const user = userEvent.setup();
-    const onOpenCalc = vi.fn();
-    renderHome({ onOpenCalc });
-    await user.click(screen.getByText('EOS factors'));
-    expect(onOpenCalc).toHaveBeenCalledWith('eos');
-  });
+  it('links the resident handbook and practical points as quick tools, each opening in a new tab', () => {
+    renderHome();
 
-  it('opens the tools hub via "See all tools"', async () => {
-    const user = userEvent.setup();
-    const onOpenTools = vi.fn();
-    renderHome({ onOpenTools });
-    await user.click(screen.getByText(/See all tools/));
-    expect(onOpenTools).toHaveBeenCalledTimes(1);
-  });
+    const handbook = screen.getByRole('link', { name: /Resident handbook/ });
+    expect(handbook).toHaveAttribute('href', 'https://thaneo.craft.me/resident');
+    expect(handbook).toHaveAttribute('target', '_blank');
+    expect(handbook).toHaveAttribute('rel', 'noreferrer noopener');
 
-  it('renders an unported quick tool as disabled and does not call onOpenCalc when clicked', async () => {
-    const user = userEvent.setup();
-    const onOpenCalc = vi.fn();
-    renderHome({ onOpenCalc });
-    const stubButton = screen.getByRole('button', { name: /Stub Calc/ });
-    expect(stubButton).toBeDisabled();
-    await user.click(stubButton);
-    expect(onOpenCalc).not.toHaveBeenCalled();
+    const practicalPoints = screen.getByRole('link', { name: /Practical points for newborn nurture/ });
+    expect(practicalPoints).toHaveAttribute('href', './kcmh/practical-points-newborn-nurture-2025.pdf');
+    expect(practicalPoints).toHaveAttribute('target', '_blank');
+
+    // The calculators live on the Tools tab only — no grid or "See all tools" link here.
+    expect(screen.queryByText(/See all tools/)).not.toBeInTheDocument();
   });
 
   it('shows the starting level and opens the Progress tab when the level card is tapped', async () => {

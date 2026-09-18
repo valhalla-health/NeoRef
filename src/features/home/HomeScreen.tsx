@@ -1,28 +1,31 @@
 import { useState } from 'react';
-import { warm, font, systemTheme } from '../../theme/tokens';
+import { warm, font } from '../../theme/tokens';
 import { DisclaimerBanner } from '../../components/Disclaimer';
 import { resumeDay, CURRICULUM_LENGTH } from '../../lib/today';
 import { useProgress } from '../../lib/useProgress';
 import { getGamifyState } from '../../lib/gamify';
 import { lessonForDay } from '../../data/lessons';
-import { CALCS } from '../../data/calcs';
+import { KCMH_DOCS, kcmhDocLinkProps, type KcmhDoc } from '../../data/kcmhDocs';
 import { useMyStats } from '../gamify/useMyStats';
 import { useAuth } from '../auth/AuthContext';
 import { AccountPanel } from '../auth/AccountPanel';
 import { LevelCard } from '../gamify/LevelCard';
 
+// Quick tools: KCMH documents linked straight from home. The rest are on the
+// KCMH tab, and the calculators on the Tools tab.
+const QUICK_TOOLS: { id: KcmhDoc['id']; emoji: string }[] = [
+  { id: 'resident-handbook', emoji: '📘' },
+  { id: 'practical-points', emoji: '👶' },
+];
+
 export function HomeScreen({
-  onOpenCalc,
   onOpenLearn,
   onOpenLesson,
   onOpenProgress,
-  onOpenTools,
 }: {
-  onOpenCalc: (id: string) => void;
   onOpenLearn: () => void;
   onOpenLesson: (day: number) => void;
   onOpenProgress: () => void;
-  onOpenTools: () => void;
 }) {
   const progress = useProgress();
   const today = resumeDay(progress); // resumes from the learner's own progress, not the calendar
@@ -34,7 +37,6 @@ export function HomeScreen({
   // day outruns the authored lesson dataset — label it honestly so the header
   // never claims to show content for a day it isn't.
   const isExactMatch = lesson.day === today;
-  const quickCalcs = CALCS.slice(0, 6);
   const stats = useMyStats();
   const { user } = useAuth();
   const gamify = getGamifyState();
@@ -145,51 +147,37 @@ export function HomeScreen({
           <div style={{ fontSize: 11, fontWeight: 700, color: warm.muted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
             Quick Tools
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
-            {quickCalcs.map((c) => (
-              <button
-                key={c.id}
-                type="button"
-                disabled={!c.ported}
-                onClick={() => c.ported && onOpenCalc(c.id)}
-                style={{
-                  background: warm.card,
-                  border: `1.5px solid ${warm.line}`,
-                  borderLeft: `3px solid ${systemTheme[c.system]?.color ?? warm.line}`,
-                  borderRadius: 12,
-                  padding: '10px 8px',
-                  textAlign: 'center',
-                  cursor: c.ported ? 'pointer' : 'default',
-                  opacity: c.ported ? 1 : 0.55,
-                  fontFamily: font.ui,
-                }}
-              >
-                <div style={{ fontSize: 20, marginBottom: 4 }} aria-hidden>
-                  {c.emoji}
-                </div>
-                <div style={{ fontSize: 11, fontWeight: 700, color: warm.ink, lineHeight: 1.2 }}>{c.label}</div>
-              </button>
-            ))}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            {QUICK_TOOLS.map(({ id, emoji }) => {
+              const doc = KCMH_DOCS.find((d) => d.id === id);
+              if (!doc) return null;
+              return (
+                <a
+                  key={id}
+                  {...kcmhDocLinkProps(doc)}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: warm.card,
+                    border: `1.5px solid ${warm.line}`,
+                    borderLeft: `3px solid ${warm.terra}`,
+                    borderRadius: 12,
+                    padding: '10px 8px',
+                    textAlign: 'center',
+                    textDecoration: 'none',
+                    fontFamily: font.ui,
+                  }}
+                >
+                  <div style={{ fontSize: 20, marginBottom: 4 }} aria-hidden>
+                    {emoji}
+                  </div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: warm.ink, lineHeight: 1.2 }}>{doc.title}</div>
+                </a>
+              );
+            })}
           </div>
-          <button
-            type="button"
-            onClick={onOpenTools}
-            style={{
-              display: 'block',
-              width: '100%',
-              textAlign: 'right',
-              border: 'none',
-              background: 'none',
-              color: warm.terra,
-              fontSize: 12,
-              fontWeight: 600,
-              cursor: 'pointer',
-              padding: '8px 2px 0',
-              fontFamily: font.ui,
-            }}
-          >
-            See all tools →
-          </button>
         </div>
 
         <DisclaimerBanner muted />
