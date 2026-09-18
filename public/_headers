@@ -1,0 +1,33 @@
+# Response headers for NeoRef on Cloudflare (neoref.valhalla-health.workers.dev).
+# Cloudflare reads this file as configuration and does not serve it. Vite
+# copies it from public/ into dist/; it has no file extension, so the service
+# worker's precache glob in vite.config.ts never picks it up.
+#
+# The Content-Security-Policy rules for scripts, fetches, images and fonts
+# live in index.html's <meta> tag, and only there. The CSP header below adds
+# the one directive a <meta> policy cannot enforce: frame-ancestors. Browsers
+# apply both policies, so this header can only restrict further.
+#
+# Cross-Origin-Opener-Policy is same-origin-allow-popups, not same-origin:
+# Google Sign-In's popup needs window.opener to hand the login back, and plain
+# same-origin breaks the callback. Google documents this value; NeoFeed runs it.
+#
+# X-Robots-Tag keeps search engines from indexing the app and its lesson
+# files. The Pimolrat text is reproduced with the author's permission and must
+# not be redistributed outside the app (README.md, License & copyright).
+
+/*
+  Content-Security-Policy: frame-ancestors 'none'
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), serial=(), bluetooth=()
+  Cross-Origin-Opener-Policy: same-origin-allow-popups
+  X-Robots-Tag: noindex, nofollow
+
+# Vite puts a content hash in every file name under assets/, so a changed file
+# always gets a new name and these can be cached for a year. Everything else
+# (index.html, sw.js, lessons, PDFs) keeps Cloudflare's default revalidation,
+# so updates reach phones on the next load.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
