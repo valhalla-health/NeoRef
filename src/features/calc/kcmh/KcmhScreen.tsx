@@ -9,12 +9,22 @@
 // fresh, history-less browsing context, and on Android/PWA that makes the
 // hardware back button close the context (and exit the app) instead of
 // returning here. The browser's native PDF viewer doesn't have that problem.
+//
+// The one exception is the resident handbook: a live Craft page its author
+// keeps editing, so it's linked rather than copied into public/kcmh/ (it
+// embeds third-party guideline PDFs — see AUDIT.md S-1) and needs a connection.
 
 import { DisclaimerBanner } from '../../../components/Disclaimer';
 import { warm, font } from '../../../theme/tokens';
 import { TopicHero, TopicScreenShell } from '../topic/TopicHelpers';
 
 const KCMH_DOCS = [
+  {
+    id: 'resident-handbook',
+    title: 'Resident handbook',
+    caption: 'Newborn KCMH · Thanin Rianpairoj, M.D. — online, needs internet',
+    url: 'https://thaneo.craft.me/resident',
+  },
   {
     id: 'hypoglycemia',
     title: 'Hypoglycemia',
@@ -69,9 +79,9 @@ export function KcmhScreen() {
           {KCMH_DOCS.map((doc) => (
             <a
               key={doc.id}
-              href={`./kcmh/${doc.file}`}
+              href={'url' in doc ? doc.url : `./kcmh/${doc.file}`}
               target="_blank"
-              rel="noopener"
+              rel={'url' in doc ? 'noreferrer noopener' : 'noopener'}
               style={{
                 display: 'block',
                 background: warm.card,
