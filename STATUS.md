@@ -25,11 +25,24 @@ With the app on Cloudflare, this repository can go private later without taking 
 
 **Before merge**
 
-- [ ] First `wrangler deploy` from Praew's PC created the Worker and the address.
-- [ ] The app files return 200: the app shell, a lesson, a lesson image, a KCMH PDF, `sw.js` and the manifest.
-- [ ] `/_headers`, `/wrangler.jsonc` and an unknown path return 404.
-- [ ] The response headers match `public/_headers`, and hashed `assets/` files are cached as immutable.
-- [ ] The service worker installs, and the precache holds the app shell (offline reload).
+- [x] First `wrangler deploy` from Praew's PC created the Worker and the address — 2026-09-18,
+  wrangler 4.131.0: 307 files uploaded, version `7aed5800-580c-4a4c-842f-0f9f228402c7`. Built
+  from this branch with the same two build values the live app already had (both are public in
+  its bundle). The JS bundle name, `index-Crcp-Isp.js`, is identical to the GitHub Pages build.
+- [x] The app files return 200: the app shell, a lesson, a lesson image, a KCMH PDF, `sw.js` and the manifest —
+  `/`, `/lessons/day-001.json`, `/lessons/images/day-227-fig-1.png`,
+  `/kcmh/preterm-feeding-2025.pdf`, `/sw.js` and `/manifest.webmanifest` all returned `200`.
+- [x] `/_headers`, `/wrangler.jsonc` and an unknown path return 404 — all three returned `404`.
+- [x] The response headers match `public/_headers`, and hashed `assets/` files are cached as immutable —
+  all seven `/*` headers are present on `/` with exact values and no trailing CR.
+  `assets/index-Crcp-Isp.js` returns `Cache-Control: public, max-age=31536000, immutable`, while `/` and
+  the lesson JSON return `public, max-age=0, must-revalidate`.
+- [x] The service worker installs, and the precache holds the app shell (offline reload) — in
+  Chromium, the worker is `activated` with scope `https://neoref.valhalla-health.workers.dev/`, the
+  precache holds 50 files, and `index.html` answers `200` from the cache. The console shows no CSP
+  violation from the new headers. It does show two blocks that already happen on GitHub Pages,
+  from the unchanged `<meta>` CSP: a small `data:` font (`font-src 'self'`) and Google Sign-In's
+  stylesheet (`style-src`). Those are a separate follow-up.
 - [ ] The Cloudflare address is added to the OAuth client's Authorized JavaScript origins (Praew).
 - [ ] Workers Builds is connected: production branch `main`, both build variables set (Praew).
 - [ ] Google sign-in and email sign-in work at the new address (Praew).
