@@ -21,9 +21,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / "Dail
 import fitz
 from clean_lib import clean_text
 
-BASE = Path(r"C:\Users\USER\OneDrive\Desktop\PraewPP\Daily Neonatology Lessons\Pimolrat textbook")
+BASE = Path(r"C:\Users\USER\OneDrive\Desktop\PraewPP\Textbooks\Daily Neonatology Lessons\Pimolrat textbook")
 PDF_PATH = BASE / "Pimolrat thaithumyanon newborn.pdf"
-NEOREF = Path(r"C:\Users\USER\OneDrive\Desktop\PraewPP\Web App Projects\NeoRef\neoref-app")
+NEOREF = Path(__file__).resolve().parents[1]  # the neoref-app checkout this script sits in
 LESSONS_DIR = NEOREF / "public" / "lessons"
 IMAGES_DIR = LESSONS_DIR / "images"
 
